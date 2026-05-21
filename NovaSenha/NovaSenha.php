@@ -55,7 +55,7 @@
       <hr class="divider">
       <button type="submit" class="btn-confirm">Confirmar nova senha</button>
       <div class="footer-link">
-        <a href="#">← Voltar para o login</a>
+        <a href="../Login/Login.php">← Voltar para o login</a>
       </div>
     </form>
   </div>
