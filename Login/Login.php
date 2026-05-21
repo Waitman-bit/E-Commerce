@@ -31,7 +31,7 @@
                 <input type="email" placeholder="Email">
                 <input type="password" placeholder="Senha">
                 <a href="../NovaSenha/NovaSenha.php">Esqueceu a Senha?</a>
-                <a href="../Index/Index.php"><button>Fazer Login</button></a>
+                <button>Fazer Login</button>
             </form>
         </div>
          <!-- Painéis -->

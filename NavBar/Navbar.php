@@ -21,7 +21,7 @@
     </form>
 
     <div class="user-area">
-      <a href="login.html" class="profile-box">
+      <a href="#" class="profile-box">
         <img src="/E-Commerce/NavBar/Perfil.png" class="profile-img" alt="Perfil">
         <div class="profile-info">
           <span class="welcome">Entrar</span>
@@ -29,11 +29,13 @@
         </div>
       </a>
     </div>
+      <img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon">
+</div>
 
-  </div>
+
+  
 
   <div class="menu-bar">
-
     <div class="dropdown">
       <button class="dropdown-btn">
         Categorias ▼
@@ -49,12 +51,10 @@
         <a href="#">Acessórios</a>
       </div>
     </div>
-
     <a href="#">Ofertas</a>
     <a href="#">Masculino</a>
     <a href="#">Feminino</a>
     <a href="#">Lançamentos</a>
-
   </div>
 
 </nav>
