@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Tempo de geração: 22/05/2026 às 01:50
+-- Host: localhost
+-- Tempo de geração: 22/05/2026 às 14:13
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -134,12 +134,20 @@ CREATE TABLE `produto` (
 CREATE TABLE `usuario` (
   `id_usuario` int(11) NOT NULL,
   `nome` varchar(40) NOT NULL,
-  `cpf` varchar(14) NOT NULL,
+  `cpf` varchar(14) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `telefone` varchar(20) DEFAULT NULL,
   `senha` varchar(100) NOT NULL,
-  `tipo` enum('admin','cliente') NOT NULL DEFAULT 'cliente'
+  `tipo` enum('admin','cliente') NOT NULL DEFAULT 'cliente',
+  `cep` varchar(9) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `usuario`
+--
+
+INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`) VALUES
+(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '1234567890', 'cliente', NULL);
 
 --
 -- Índices para tabelas despejadas
@@ -250,7 +258,7 @@ ALTER TABLE `produto`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Restrições para tabelas despejadas
