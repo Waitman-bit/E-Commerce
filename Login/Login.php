@@ -1,28 +1,4 @@
-<?php
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-    include("../connection.php");
-
-    if(isset($_POST['registrar'])){
-
-    $nome = $_POST['nome'];
-    $email = $_POST['email'];
-    $tel = $_POST['telefone'];
-    $senha = $_POST['senha'];
-
-    $sql = "INSERT INTO usuario(nome, email, telefone, senha)
-            VALUES ('$nome', '$email', '$tel', '$senha')";
-
-    if($conn->query($sql) === TRUE){
-        echo "Usuário cadastrado!";
-    } else {
-        echo "Erro: " . $conn->error;
-    }
-}
-
-?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -42,8 +18,8 @@ error_reporting(E_ALL);
                 <input type="text" name="nome" placeholder="Nome">
                 <input type="email" name="email" placeholder="Email">
                 <input type="tel" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999">
-                <input type="text" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP">
-                <input type="text" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" name="cpf" placeholder="CPF">
+                <input type="text" name="cep" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP">
+                <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" name="cpf" placeholder="CPF">
                 <input type="password" name="senha" placeholder="Senha">
                 <button name="registrar">Registrar</button>
             </form>
@@ -76,5 +52,43 @@ error_reporting(E_ALL);
         </div>
     </div>
     <script src="Login.js"></script>
+
+    <?php
+
+        ini_set('display_errors', 1);
+        error_reporting(E_ALL);
+
+        include("../connection.php");
+
+        if(isset($_POST['registrar'])){
+
+            $nome = $_POST['nome'];
+            $email = $_POST['email'];
+            $tel = $_POST['telefone'];
+            $senha = $_POST['senha'];
+            $cep = $_POST['cep'];
+            $cpf = $_POST['cpf'];
+
+        if (
+        empty(trim($nome)) ||
+        empty(trim($email)) ||
+        empty(trim($tel)) ||
+        empty(trim($senha)) ||
+        empty(trim($cep)) ||
+        empty(trim($cpf)) ) 
+        {
+        echo "<span style='color:white;'>Preencha todos os campos!</span>";
+        }
+
+            $sql = "INSERT INTO usuario(nome, email, telefone, senha, cep, cpf)
+                VALUES ('$nome', '$email', '$tel', '$senha', '$cep', '$cpf')";
+
+            if($conn->query($sql) === TRUE){
+                echo "<span style='color:white;'>Usuário cadastrado</span>";
+            } else {
+                echo "Erro: " . $conn->error;
+        }
+        }
+    ?>
 </body>
 </html>
