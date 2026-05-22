@@ -1,5 +1,24 @@
 <?php
-    
+
+    include("../connection.php");
+
+    if(isset($_POST['registrar'])){
+
+    $nome = $_POST['nome'];
+    $email = $_POST['email'];
+    $tel = $_POST['telefone'];
+    $senha = $_POST['senha'];
+
+    $sql = "INSERT INTO usuario(nome, email, telefone, senha)
+            VALUES ('$nome', '$email', '$tel', '$senha')";
+
+    if($conn->query($sql) === TRUE){
+        echo "Usuário cadastrado!";
+    } else {
+        echo "Erro: " . $conn->error;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -13,14 +32,14 @@
      <div class="container" id="container">
         <div class="form-container sign-up">
             <!-- Criar Conta -->
-            <form>
+            <form method="POST">
                 <h1 class="title">Criar Conta</h1> <br>
                 <span>Informe suas credenciais para continuar</span>
-                <input type="text" placeholder="Nome">
-                <input type="email" placeholder="Email">
-                <input type="tel" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999">
-                <input type="password" placeholder="Senha">
-                <button>Registrar</button>
+                <input type="text" name="nome" placeholder="Nome">
+                <input type="email" name="email" placeholder="Email">
+                <input type="tel" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999">
+                <input type="password" name="senha" placeholder="Senha">
+                <button name="registrar">Registrar</button>
             </form>
         </div>
         <div class="form-container sign-in">
