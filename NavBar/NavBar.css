@@ -137,3 +137,7 @@
   display: block;
 }
 
+.cart-icon {
+  position: relative;
+  left: 15px;
+}
