@@ -32,9 +32,6 @@
       <img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon">
 </div>
 
-
-  
-
   <div class="menu-bar">
     <div class="dropdown">
       <button class="dropdown-btn">

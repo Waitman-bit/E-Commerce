@@ -1,5 +1,8 @@
 <?php
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
     include("../connection.php");
 
     if(isset($_POST['registrar'])){
@@ -20,6 +23,7 @@
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -38,13 +42,15 @@
                 <input type="text" name="nome" placeholder="Nome">
                 <input type="email" name="email" placeholder="Email">
                 <input type="tel" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999">
+                <input type="text" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP">
+                <input type="text" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" name="cpf" placeholder="CPF">
                 <input type="password" name="senha" placeholder="Senha">
                 <button name="registrar">Registrar</button>
             </form>
         </div>
         <div class="form-container sign-in">
         <!-- Login -->
-            <form>
+            <form method="POST">
                 <h1 class="title">Fazer Login</h1>
                 <span>Preencha com suas informações!</span>
                 <input type="email" placeholder="Email">
