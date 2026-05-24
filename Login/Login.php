@@ -1,15 +1,15 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="Login.css">
 </head>
+
 <body>
-     <div class="container" id="container">
+    <div class="container" id="container">
         <div class="form-container sign-up">
             <!-- Criar Conta -->
             <form method="POST">
@@ -18,24 +18,26 @@
                 <input type="text" name="nome" placeholder="Nome">
                 <input type="email" name="email" placeholder="Email">
                 <input type="tel" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999">
-                <input type="text" name="cep" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP">
-                <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" name="cpf" placeholder="CPF">
+                <input type="text" name="cep" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep"
+                    placeholder="CEP">
+                <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
+                    name="cpf" placeholder="CPF">
                 <input type="password" name="senha" placeholder="Senha">
                 <button name="registrar">Registrar</button>
             </form>
         </div>
         <div class="form-container sign-in">
-        <!-- Login -->
+            <!-- Login -->
             <form method="POST">
                 <h1 class="title">Fazer Login</h1>
                 <span>Preencha com suas informações!</span>
-                <input type="email" placeholder="Email">
-                <input type="password" placeholder="Senha">
+                <input type="email" name="email" placeholder="Email">
+                <input type="password" name="senha" placeholder="Senha">
                 <a href="../NovaSenha/NovaSenha.php">Esqueceu a Senha?</a>
-                <button>Fazer Login</button>
+                <button name="fazerlogin">Fazer Login</button>
             </form>
         </div>
-         <!-- Painéis -->
+        <!-- Painéis -->
         <div class="toggle-container">
             <div class="toggle">
                 <div class="toggle-panel toggle-left">
@@ -55,40 +57,138 @@
 
     <?php
 
-        ini_set('display_errors', 1);
-        error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
 
-        include("../connection.php");
+    include("../connection.php");
 
-        if(isset($_POST['registrar'])){
+    if (isset($_POST['registrar'])) {
 
-            $nome = $_POST['nome'];
-            $email = $_POST['email'];
-            $tel = $_POST['telefone'];
-            $senha = $_POST['senha'];
-            $cep = $_POST['cep'];
-            $cpf = $_POST['cpf'];
+        // Recebe os dados
+        $nome = trim($_POST['nome']);
+        $email = trim($_POST['email']);
+        $tel = trim($_POST['telefone']);
+        $senha = trim($_POST['senha']);
+        $cep = trim($_POST['cep']);
+        $cpf = trim($_POST['cpf']);
 
-        if (
-        empty(trim($nome)) ||
-        empty(trim($email)) ||
-        empty(trim($tel)) ||
-        empty(trim($senha)) ||
-        empty(trim($cep)) ||
-        empty(trim($cpf)) ) 
-        {
-        echo "<span style='color:white;'>Preencha todos os campos!</span>";
-        }
+        // Verifica campos vazios
+        if (empty($nome) ||
+            empty($email) ||
+            empty($tel) ||
+            empty($senha) ||
+            empty($cep) ||
+            empty($cpf)) 
+            {
+            echo "<span style='color:white;'>Preencha todos os campos!</span>";
+            }
+            else 
+            {
+                // HASH DA SENHA
+                $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+        
+                // Verifica se usuário já existe
+                $verificar = $conn->prepare(
+                    "SELECT id_usuario FROM usuario WHERE email = ? OR cpf = ?");
 
-            $sql = "INSERT INTO usuario(nome, email, telefone, senha, cep, cpf)
-                VALUES ('$nome', '$email', '$tel', '$senha', '$cep', '$cpf')";
+                $verificar->bind_param("ss", $email, $cpf);
 
-            if($conn->query($sql) === TRUE){
-                echo "<span style='color:white;'>Usuário cadastrado</span>";
+                $verificar->execute();
+
+                $resultado = $verificar->get_result();
+
+                if ($resultado->num_rows > 0) {
+
+                    echo "<span style='color:white;'>Usuário já existe!</span>";
+
+                }
+                else 
+                {
+
+                    // INSERT SEGURO
+                    $stmt = $conn->prepare(
+                        "INSERT INTO usuario
+                    (nome, email, telefone, senha, cep, cpf)
+                    VALUES (?, ?, ?, ?, ?, ?)"
+                    );
+
+                    $stmt->bind_param(
+                        "ssssss",
+                        $nome,
+                        $email,
+                        $tel,
+                        $senhaHash,
+                        $cep,
+                        $cpf
+                    );
+
+                    if ($stmt->execute()) {
+
+                        echo "<span style='color:white;'>Usuário cadastrado!</span>";
+
+                    } 
+                    else 
+                    {
+
+                        echo "<span style='color:white;'>Cadastro Inválido</span>";
+
+                    }
+                }
+            }
+    }
+
+    if(isset($_POST['fazerlogin'])){
+
+    // Recebe os dados
+        $email = trim($_POST['email']);
+        $senha = trim($_POST['senha']);
+
+        // Verifica campos vazios
+        if(empty($email) || empty($senha)){
+
+            echo "<span style='color:white;'>Preencha todos os campos!</span>";
+
+        } else {
+
+            // Procura usuário pelo email
+            $stmt = $conn->prepare(
+                "SELECT * FROM usuario WHERE email = ?"
+            );
+
+            $stmt->bind_param("s", $email);
+
+            $stmt->execute();
+
+            $resultado = $stmt->get_result();
+
+            // Verifica se encontrou usuário
+            if($resultado->num_rows > 0){
+
+                // Pega dados do usuário
+                $usuario = $resultado->fetch_assoc();
+
+                // Verifica senha
+                if(password_verify($senha, $usuario['senha'])){
+
+                    echo "<span style='color:white;'>Login realizado!</span>";
+
+                    // Aqui depois você pode criar sessão
+
+                } else {
+
+                    echo "<span style='color:white;'>Senha incorreta!</span>";
+
+                }
+
             } else {
-                echo "Erro: " . $conn->error;
+
+                echo "<span style='color:white;'>Usuário não encontrado!</span>";
+
+            }
         }
-        }
+    }
+
     ?>
 </body>
+
 </html>
