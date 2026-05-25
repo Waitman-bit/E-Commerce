@@ -32,7 +32,7 @@
 
     <div class="product-card">
       <div class="card-img">
-        <img src="tenis-pro-run.png" alt="Tênis Pro Run X3">
+        <img src="tenis.png" alt="Tênis Pro Run X3">
         <span class="card-badge">NOVO</span>
       </div>
       <div class="card-body">
@@ -50,7 +50,7 @@
 
     <div class="product-card">
       <div class="card-img">
-        <img src="bola-futebol.png" alt="Bola de Futebol">
+        <img src="bola.png" alt="Bola de Futebol">
       </div>
       <div class="card-body">
         <p class="card-category">Bolas</p>
@@ -66,7 +66,7 @@
 
     <div class="product-card">
       <div class="card-img">
-        <img src="luvas-treino.png" alt="Luvas de Treino">
+        <img src="luvas.png" alt="Luvas de Treino">
         <span class="card-badge">-25%</span>
       </div>
       <div class="card-body">
@@ -84,11 +84,11 @@
 
     <div class="product-card">
       <div class="card-img">
-        <img src="camisa-dryfil.png" alt="Camisa Dry-Fit">
+        <img src="camisas.png" alt="Kit 3 Camisa Dry-Fit">
       </div>
       <div class="card-body">
         <p class="card-category">Vestuário</p>
-        <p class="card-name">Camisa Dry-Fit Titan Elite</p>
+        <p class="card-name">Kit 3 Camisas Dry-Fit</p>
         <div class="card-footer">
           <div>
             <span class="card-price">R$ 69,90</span>

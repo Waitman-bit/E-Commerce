@@ -29,7 +29,7 @@
         </div>
       </a>
     </div>
-      <img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon">
+      <a href="../Carrinho/carrinho.php"><img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon"></a>
 </div>
 
   <div class="menu-bar">
