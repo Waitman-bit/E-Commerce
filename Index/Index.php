@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <!-- Links dos css -->
     <?php require_once '../NavBar/Navbar.php'; ?>
-     <link rel="stylesheet" href="aaa.css">
+     <link rel="stylesheet" href="Index.css">
      <!-- Código -->
      <section class = "hero">
         <h1>TITAN SPORTS</h1> 
@@ -70,7 +70,7 @@
         <span class="card-badge">-25%</span>
       </div>
       <div class="card-body">
-        <p class="card-category">Musculação</p>
+        <p class="card-category">Futebol</p>
         <p class="card-name">Luvas de Treino Grip Pro</p>
         <div class="card-footer">
           <div>
@@ -99,5 +99,10 @@
     </div>
   </div>
 </section>
+
+<footer>
+  <p>&copy; 2026 TITAN SPORTS. Todos os direitos reservados.</p>
+</footer>
+
 </body>
 </html>

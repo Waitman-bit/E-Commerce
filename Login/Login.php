@@ -7,7 +7,6 @@
     <title>Document</title>
     <link rel="stylesheet" href="Login.css">
 </head>
-
 <body>
     <div class="container" id="container">
         <div class="form-container sign-up">
@@ -136,7 +135,6 @@
                 }
             }
     }
-
     if(isset($_POST['fazerlogin'])){
 
     // Recebe os dados
