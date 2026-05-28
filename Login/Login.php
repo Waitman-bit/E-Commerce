@@ -123,7 +123,8 @@
 
                     if ($stmt->execute()) {
 
-                        echo "<span style='color:white;'>Usuário cadastrado!</span>";
+                        header("Location: ../Index/index.php");
+                        exit();
 
                     } 
                     else 
@@ -168,7 +169,8 @@
                 // Verifica senha
                 if(password_verify($senha, $usuario['senha'])){
 
-                    echo "<span style='color:white;'>Login realizado!</span>";
+                    header("Location: ../Index/index.php");
+                    exit();
 
                     // Aqui depois você pode criar sessão
 

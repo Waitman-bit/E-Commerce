@@ -21,7 +21,7 @@
     </form>
 
     <div class="user-area">
-      <a href="#" class="profile-box">
+      <a href="../Login/Login.php" class="profile-box">
         <img src="/E-Commerce/NavBar/Perfil.png" class="profile-img" alt="Perfil">
         <div class="profile-info">
           <span class="welcome">Entrar</span>
