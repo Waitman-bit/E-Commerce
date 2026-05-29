@@ -1,5 +1,3 @@
-<?php ?>
-
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -19,7 +17,7 @@ $linkPerfil   = $logado ? '../Perfil/perfil.php' : '../Login/Login.php';
 
   <div class="container-navbar">
 
-    <a href="#" class="logo">
+    <a href="../Index/Index.php" class="logo">
       <img src="/E-Commerce/NavBar/Logo-sem-fundo.png" alt="Logo">
     </a>
 
@@ -39,9 +37,7 @@ $linkPerfil   = $logado ? '../Perfil/perfil.php' : '../Login/Login.php';
         </div>
       </a>
     </div>
-
     <a href="../Carrinho/carrinho.php"><img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon"></a>
-
   </div>
 
   <div class="menu-bar">
