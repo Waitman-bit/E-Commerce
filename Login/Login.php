@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<?php
+    session_start(); // <- adicione no TOPO do arquivo, antes do HTML
+?>
 <html lang="pt-br">
 
 <head>
@@ -123,7 +126,7 @@
 
                     if ($stmt->execute()) {
 
-                        header("Location: ../Index/index.php");
+                        header("Location: ../Index/Index.php");
                         exit();
 
                     } 
@@ -169,9 +172,13 @@
                 // Verifica senha
                 if(password_verify($senha, $usuario['senha'])){
 
-                    header("Location: ../Index/index.php");
-                    exit();
+                    // Cria a sessão com os dados do usuário
+                    $_SESSION['id']    = $usuario['id_usuario'];
+                    $_SESSION['nome']  = $usuario['nome'];
+                    $_SESSION['email'] = $usuario['email'];
 
+                    header("Location: ../Index/Index.php");
+                    exit();
                     // Aqui depois você pode criar sessão
 
                 } else {

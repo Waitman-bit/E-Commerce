@@ -1,5 +1,15 @@
 <?php ?>
 
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$logado = isset($_SESSION['id']);
+$nomeUsuario  = $logado ? htmlspecialchars($_SESSION['nome'])  : 'Entrar';
+$emailUsuario = $logado ? htmlspecialchars($_SESSION['email']) : 'Minha conta';
+$linkPerfil   = $logado ? '../Perfil/perfil.php' : '../Login/Login.php';
+?>
+
 <link rel="stylesheet" href="/E-Commerce/NavBar/NavBar.css">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -21,16 +31,18 @@
     </form>
 
     <div class="user-area">
-      <a href="../Login/Login.php" class="profile-box">
+      <a href="<?= $linkPerfil ?>" class="profile-box">
         <img src="/E-Commerce/NavBar/Perfil.png" class="profile-img" alt="Perfil">
         <div class="profile-info">
-          <span class="welcome">Entrar</span>
-          <span class="status">Minha conta</span>
+          <span class="welcome"><?= $nomeUsuario ?></span>
+          <span class="status"><?= $emailUsuario ?></span>
         </div>
       </a>
     </div>
-      <a href="../Carrinho/carrinho.php"><img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon"></a>
-</div>
+
+    <a href="../Carrinho/carrinho.php"><img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon"></a>
+
+  </div>
 
   <div class="menu-bar">
     <div class="dropdown">
@@ -53,5 +65,7 @@
     <a href="#">Feminino</a>
     <a href="#">Lançamentos</a>
   </div>
+
+</nav>
 
 </nav>
