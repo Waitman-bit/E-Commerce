@@ -13,8 +13,8 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="adm-profile">
-        <div class="adm-avatar">JA</div>
-        <div class="adm-name">João Alves</div>
+        <div class="adm-avatar">DW</div>
+        <div class="adm-name">Davi Waitman</div>
         <div class="adm-role">Administrador</div>
         <div class="adm-badge">
           <i class="ti ti-shield-check"></i> Acesso total
@@ -29,7 +29,7 @@
           <i class="ti ti-shopping-bag"></i> Pedidos
         </button>
         <button class="nav-item">
-          <i class="ti ti-box"></i> Produtos
+          <i class="ti ti-box"></i> Cadastrar Produtos
         </button>
         <button class="nav-item">
           <i class="ti ti-users"></i> Clientes

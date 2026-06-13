@@ -19,7 +19,7 @@
                 <span>Informe suas credenciais para continuar</span>
                 <input type="text" name="nome" placeholder="Nome">
                 <input type="email" name="email" placeholder="Email">
-                <input type="tel" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999">
+                <input type="tel" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999" id="telefone">
                 <input type="text" name="cep" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep"
                     placeholder="CEP">
                 <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
