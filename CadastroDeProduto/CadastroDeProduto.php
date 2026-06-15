@@ -16,12 +16,8 @@
     <h1>Cadastro de Produtos</h1>
 </div>
 
-  <div class="form-wrapper">
-    <div class="form-header">
-      <div class="dot"></div>
-      <h1>Cadastro de produto</h1>
-    </div>
-
+<div class="page">
+  <div class="lado-foto">
     <div class="photo-area" onclick="document.getElementById('photo-input').click()">
       <input type="file" id="photo-input" accept="image/*">
       <img id="preview-img" alt="Preview do produto">
@@ -29,10 +25,18 @@
       <p id="photo-label">Adicionar foto do produto</p>
       <span id="photo-hint">PNG, JPG ou WEBP</span>
     </div>
+  </div>
+
+  <!-- Coluna direita: formulário -->
+  <div class="lado-form">
+    <div class="form-header">
+      <div class="dot"></div>
+      <h1>Cadastro de produto</h1>
+    </div>
 
     <div class="grid-1">
       <label for="nome">Nome do produto</label>
-      <input type="text" id="nome" placeholder="Ex: Camiseta Oversized Classic">
+      <input type="text" id="nome" placeholder="Ex: Tênis Nike Jordan 4 Toro Bravo">
     </div>
 
     <div class="grid-2">
@@ -40,17 +44,17 @@
         <label for="categoria">Categoria</label>
         <select id="categoria">
           <option value="" disabled selected>Selecione...</option>
-          <option>Camisetas</option>
-          <option>Calças</option>
-          <option>Moletons</option>
-          <option>Bermudas</option>
-          <option>Jaquetas</option>
+          <option>Futebol</option>
+          <option>Basquete</option>
+          <option>Corrida</option>
+          <option>Academia</option>
+          <option>Natação</option>
+          <option>Suplementos</option>
           <option>Acessórios</option>
-          <option>Calçados</option>
         </select>
       </div>
       <div>
-        <label>Gênero</label>
+        <label>Gênero (opcional)</label>
         <div class="gender-group">
           <button class="gender-btn" onclick="selectGender(this, 'M')">
             <i class="ti ti-man" aria-hidden="true"></i> Homem
@@ -82,13 +86,15 @@
 
     <div class="grid-1">
       <label for="descricao">Descrição</label>
-      <textarea id="descricao" placeholder="Descreva o produto: material, estilo, detalhes..."></textarea>
+      <textarea id="descricao" placeholder="Descreva o produto: material, marca, características..."></textarea>
     </div>
 
     <button class="btn-submit" onclick="submitForm()">
       <i class="ti ti-device-floppy" aria-hidden="true"></i> Cadastrar produto
     </button>
   </div>
+
+</div>
 
   <script src="CadastroDeProduto.js"></script>
 </body>

@@ -4,52 +4,114 @@
   padding: 0;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   background: #0a0a0a;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 100vh;
-  padding: 40px 16px;
   font-family: 'Segoe UI', Arial, sans-serif;
-  padding-top: 120px; /* espaço para a barra fixa */
 }
 
 .TopBar {
-    position: fixed;       /* fica grudada no topo */
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;         /* fica na frente de tudo */
-
-    background-color: #ffe600;
-    height: 65px;
-    width: 100%;
-    padding: 0 20px;
-
-    display: flex;             /* alinha título e ícone lado a lado */
-    align-items: center;       /* centraliza verticalmente */
-    justify-content: space-between; /* título à esquerda, ícone à direita */
-
-    color: rgb(6, 6, 6);
-    font-family: 'Times New Roman', Times, serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #ffe600;
+  height: 65px;
+  width: 100%;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: rgb(6, 6, 6);
+  font-family: 'Times New Roman', Times, serif;
 }
 
 .TopBar img {
-    height: 35px;          /* ajusta tamanho do ícone */
-    cursor: pointer;
+  height: 35px;
+  cursor: pointer;
 }
 
-.conteudo {
-    padding: 20px;
+/* Layout principal: ocupa a tela toda, abaixo da TopBar */
+.page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 100px; /* compensa a TopBar fixa */
 }
 
-.form-wrapper {
-  background: #111111;
-  border-radius: 16px;
-  padding: 28px 28px 32px;
+/* Coluna esquerda - foto */
+.lado-foto {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: #0a0a0a;
+}
+
+.photo-area {
+  border: 2px dashed #F5C400;
+  border-radius: 12px;
   width: 100%;
-  max-width: 640px;
+  height: 100%;
+  min-height: 400px;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+}
+
+.photo-area:hover {
+  background: #1f1f1f;
+}
+
+.photo-area i {
+  font-size: 48px;
+  color: #F5C400;
+}
+
+.photo-area p {
+  font-size: 15px;
+  color: #888;
+}
+
+.photo-area span {
+  font-size: 12px;
+  color: #555;
+}
+
+#photo-input {
+  display: none;
+}
+
+#preview-img {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 10px;
+}
+
+/* Coluna direita - formulário */
+.lado-form {
+  flex: 1;
+  background: transparent;
+  padding: 40px;
+  overflow-y: auto;
+  margin-top: 70px;
 }
 
 /* Header */
@@ -77,59 +139,7 @@ body {
   text-transform: uppercase;
 }
 
-/* Foto */
-.photo-area {
-  border: 2px dashed #F5C400;
-  border-radius: 12px;
-  height: 160px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-  margin-bottom: 24px;
-  position: relative;
-  overflow: hidden;
-  background: #1a1a1a;
-}
-
-.photo-area:hover {
-  background: #1f1f1f;
-}
-
-.photo-area i {
-  font-size: 32px;
-  color: #F5C400;
-}
-
-.photo-area p {
-  font-size: 13px;
-  color: #888;
-}
-
-.photo-area span {
-  font-size: 11px;
-  color: #555;
-}
-
-#photo-input {
-  display: none;
-}
-
-#preview-img {
-  display: none;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 10px;
-}
-
-/* Layout */
+/* Layout dos campos */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -186,7 +196,7 @@ textarea::placeholder {
   color: #444;
 }
 
-/* Select seta */
+
 select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23F5C400' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -277,7 +287,7 @@ textarea {
   font-weight: 500;
 }
 
-/* Botão */
+
 .btn-submit {
   width: 100%;
   padding: 13px;
@@ -307,12 +317,26 @@ textarea {
 }
 
 /* Responsivo */
+@media (max-width: 900px) {
+  .page {
+    flex-direction: column;
+  }
+
+  .lado-foto {
+    min-height: 280px;
+  }
+
+  .photo-area {
+    min-height: 240px;
+  }
+}
+
 @media (max-width: 480px) {
   .grid-2 {
     grid-template-columns: 1fr;
   }
 
-  .form-wrapper {
-    padding: 20px 16px 24px;
+  .lado-form {
+    padding: 24px 16px;
   }
 }
