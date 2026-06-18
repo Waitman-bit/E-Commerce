@@ -1,6 +1,77 @@
 <?php
+require_once '../connection.php';
+
+$response = array('success' => false, 'message' => '');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $nova_senha = isset($_POST['nova_senha']) ? $_POST['nova_senha'] : '';
+    $confirmar_senha = isset($_POST['confirmar_senha']) ? $_POST['confirmar_senha'] : '';
+
+    // Validações
+    if (empty($email) || empty($nova_senha) || empty($confirmar_senha)) {
+        $response['message'] = 'Preencha todos os campos.';
+        echo json_encode($response);
+        exit;
+    }
+
+    // Validar formato de email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $response['message'] = 'E-mail inválido.';
+        echo json_encode($response);
+        exit;
+    }
+
+    // Verificar se as senhas coincidem
+    if ($nova_senha !== $confirmar_senha) {
+        $response['message'] = 'As senhas não coincidem.';
+        echo json_encode($response);
+        exit;
+    }
+
+    // Verificar tamanho mínimo da senha
+    if (strlen($nova_senha) < 6) {
+        $response['message'] = 'A senha deve ter pelo menos 6 caracteres.';
+        echo json_encode($response);
+        exit;
+    }
+
+    // Verificar se o email está cadastrado no banco
+    $stmt = $conn->prepare("SELECT id_usuario FROM usuario WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 0) {
+        $response['message'] = 'E-mail não cadastrado no sistema.';
+        echo json_encode($response);
+        $stmt->close();
+        exit;
+    }
+
+    // Email existe, agora atualizar a senha
+    // Você pode usar password_hash() para criptografar a senha, se desejar
+    $senha_criptografada = password_hash($nova_senha, PASSWORD_DEFAULT);
     
+    $stmt_update = $conn->prepare("UPDATE usuario SET senha = ? WHERE email = ?");
+    $stmt_update->bind_param("ss", $senha_criptografada, $email);
+
+    if ($stmt_update->execute()) {
+        $response['success'] = true;
+        $response['message'] = 'Senha alterada com sucesso!';
+    } else {
+        $response['message'] = 'Erro ao alterar a senha: ' . $stmt_update->error;
+    }
+
+    $stmt->close();
+    $stmt_update->close();
+    echo json_encode($response);
+    exit;
+}
+
+$conn->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>

@@ -84,7 +84,28 @@ function handleSubmit(event) {
     return;
   }
 
-  // Exibe tela de sucesso
-  document.getElementById('card-body').style.display = 'none';
-  document.getElementById('card-success').style.display = 'block';
+  // Enviar dados para o servidor
+  const formData = new FormData();
+  formData.append('email', email);
+  formData.append('nova_senha', pass);
+  formData.append('confirmar_senha', conf);
+
+  fetch('NovaSenha.php', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Exibe tela de sucesso
+      document.getElementById('card-body').style.display = 'none';
+      document.getElementById('card-success').style.display = 'block';
+    } else {
+      alert('Erro: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Erro:', error);
+    alert('Erro ao processar a solicitação.');
+  });
 }

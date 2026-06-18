@@ -29,7 +29,7 @@
           <i class="ti ti-shopping-bag"></i> Pedidos
         </button>
         <button class="nav-item">
-          <i class="ti ti-box"></i> Cadastrar Produtos
+         <a href="../CadastroDeProdutos/CadastroDeProduto.php"> <i class="ti ti-box"></i> Cadastrar Produtos</a>
         </button>
         <button class="nav-item">
           <i class="ti ti-users"></i> Clientes
