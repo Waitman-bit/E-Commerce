@@ -1,3 +1,4 @@
+/* WAITMAN FRONT END - CONFIGURACOES GERAIS E RESET */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -13,6 +14,7 @@ body {
   font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+/* WAITMAN FRONT END - BARRA SUPERIOR TOPBAR */
 .TopBar {
   position: fixed;
   top: 0;
@@ -35,14 +37,14 @@ body {
   cursor: pointer;
 }
 
-/* Layout principal: ocupa a tela toda, abaixo da TopBar */
+/* WAITMAN FRONT END - LAYOUT PRINCIPAL DA PAGINA */
 .page {
   display: flex;
   min-height: 100vh;
-  padding-top: 100px; /* compensa a TopBar fixa */
+  padding-top: 100px;
 }
 
-/* Coluna esquerda - foto */
+/* WAITMAN FRONT END - COLUNA ESQUERDA AREA DE FOTO */
 .lado-foto {
   flex: 1;
   display: flex;
@@ -105,7 +107,7 @@ body {
   border-radius: 10px;
 }
 
-/* Coluna direita - formulário */
+/* WAITMAN FRONT END - COLUNA DIREITA FORMULARIO */
 .lado-form {
   flex: 1;
   background: transparent;
@@ -114,7 +116,7 @@ body {
   margin-top: 70px;
 }
 
-/* Header */
+/* WAITMAN FRONT END - HEADER DO FORMULARIO */
 .form-header {
   display: flex;
   align-items: center;
@@ -139,7 +141,7 @@ body {
   text-transform: uppercase;
 }
 
-/* Layout dos campos */
+/* WAITMAN FRONT END - LAYOUT DOS CAMPOS GRIDS */
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -155,7 +157,7 @@ body {
   margin-top: 16px;
 }
 
-/* Labels */
+/* WAITMAN FRONT END - LABELS DO FORMULARIO */
 label {
   display: block;
   font-size: 11px;
@@ -166,8 +168,9 @@ label {
   margin-bottom: 6px;
 }
 
-/* Inputs */
+/* ARIKAWA BACK END - INPUTS COMPATIVEIS COM PRECO NUMERICO */
 input[type="text"],
+input[type="number"],
 select,
 textarea {
   width: 100%;
@@ -182,9 +185,11 @@ textarea {
   transition: border-color 0.15s, box-shadow 0.15s;
   appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
 input[type="text"]:focus,
+input[type="number"]:focus,
 select:focus,
 textarea:focus {
   border-color: #F5C400;
@@ -192,13 +197,13 @@ textarea:focus {
 }
 
 input[type="text"]::placeholder,
+input[type="number"]::placeholder,
 textarea::placeholder {
   color: #444;
 }
 
-
 select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23F5C400' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23F5C400' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 36px;
@@ -216,7 +221,18 @@ textarea {
   line-height: 1.5;
 }
 
-/* Gênero */
+/* MORITA BANCOS DE DADOS - AJUSTE PARA ENVIAR FORMATO DECIMAL SEM SETAS */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* WAITMAN FRONT END - BOTOES DE SELECAO GENERO E TAMANHOS */
 .gender-group {
   display: flex;
   gap: 12px;
@@ -255,7 +271,6 @@ textarea {
   color: #F5C400;
 }
 
-/* Tamanhos */
 .size-group {
   display: flex;
   gap: 8px;
@@ -287,7 +302,7 @@ textarea {
   font-weight: 500;
 }
 
-
+/* ARIKAWA BACK END - BOTAO ENVIAR SUBMIT FORMULARIO */
 .btn-submit {
   width: 100%;
   padding: 13px;
@@ -316,7 +331,7 @@ textarea {
   transform: scale(0.99);
 }
 
-/* Responsivo */
+/* WAITMAN FRONT END - RESPONSIVIDADE MEDIA QUERIES */
 @media (max-width: 900px) {
   .page {
     flex-direction: column;

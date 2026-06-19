@@ -1,29 +1,28 @@
 <?php
+// ARIKAWA BACK END - CONEXAO COM O BANCO DE DADOS
 require_once '../connection.php';
 
+// ARIKAWA BACK END - BUSCA AS CATEGORIAS REGISTRADAS
 $categorias_query = $conn->query("SELECT id_categoria, nome FROM categoria");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Validação dos campos obrigatórios
-    if (empty($_POST['nome_php']) || empty($_POST['categoria_php']) || empty($_POST['descricao_php']) || empty($_POST['preco_php'])) {
-        echo "<script>alert('Preencha todos os campos obrigatórios!'); window.history.back();</script>";
-        exit;
-    }
+    $nome = $_POST['nome_php'];
+    $id_categoria = $_POST['categoria_php'];
+    $descricao = $_POST['descricao_php'];
+    
+    // MORITA BANCOS DE DADOS - CAPTURA O PRECO E CONVERTE PARA NUMERO DECIMAL
+    $preco = isset($_POST['preco_php']) ? floatval($_POST['preco_php']) : 0.00; 
 
-    $nome = htmlspecialchars(trim($_POST['nome_php']));
-    $id_categoria = intval($_POST['categoria_php']);
-    $descricao = htmlspecialchars(trim($_POST['descricao_php']));
-    $preco = floatval($_POST['preco_php']);
+    $genero = !empty($_POST['genero_php']) ? $_POST['genero_php'] : 'Unissex';
 
-    $genero = !empty($_POST['genero_php']) ? htmlspecialchars($_POST['genero_php']) : 'Unissex';
-
-    $marca = "Genérica";
+    $marca = "Generica";
     $dimensoes = 0.00;
     $peso = 0.00;
     $estoque = 10;
     $imagem_nome = "padrao.png";
 
+    // ARIKAWA BACK END - TRATAMENTO E ESTRUTURA DE ENVIO DA IMAGEM
     if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] == 0) {
         $nome_original = $_FILES['imagem_php']['name'];
         $extensao = strtolower(pathinfo($nome_original, PATHINFO_EXTENSION));
@@ -33,18 +32,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         move_uploaded_file($_FILES['imagem_php']['tmp_name'], $diretorio_destino . $imagem_nome);
     }
 
+    // MORITA BANCOS DE DADOS - INSERCAO DO NOVO CAMPO PRECO NA TABELA
     $stmt = $conn->prepare("
         INSERT INTO produto 
         (marca, id_categoria, dimensoes, nome, genero, estoque, descricao, imagem, peso, preco) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
-    if (!$stmt) {
-        die("Erro na preparação: " . $conn->error);
-    }
-
+    // MORITA BANCOS DE DADOS - VINCULO DOS PARAMETROS ADICIONANDO O PRECO DECIMAL
     $stmt->bind_param(
-        "sidssissdd",
+        "sidssissdd", 
         $marca,
         $id_categoria,
         $dimensoes,
@@ -80,11 +77,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Cadastro de Produto</title>
 
     <link rel="stylesheet" href="CadastroDeProduto.css">
+    <!-- WAITMAN FRONT END - IMPORTACAO DA BIBLIOTECA OFICIAL TABLER ICONS -->
     <link rel="stylesheet" href="https://jsdelivr.net">
 </head>
 
 <body>
 
+<!-- WAITMAN FRONT END - ESTRUTURA VISUAL DO TOPO DA PAGINA -->
 <div class="TopBar">
     <h1>Cadastro de Produtos</h1>
 </div>
@@ -93,6 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="page">
 
+        <!-- WAITMAN FRONT END - AREA DE INTERACAO PARA ADICIONAR FOTO -->
         <div class="lado-foto">
             <div class="photo-area" onclick="document.getElementById('photo-input').click()">
                 <input type="file" id="photo-input" name="imagem_php" accept="image/*">
@@ -103,6 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
         </div>
 
+        <!-- WAITMAN FRONT END - SECAO COM OS CAMPOS DE TEXTO E SELECAO -->
         <div class="lado-form">
 
             <div class="form-header">
@@ -112,7 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="grid-1">
                 <label for="nome">Nome do produto</label>
-                <input type="text" id="nome" name="nome_php" placeholder="Ex: Tênis Nike Jordan 4 Toro Bravo">
+                <input type="text" id="nome" name="nome_php" placeholder="Ex: Tenis Nike Jordan 4 Toro Bravo">
             </div>
 
             <div class="grid-2">
@@ -123,6 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <option value="" disabled selected>Selecione...</option>
 
                         <?php
+                        // ARIKAWA BACK END - EXIBICAO DAS OPCOES DO BANCO DE DADOS
                         if ($categorias_query && $categorias_query->num_rows > 0) {
                             while ($cat = $categorias_query->fetch_assoc()) {
                                 echo "<option value='" . $cat['id_categoria'] . "'>" . $cat['nome'] . "</option>";
@@ -133,7 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
 
                 <div>
-                    <label>Gênero (opcional)</label>
+                    <label>Genero (opcional)</label>
 
                     <input type="hidden" name="genero_php" id="genero_oculto" value="">
 
@@ -169,17 +171,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
 
+            <!-- MORITA BANCOS DE DADOS - INPUT PARA RECEBER O VALOR DO PRODUTO -->
             <div class="grid-1">
-                <label for="preco">Preço (R$)</label>
-                <input type="number" id="preco" name="preco_php" placeholder="Ex: 199.90" step="0.01" min="0" required>
+                <label for="preco">Preco (R$)</label>
+                <input type="number" step="0.01" min="0" id="preco" name="preco_php" placeholder="Ex: 199.90" onblur="formatarPreco(this)">
             </div>
 
             <div class="grid-1">
-                <label for="descricao">Descrição</label>
-                <textarea id="descricao" name="descricao_php" required
-                    placeholder="Descreva o produto: material, marca, características..."></textarea>
+                <label for="descricao">Descricao</label>
+                <textarea id="descricao" name="descricao_php"
+                    placeholder="Descreva o produto: material, marca, caracteristicas..."></textarea>
             </div>
 
+            <!-- ARIKAWA BACK END - ENVIO SEGURO DO FORMULARIO COMPLETO -->
             <button type="button" class="btn-submit" onclick="submitForm()">
                 <i class="ti ti-device-floppy" aria-hidden="true"></i>
                 Cadastrar produto
