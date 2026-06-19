@@ -28,7 +28,7 @@
   </div>
 
   <!-- Coluna direita: formulário -->
-  <div class="lado-form">
+  <form class="lado-form" method="POST" enctype="multipart/form-data">
     <div class="form-header">
       <div class="dot"></div>
       <h1>Cadastro de produto</h1>
@@ -92,7 +92,7 @@
     <button class="btn-submit" onclick="submitForm()">
       <i class="ti ti-device-floppy" aria-hidden="true"></i> Cadastrar produto
     </button>
-  </div>
+  </form>
 
 </div>
 

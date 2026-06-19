@@ -124,6 +124,12 @@
 
                     if ($stmt->execute()) {
 
+                        $idUsuario = $conn->insert_id;
+
+                        $_SESSION['id'] = $idUsuario;
+                        $_SESSION['nome'] = $nome;
+                        $_SESSION['email'] = $email;
+
                         header("Location: ../Index/Index.php");
                         exit();
 
@@ -174,11 +180,20 @@
                     $_SESSION['id']    = $usuario['id_usuario'];
                     $_SESSION['nome']  = $usuario['nome'];
                     $_SESSION['email'] = $usuario['email'];
+                    $_SESSION['tipo'] = $usuario['tipo'];
 
-                    header("Location: ../Index/Index.php");
-                    exit();
-                    // Aqui depois você pode criar sessão
+                    // Verifica o tipo do usuário
+                    if ($usuario['tipo'] === 'admin') {
 
+                        header("Location: ../Administrador/Adm.php");
+                        exit();
+
+                    } else {
+
+                        header("Location: ../Index/Index.php");
+                        exit();
+
+                    }
                 } else {
 
                     echo "<span style='color:white;'>Senha incorreta!</span>";

@@ -8,13 +8,20 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 </head>
 <body>
+  <?php
+  session_start();
 
+  if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'admin') {
+      header("Location: ../Login/Login.php");
+      exit();
+  }
+  ?>
   <div class="dash">
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="adm-profile">
-        <div class="adm-avatar">DW</div>
-        <div class="adm-name">Davi Waitman</div>
+        <div class="adm-avatar">Adm</div>
+        <div class="adm-name">Administrador</div>
         <div class="adm-role">Administrador</div>
         <div class="adm-badge">
           <i class="ti ti-shield-check"></i> Acesso total
