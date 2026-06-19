@@ -41,6 +41,8 @@ function getGenderSelected() {
 function submitForm() {
     const nome = document.getElementById('nome').value.trim();
     const categoria = document.getElementById('categoria').value;
+    const descricao = document.getElementById('descricao').value.trim();
+    const preco = document.getElementById('preco').value.trim();
 
     if (!nome) {
         alert('Preencha o nome do produto.');
@@ -49,6 +51,16 @@ function submitForm() {
 
     if (!categoria) {
         alert('Selecione uma categoria.');
+        return;
+    }
+
+    if (!descricao) {
+        alert('Preencha a descrição do produto.');
+        return;
+    }
+
+    if (!preco || parseFloat(preco) <= 0) {
+        alert('Digite um preço válido (maior que 0).');
         return;
     }
 

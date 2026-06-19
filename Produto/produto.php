@@ -5,18 +5,8 @@
  */
 session_start();
 
-// ===== CONFIGURAÇÃO DO BANCO DE DADOS =====
-$host = 'localhost';
-$dbname = 'sportzone';
-$dbuser = 'root';
-$dbpass = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $dbuser, $dbpass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Erro de conexão com o banco de dados.");
-}
+// ===== CONEXÃO COM BANCO DE DADOS =====
+require_once('../connection.php');
 
 // ===== VALIDAÇÃO DO ID RECEBIDO PELA URL =====
 $idProduto = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -27,11 +17,15 @@ $produto = null;
 if ($idProduto <= 0) {
     $erro = "ID inválido. Não foi possível identificar o produto.";
 } else {
-    // ===== BUSCA DO PRODUTO COM PREPARED STATEMENT =====
-    $stmt = $pdo->prepare("SELECT * FROM produtos WHERE id = :id");
-    $stmt->bindParam(':id', $idProduto, PDO::PARAM_INT);
+    // ===== BUSCA DO PRODUTO COM JOIN NA CATEGORIA =====
+    $query = "SELECT p.*, c.nome as categoria FROM produto p 
+              LEFT JOIN categoria c ON p.id_categoria = c.id_categoria 
+              WHERE p.id_produto = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $idProduto);
     $stmt->execute();
-    $produto = $stmt->fetch(PDO::FETCH_ASSOC);
+    $resultado = $stmt->get_result();
+    $produto = $resultado->fetch_assoc();
 
     if (!$produto) {
         $erro = "Produto não encontrado ou removido do catálogo.";
@@ -81,15 +75,14 @@ if ($estoque <= 0) {
 $precoFormatado = "R$ " . number_format($produto['preco'], 2, ',', '.');
 
 // ===== BUSCA DE PRODUTOS RELACIONADOS (mesma categoria, exceto o atual) =====
-$stmtRel = $pdo->prepare(
-    "SELECT id, nome, preco, imagem FROM produtos 
-     WHERE categoria = :categoria AND id != :id 
-     LIMIT 4"
-);
-$stmtRel->bindParam(':categoria', $produto['categoria']);
-$stmtRel->bindParam(':id', $idProduto, PDO::PARAM_INT);
+$queryRel = "SELECT id_produto, nome, preco, imagem FROM produto 
+             WHERE id_categoria = ? AND id_produto != ? 
+             LIMIT 4";
+$stmtRel = $conn->prepare($queryRel);
+$stmtRel->bind_param("ii", $produto['id_categoria'], $idProduto);
 $stmtRel->execute();
-$relacionados = $stmtRel->fetchAll(PDO::FETCH_ASSOC);
+$resultRel = $stmtRel->get_result();
+$relacionados = $resultRel->fetch_all(MYSQLI_ASSOC);
 
 // Avaliação fixa de exemplo (poderia vir do banco em uma tabela de avaliações)
 $avaliacaoEstrelas = 4;
@@ -164,14 +157,14 @@ $avaliacaoEstrelas = 4;
                 <div class="produto-botoes">
                     <button id="btnComprarAgora"
                             class="btn btn-amarelo"
-                            data-id="<?php echo $produto['id']; ?>"
+                            data-id="<?php echo $produto['id_produto']; ?>"
                             <?php echo $estoque <= 0 ? 'disabled' : ''; ?>>
                         Comprar Agora
                     </button>
 
                     <button id="btnAdicionarCarrinho"
                             class="btn btn-outline"
-                            data-id="<?php echo $produto['id']; ?>"
+                            data-id="<?php echo $produto['id_produto']; ?>"
                             <?php echo $estoque <= 0 ? 'disabled' : ''; ?>>
                         Adicionar ao Carrinho
                     </button>
@@ -205,7 +198,7 @@ $avaliacaoEstrelas = 4;
                          alt="<?php echo htmlspecialchars($rel['nome']); ?>">
                     <h3><?php echo htmlspecialchars($rel['nome']); ?></h3>
                     <p class="card-preco">R$ <?php echo number_format($rel['preco'], 2, ',', '.'); ?></p>
-                    <a href="produto.php?id=<?php echo intval($rel['id']); ?>" class="btn btn-outline btn-pequeno">
+                    <a href="produto.php?id=<?php echo intval($rel['id_produto']); ?>" class="btn btn-outline btn-pequeno">
                         Ver Produto
                     </a>
                 </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 22/05/2026 às 14:13
+-- Tempo de geração: 19/06/2026 às 14:12
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -31,6 +31,17 @@ CREATE TABLE `categoria` (
   `id_categoria` int(11) NOT NULL,
   `nome` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `categoria`
+--
+
+INSERT INTO `categoria` (`id_categoria`, `nome`) VALUES
+(1, 'Futebol'),
+(2, 'Basquete'),
+(3, 'Corrida'),
+(4, 'Musculação'),
+(5, 'Natação');
 
 -- --------------------------------------------------------
 
@@ -122,7 +133,8 @@ CREATE TABLE `produto` (
   `estoque` int(11) DEFAULT NULL,
   `descricao` varchar(50) NOT NULL,
   `imagem` varchar(300) NOT NULL,
-  `peso` decimal(10,2) NOT NULL
+  `peso` decimal(10,2) NOT NULL,
+  `preco` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -147,7 +159,8 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`) VALUES
-(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '1234567890', 'cliente', NULL);
+(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$tgRMO2hcOBacR5ALviGB1OTwxGJOKJYIOcPVQ1b/gXICEYokgxv6.', 'cliente', NULL),
+(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000');
 
 --
 -- Índices para tabelas despejadas
@@ -216,7 +229,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de tabela `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `entrega`
@@ -258,7 +271,7 @@ ALTER TABLE `produto`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restrições para tabelas despejadas

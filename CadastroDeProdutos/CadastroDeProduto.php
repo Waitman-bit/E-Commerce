@@ -5,11 +5,18 @@ $categorias_query = $conn->query("SELECT id_categoria, nome FROM categoria");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $nome = $_POST['nome_php'];
-    $id_categoria = $_POST['categoria_php'];
-    $descricao = $_POST['descricao_php'];
+    // Validação dos campos obrigatórios
+    if (empty($_POST['nome_php']) || empty($_POST['categoria_php']) || empty($_POST['descricao_php']) || empty($_POST['preco_php'])) {
+        echo "<script>alert('Preencha todos os campos obrigatórios!'); window.history.back();</script>";
+        exit;
+    }
 
-    $genero = !empty($_POST['genero_php']) ? $_POST['genero_php'] : 'Unissex';
+    $nome = htmlspecialchars(trim($_POST['nome_php']));
+    $id_categoria = intval($_POST['categoria_php']);
+    $descricao = htmlspecialchars(trim($_POST['descricao_php']));
+    $preco = floatval($_POST['preco_php']);
+
+    $genero = !empty($_POST['genero_php']) ? htmlspecialchars($_POST['genero_php']) : 'Unissex';
 
     $marca = "Genérica";
     $dimensoes = 0.00;
@@ -28,12 +35,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $stmt = $conn->prepare("
         INSERT INTO produto 
-        (marca, id_categoria, dimensoes, nome, genero, estoque, descricao, imagem, peso) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (marca, id_categoria, dimensoes, nome, genero, estoque, descricao, imagem, peso, preco) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
+    if (!$stmt) {
+        die("Erro na preparação: " . $conn->error);
+    }
+
     $stmt->bind_param(
-        "sidssissd",
+        "sidssissdd",
         $marca,
         $id_categoria,
         $dimensoes,
@@ -42,7 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $estoque,
         $descricao,
         $imagem_nome,
-        $peso
+        $peso,
+        $preco
     );
 
     if ($stmt->execute()) {
@@ -158,8 +170,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="grid-1">
+                <label for="preco">Preço (R$)</label>
+                <input type="number" id="preco" name="preco_php" placeholder="Ex: 199.90" step="0.01" min="0" required>
+            </div>
+
+            <div class="grid-1">
                 <label for="descricao">Descrição</label>
-                <textarea id="descricao" name="descricao_php"
+                <textarea id="descricao" name="descricao_php" required
                     placeholder="Descreva o produto: material, marca, características..."></textarea>
             </div>
 
