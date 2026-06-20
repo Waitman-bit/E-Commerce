@@ -16,6 +16,7 @@
     <!-- Links dos css -->
     <?php require_once '../NavBar/Navbar.php'; ?>
      <link rel="stylesheet" href="Index.css">
+     <link rel="shortcut icon" type="image/x-icon" href="../logoicon.ico">    
      <!-- Código -->
      <section class = "hero">
         <h1>TITAN SPORTS</h1> 
@@ -36,7 +37,7 @@
         <span class="card-badge">NOVO</span>
       </div>
       <div class="card-body">
-        <p class="card-category">Calçados</p>
+        <p class="card-category">Corrida</p>
         <p class="card-name">Tênis de corrida Pro Run X3</p>
         <div class="card-footer">
           <div>
@@ -50,14 +51,14 @@
 
     <div class="product-card">
       <div class="card-img">
-        <img src="bola.png" alt="Bola de Futebol">
+        <img src="creatina.png" alt="Suplementos">
       </div>
       <div class="card-body">
-        <p class="card-category">Bolas</p>
-        <p class="card-name">Bola Oficial de Futebol Campo</p>
+        <p class="card-category">Suplementos</p>
+        <p class="card-name">Kit 2 Creatinas Monohidratas</p>
         <div class="card-footer">
           <div>
-            <span class="card-price">R$ 89,90</span>
+            <span class="card-price">R$ 140,50</span>
           </div>
           <a href="produto.php?id=2" class="btn-add">+ Ver produto</a>
         </div>
@@ -84,14 +85,14 @@
 
     <div class="product-card">
       <div class="card-img">
-        <img src="camisas.png" alt="Kit 3 Camisa Dry-Fit">
+        <img src="camisadetime.png" alt="Kit 3 Camisa Dry-Fit">
       </div>
       <div class="card-body">
-        <p class="card-category">Vestuário</p>
-        <p class="card-name">Kit 3 Camisas Dry-Fit</p>
+        <p class="card-category">Camisas de Time</p>
+        <p class="card-name">Camisa Santos Ediçao Especial - Charlie Brown Jr</p>
         <div class="card-footer">
           <div>
-            <span class="card-price">R$ 69,90</span>
+            <span class="card-price">R$ 120,00</span>
           </div>
           <a href="produto.php?id=4" class="btn-add">+ Ver produto</a>
         </div>
