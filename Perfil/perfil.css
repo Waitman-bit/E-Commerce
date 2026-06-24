@@ -25,6 +25,73 @@ body {
 }
 a { text-decoration: none; color: inherit; }
 
+/* ── ALERTAS ─────────────────────────────────────────────── */
+.alert {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    backdrop-filter: blur(10px);
+    animation: slideDown 0.3s ease-out;
+    max-width: 90%;
+    min-width: 300px;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.alert-sucesso {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid #4ade80;
+    color: #4ade80;
+}
+
+.alert-erro {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid #f87171;
+    color: #f87171;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.alert-content i {
+    font-size: 1.2rem;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    margin-left: 1rem;
+    font-size: 1rem;
+    transition: opacity 0.2s;
+}
+
+.alert-close:hover {
+    opacity: 0.7;
+}
+
 /* ── NAVBAR ──────────────────────────────────────────────── */
 .navbar {
     position: sticky;
@@ -472,6 +539,95 @@ a { text-decoration: none; color: inherit; }
     transition: color .2s, border-color .2s;
 }
 .btn-ghost:hover { color: var(--text); border-color: #444; }
+
+/* ── MODAL AVATAR (UPLOAD DE FOTO) ──────────────────────── */
+.avatar-preview-container {
+    margin-bottom: 1.5rem;
+}
+
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color .2s;
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-preview i {
+    font-size: 2.5rem;
+    color: var(--muted);
+}
+
+.file-input-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-input-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    background: #111;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+.file-input-wrapper.dragover .file-input-label {
+    border-color: var(--yellow);
+    background: var(--yellow-glow);
+}
+
+.file-input-label:hover {
+    border-color: var(--yellow-dim);
+    background: var(--yellow-glow);
+}
+
+.file-input-label i {
+    font-size: 1.8rem;
+    color: var(--yellow);
+    margin-bottom: .5rem;
+}
+
+.file-input-label span {
+    font-size: 0.85rem;
+    color: var(--text);
+    text-align: center;
+}
+
+.form-help {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+}
+
+.form-error {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--red);
+    margin-top: 0.5rem;
+    min-height: 1rem;
+}
 
 /* ── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 768px) {

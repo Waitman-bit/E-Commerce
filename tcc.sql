@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 19/06/2026 às 14:12
+-- Tempo de geração: 24/06/2026 às 18:06
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -151,16 +151,17 @@ CREATE TABLE `usuario` (
   `telefone` varchar(20) DEFAULT NULL,
   `senha` varchar(100) NOT NULL,
   `tipo` enum('admin','cliente') NOT NULL DEFAULT 'cliente',
-  `cep` varchar(9) DEFAULT NULL
+  `cep` varchar(9) DEFAULT NULL,
+  `foto_perfil` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`) VALUES
-(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$tgRMO2hcOBacR5ALviGB1OTwxGJOKJYIOcPVQ1b/gXICEYokgxv6.', 'cliente', NULL),
-(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000');
+INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`) VALUES
+(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$LLTatQFXkWmBFJv2pVhizufJbz5iIjcQk66Uk/CJHnQTsJ7g84u9G', 'cliente', NULL, NULL),
+(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL);
 
 --
 -- Índices para tabelas despejadas
