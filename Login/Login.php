@@ -20,8 +20,8 @@
                 <input type="text" name="nome" placeholder="Nome">
                 <input type="email" name="email" placeholder="Email">
                 <input type="tel" maxlength="15" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999" id="telefone">
-                <input type="text" name="cep" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP">
-                <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="CPF">
+                <input type="text" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP" id="cep">
+                <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="CPF" id="cpf">
                 <input type="password" name="senha" placeholder="Senha">
                 <button name="registrar">Registrar</button>
             </form>
@@ -54,6 +54,8 @@
         </div>
     </div>
     <script src="Login.js"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
 
     <?php
 
@@ -63,7 +65,6 @@
     include("../connection.php");
 
     if (isset($_POST['registrar'])) {
-
         // Recebe os dados
         $nome = trim($_POST['nome']);
         $email = trim($_POST['email']);
@@ -104,7 +105,6 @@
                 }
                 else 
                 {
-
                     // INSERT SEGURO
                     $stmt = $conn->prepare(
                         "INSERT INTO usuario
@@ -123,20 +123,15 @@
                     );
 
                     if ($stmt->execute()) {
-
                         $idUsuario = $conn->insert_id;
-
                         $_SESSION['id'] = $idUsuario;
                         $_SESSION['nome'] = $nome;
                         $_SESSION['email'] = $email;
-
                         header("Location: ../Index/Index.php");
                         exit();
-
                     } 
                     else 
                     {
-
                         echo "<span style='color:white;'>Cadastro Inválido</span>";
 
                     }
@@ -210,5 +205,4 @@
 
     ?>
 </body>
-
 </html>

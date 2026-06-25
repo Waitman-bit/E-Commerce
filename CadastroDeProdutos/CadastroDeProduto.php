@@ -196,6 +196,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </form>
 
 <script src="CadastroDeProduto.js"></script>
+<script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
 
 </body>
 </html>
