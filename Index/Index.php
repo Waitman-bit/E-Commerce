@@ -1,31 +1,35 @@
 <?php
     
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela Inicial</title>
-</head>
-<body>
     <!-- Links do bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <!-- Links dos css -->
     <?php require_once '../NavBar/Navbar.php'; ?>
      <link rel="stylesheet" href="Index.css">
-     <link rel="shortcut icon" type="image/x-icon" href="../logoicon.ico">    
-     <!-- Código -->
+     <link rel="shortcut icon" type="image/x-icon" href="../logoicon.ico">  
+</head>
+<body>
      <section class = "hero">
+      <canvas id="particle-canvas"></canvas>
         <h1>TITAN SPORTS</h1> 
         <p>Os melhores produtos esportivos para você.</p>
-     </section>
-      <!-- Imagen -->
-      <div class="slide" >
-        <img src="Slide1.png" alt="Slide 1">
-      </div> <br>
+     </section> <br> <br>
+      
+    <div class="categorias-bar">
+  <a class="cat-chip" href="produtos.php?categoria=todos">Acessórios</a>
+  <a class="cat-chip" href="produtos.php?categoria=corrida">Corrida</a>
+   <a class="cat-chip" href="produtos.php?categoria=futebol">Futebol</a>
+  <a class="cat-chip" href="produtos.php?categoria=suplementos">Suplementos</a>
+  <a class="cat-chip" href="produtos.php?categoria=camisas">Camisas de Time</a>
+</div>
+
       <!-- Produtos -->
        <section class="produtos-section">
   <h2 class="produtos-titulo">Produtos em Destaque</h2>
@@ -67,7 +71,7 @@
 
     <div class="product-card">
       <div class="card-img">
-        <img src="luvas.png" alt="Luvas de Treino">
+        <img src="luva.png" alt="Luvas de Treino">
         <span class="card-badge">-25%</span>
       </div>
       <div class="card-body">
@@ -104,6 +108,6 @@
 <footer>
   <p>&copy; 2026 TITAN SPORTS. Todos os direitos reservados.</p>
 </footer>
-
+<script src="Index.js"></script>
 </body>
 </html>

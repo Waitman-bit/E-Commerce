@@ -5,7 +5,7 @@
 }
 
 body{
-  background-color: rgb(26, 26, 26);
+  background-color: rgb(3, 3, 3);
   height: 100vh;
 }
 
@@ -24,12 +24,11 @@ body{
 
 
 /* Glow fundo */
-
 .hero::before {
   content: "";
   position: absolute;
   width: 500px;
-  height: 500px;
+  height: 450px;
   background:
     radial-gradient(
       circle,
@@ -46,7 +45,6 @@ body{
 
 
 /* Título */
-
 .hero h1 {
   position: relative;
   z-index: 2;
@@ -77,7 +75,6 @@ body{
 
 
 /* Subtítulo */
-
 .hero p {
   position: relative;
   z-index: 2;
@@ -99,7 +96,7 @@ body{
   }
 
   to {
-    width: 13ch;
+    width: 14ch;
   }
 }
 
@@ -127,16 +124,12 @@ body{
   }
 }
 
-.slide {
+#particle-canvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.slide img {
-  width: 1570px;
-  height: 700px;
-  max-width: 1800px;
+  height: 100%;
+  pointer-events: none;
 }
 
 /* --- Seção de Produtos --- */
@@ -267,4 +260,39 @@ footer p {
   text-align: center;
   font-size: 17px;
   margin: 0; 
+}
+
+.categorias-bar {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 28px 20px;
+  border-top: 1px solid #1e1e1e;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.cat-chip {
+  background: transparent;
+  border: 1px solid #2a2a2a;
+  color: #888;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.cat-chip:hover {
+  border-color: #ffe600;
+  color: #ffe600;
+}
+
+.cat-chip.active {
+  background: #ffe600;
+  border-color: #ffe600;
+  color: #0d0d0d;
+  font-weight: 700;
 }
