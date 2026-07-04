@@ -1,6 +1,6 @@
 <?php
 /**
- * SportZone - Página de Detalhes do Produto
+ * TitanSports - Página de Detalhes do Produto
  * Exibe informações detalhadas de um produto específico
  */
 session_start();
@@ -39,7 +39,7 @@ if ($erro) {
     <html lang="pt-br">
     <head>
         <meta charset="UTF-8">
-        <title>Erro - SportZone</title>
+        <title>Erro - TitanSports</title>
         <link rel="stylesheet" href="produto.css">
     </head>
     <body>
@@ -92,7 +92,7 @@ $avaliacaoEstrelas = 4;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($produto['nome']); ?> - SportZone</title>
+    <title><?php echo htmlspecialchars($produto['nome']); ?> - TitanSports</title>
     <link rel="stylesheet" href="produto.css">
 </head>
 <body>

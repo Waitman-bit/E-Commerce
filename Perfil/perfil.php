@@ -10,6 +10,29 @@ if (!isset($_SESSION['id'])) {
 // Carregar dados do usuário do banco de dados
 require_once '../connection.php';
 
+function buildAvatarUrl($valor) {
+    if (empty($valor)) {
+        return '';
+    }
+
+    if (preg_match('#^https?://#i', $valor)) {
+        return $valor;
+    }
+
+    $valor = str_replace('\\', '/', $valor);
+
+    if (strpos($valor, '/') === 0) {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $valor;
+    }
+
+    $scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/');
+    $baseDir = $scriptDir !== '' ? $scriptDir : '';
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+
+    return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $baseDir . '/' . ltrim($valor, '/');
+}
+
 $usuario_id = $_SESSION['id'];
 $sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 $stmt = $conn->prepare($sql);
@@ -20,6 +43,7 @@ $userData = $resultado->fetch_assoc();
 $stmt->close();
 
 // Atualizar sessão com dados do banco
+$avatarPath = '';
 if ($userData) {
     $_SESSION['nome']  = $userData['nome'];
     $_SESSION['email'] = $userData['email'];
@@ -27,8 +51,11 @@ if ($userData) {
     $_SESSION['tel']   = $userData['telefone'];
     $_SESSION['cep']   = $userData['cep'];
     $_SESSION['tipo']  = $userData['tipo'];
-    $_SESSION['avatar'] = $userData['foto_perfil'];
+    $avatarPath = $userData['foto_perfil'] ?? '';
+    $_SESSION['avatar'] = $avatarPath;
 }
+
+$avatarUrl = buildAvatarUrl($avatarPath);
 
 $usuario = [
     'id'     => $_SESSION['id']       ?? 1,
@@ -38,7 +65,7 @@ $usuario = [
     'tel'    => $_SESSION['tel']      ?? '(11) 99999-8888',
     'cep'    => $_SESSION['cep']      ?? '01310-100',
     'tipo'   => $_SESSION['tipo']     ?? 'cliente', // 'admin' ou 'cliente'
-    'avatar' => $_SESSION['avatar']   ?? '',
+    'avatar' => $avatarUrl,
 ];
 
 $isAdmin = ($usuario['tipo'] === 'admin');
