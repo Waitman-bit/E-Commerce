@@ -20,17 +20,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $dimensoes = 0.00;
     $peso = 0.00;
     $estoque = 10;
-    $imagem_nome = "padrao.png";
+   // Nome padrão caso nenhuma imagem seja enviada
+$imagem_nome = "padrao.png";
 
-    // ARIKAWA BACK END - TRATAMENTO E ESTRUTURA DE ENVIO DA IMAGEM
-    if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] == 0) {
-        $nome_original = $_FILES['imagem_php']['name'];
-        $extensao = strtolower(pathinfo($nome_original, PATHINFO_EXTENSION));
-        $imagem_nome = uniqid() . "." . $extensao;
+// Upload da imagem
+if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ERR_OK) {
 
-        $diretorio_destino = "../Index/";
-        move_uploaded_file($_FILES['imagem_php']['tmp_name'], $diretorio_destino . $imagem_nome);
+    $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
+
+    $nome_original = $_FILES['imagem_php']['name'];
+    $extensao = strtolower(pathinfo($nome_original, PATHINFO_EXTENSION));
+
+    if (in_array($extensao, $extensoesPermitidas)) {
+
+        // Gera um nome único
+        $imagem_nome = uniqid('produto_', true) . "." . $extensao;
+
+        // Pasta onde as imagens ficarão
+        $diretorio_destino = "../ImagensProdutos/";
+
+        // Cria a pasta caso ela não exista
+        if (!is_dir($diretorio_destino)) {
+            mkdir($diretorio_destino, 0777, true);
+        }
+
+        // Move a imagem para a pasta
+        if (!move_uploaded_file(
+                $_FILES['imagem_php']['tmp_name'],
+                $diretorio_destino . $imagem_nome
+            )) {
+
+            die("Erro ao salvar a imagem.");
+        }
+
+    } else {
+        die("Formato de imagem inválido.");
     }
+}
 
     // MORITA BANCOS DE DADOS - INSERCAO DO NOVO CAMPO PRECO NA TABELA
     $stmt = $conn->prepare("

@@ -1,6 +1,10 @@
 <?php
-    
+require_once("../connection.php");
+
+$sql = "SELECT * FROM produto";
+$resultado = mysqli_query($conn, $sql);
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -33,77 +37,52 @@
       <!-- Produtos -->
        <section class="produtos-section">
   <h2 class="produtos-titulo">Produtos em Destaque</h2>
-  <div class="cards-grid">
 
-    <div class="product-card">
-      <div class="card-img">
-        <img src="tenis.png" alt="Tênis Pro Run X3">
-        <span class="card-badge">NOVO</span>
-      </div>
-      <div class="card-body">
-        <p class="card-category">Corrida</p>
-        <p class="card-name">Tênis de corrida Pro Run X3</p>
-        <div class="card-footer">
-          <div>
-            <span class="card-price">R$ 299,90</span>
-            <span class="card-price-old">R$ 399,90</span>
-          </div>
-          <a href="produto.php?id=1" class="btn-add">+ Ver produto</a>
-        </div>
-      </div>
+    <div class="cards-grid">
+
+<?php while($produto = mysqli_fetch_assoc($resultado)){ ?>
+
+<div class="product-card">
+
+    <div class="card-img">
+
+        <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+
     </div>
 
-    <div class="product-card">
-      <div class="card-img">
-        <img src="creatina.png" alt="Suplementos">
-      </div>
-      <div class="card-body">
-        <p class="card-category">Suplementos</p>
-        <p class="card-name">Kit 2 Creatinas Monohidratas</p>
+    <div class="card-body">
+
+        <p class="card-category">
+            <?php echo $produto['id_categoria']; ?>
+        </p>
+
+        <p class="card-name">
+            <?php echo $produto['nome']; ?>
+        </p>
+
         <div class="card-footer">
-          <div>
-            <span class="card-price">R$ 140,50</span>
-          </div>
-          <a href="produto.php?id=2" class="btn-add">+ Ver produto</a>
+
+            <div>
+
+                <span class="card-price">
+                    R$ <?php echo number_format($produto['preco'],2,",","."); ?>
+                </span>
+
+            </div>
+
+            <a href="produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
+                + Ver produto
+            </a>
+
         </div>
-      </div>
+
     </div>
 
-    <div class="product-card">
-      <div class="card-img">
-        <img src="luva.png" alt="Luvas de Treino">
-        <span class="card-badge">-25%</span>
-      </div>
-      <div class="card-body">
-        <p class="card-category">Futebol</p>
-        <p class="card-name">Luvas de Treino Grip Pro</p>
-        <div class="card-footer">
-          <div>
-            <span class="card-price">R$ 59,90</span>
-            <span class="card-price-old">R$ 79,90</span>
-          </div>
-          <a href="produto.php?id=3" class="btn-add">+ Ver produto</a>
-        </div>
-      </div>
-    </div>
+</div>
 
-    <div class="product-card">
-      <div class="card-img">
-        <img src="camisadetime.png" alt="Kit 3 Camisa Dry-Fit">
-      </div>
-      <div class="card-body">
-        <p class="card-category">Camisas de Time</p>
-        <p class="card-name">Camisa Santos Ediçao Especial - Charlie Brown Jr</p>
-        <div class="card-footer">
-          <div>
-            <span class="card-price">R$ 120,00</span>
-          </div>
-          <a href="produto.php?id=4" class="btn-add">+ Ver produto</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<?php } ?>
+
+</div>
 
 <footer>
   <p>&copy; 2026 TITAN SPORTS. Todos os direitos reservados.</p>
