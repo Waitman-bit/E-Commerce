@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Tempo de geração: 24/06/2026 às 18:06
+-- Host: 127.0.0.1
+-- Tempo de geração: 10/07/2026 às 00:21
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -137,6 +137,16 @@ CREATE TABLE `produto` (
   `preco` decimal(10,2) NOT NULL DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `produto`
+--
+
+INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome`, `genero`, `estoque`, `descricao`, `imagem`, `peso`, `preco`) VALUES
+(1, 'Generica', 3, 0.00, 'Tenis Asics', 'Unissex', 10, 'Tenis de corrida', 'produto_6a4d896d10ffe9.81408047.webp', 0.00, 300.00),
+(2, 'Generica', 1, 0.00, 'Camisa Santos Charli', 'Unissex', 10, 'Camisa esportiva', 'produto_6a4d8af08ff304.10963099.jpg', 0.00, 250.00),
+(3, 'Generica', 1, 0.00, 'Luva Goleiro', 'Unissex', 10, 'Luvas de goleiro', 'produto_6a4d8f528ebd64.33366870.jpg', 0.00, 150.00),
+(4, 'Generica', 1, 0.00, 'Chuteira Mercurial N', 'Unissex', 10, 'Chuteira de campo', 'produto_6a4d8fc4587534.04441288.jpg', 0.00, 670.00);
+
 -- --------------------------------------------------------
 
 --
@@ -266,7 +276,7 @@ ALTER TABLE `pedido`
 -- AUTO_INCREMENT de tabela `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `usuario`
