@@ -19,7 +19,7 @@
                 <span>Informe suas credenciais para continuar</span>
                 <input type="text" name="nome" placeholder="Nome">
                 <input type="email" name="email" placeholder="Email">
-                <input type="tel" maxlength="15" name="telefone" pattern="\(\d{2}\)\s\d{5}-\d{4}" placeholder="(16) 99999-9999" id="telefone">
+                <input type="tel" maxlength="15" name="telefone" placeholder="(16) 99999-9999" id="telefone">
                 <input type="text" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP" id="cep">
                 <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="CPF" id="cpf">
                 <input type="password" name="senha" placeholder="Senha">
@@ -127,6 +127,7 @@
                         $_SESSION['id'] = $idUsuario;
                         $_SESSION['nome'] = $nome;
                         $_SESSION['email'] = $email;
+                        $_SESSION['avatar'] = '';
                         header("Location: ../Index/Index.php");
                         exit();
                     } 
@@ -176,6 +177,7 @@
                     $_SESSION['nome']  = $usuario['nome'];
                     $_SESSION['email'] = $usuario['email'];
                     $_SESSION['tipo'] = $usuario['tipo'];
+                    $_SESSION['avatar'] = $usuario['foto_perfil'] ?? '';
 
                     // Verifica o tipo do usuário
                     if ($usuario['tipo'] === 'admin') {

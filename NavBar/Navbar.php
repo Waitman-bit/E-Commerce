@@ -2,10 +2,50 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+function buildNavbarAvatarUrl($valor) {
+    if (empty($valor)) {
+        return '';
+    }
+
+    if (preg_match('#^https?://#i', $valor)) {
+        return $valor;
+    }
+
+    $valor = str_replace('\\', '/', $valor);
+
+    if (strpos($valor, '/') === 0) {
+        return $valor;
+    }
+
+    return '/E-Commerce/Perfil/' . ltrim($valor, '/');
+}
+
 $logado = isset($_SESSION['id']);
 $nomeUsuario  = $logado ? htmlspecialchars($_SESSION['nome'])  : 'Entrar';
 $emailUsuario = $logado ? htmlspecialchars($_SESSION['email']) : 'Minha conta';
 $linkPerfil   = $logado ? '../Perfil/perfil.php' : '../Login/Login.php';
+$avatarUrl    = '';
+
+if ($logado) {
+    require_once __DIR__ . '/../connection.php';
+    $stmt = $conn->prepare('SELECT foto_perfil FROM usuario WHERE id_usuario = ?');
+    if ($stmt) {
+        $stmt->bind_param('i', $_SESSION['id']);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $usuarioAvatar = $resultado->fetch_assoc();
+        $stmt->close();
+
+        $_SESSION['avatar'] = $usuarioAvatar['foto_perfil'] ?? '';
+    }
+}
+
+if ($logado && !empty($_SESSION['avatar'])) {
+    $avatarUrl = buildNavbarAvatarUrl($_SESSION['avatar']);
+}
+
+$avatarSrc = !empty($avatarUrl) ? $avatarUrl : '/E-Commerce/NavBar/Perfil.png';
 ?>
 
 <link rel="stylesheet" href="/E-Commerce/NavBar/NavBar.css">
@@ -30,7 +70,7 @@ $linkPerfil   = $logado ? '../Perfil/perfil.php' : '../Login/Login.php';
 
     <div class="user-area">
       <a href="<?= $linkPerfil ?>" class="profile-box">
-        <img src="/E-Commerce/NavBar/Perfil.png" class="profile-img" alt="Perfil">
+        <img src="<?= $avatarSrc ?>" class="profile-img" alt="Perfil">
         <div class="profile-info">
           <span class="welcome"><?= $nomeUsuario ?></span>
           <span class="status"><?= $emailUsuario ?></span>
