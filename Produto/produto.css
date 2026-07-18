@@ -22,47 +22,6 @@ body {
     line-height: 1.6;
 }
 
-/* ===== NAVBAR ===== */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--cor-card);
-    padding: 18px 40px;
-    border-bottom: 2px solid var(--cor-destaque);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.navbar-logo {
-    font-size: 22px;
-    font-weight: bold;
-    color: var(--cor-texto);
-}
-
-.navbar-logo span {
-    color: var(--cor-destaque);
-}
-
-.navbar-links a {
-    color: var(--cor-texto-secundario);
-    text-decoration: none;
-    margin-left: 25px;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.navbar-links a:hover {
-    color: var(--cor-destaque);
-}
-
-.link-admin {
-    color: var(--cor-destaque) !important;
-    border: 1px solid var(--cor-destaque);
-    padding: 5px 10px;
-    border-radius: 6px;
-}
 
 /* ===== CONTAINER PRINCIPAL ===== */
 .produto-container {

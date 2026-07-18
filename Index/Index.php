@@ -52,9 +52,7 @@ $resultado = mysqli_query($conn, $sql);
 
     <div class="card-body">
 
-        <p class="card-category">
-            <?php echo $produto['id_categoria']; ?>
-        </p>
+        
 
         <p class="card-name">
             <?php echo $produto['nome']; ?>
@@ -70,7 +68,7 @@ $resultado = mysqli_query($conn, $sql);
 
             </div>
 
-            <a href="produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
+            <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
                 + Ver produto
             </a>
 

@@ -1,4 +1,5 @@
 <?php
+    $idProduto = isset($_GET['id']) ? intval($_GET['id']) : 0;
 /**
  * TitanSports - Página de Detalhes do Produto
  * Exibe informações detalhadas de um produto específico
@@ -99,7 +100,7 @@ $avaliacaoEstrelas = 4;
 
 <!-- ===== NAVBAR ===== -->
 <header class="navbar">
-    <div class="navbar-logo">SPORT<span>ZONE</span></div>
+    <div class="navbar-logo"></span></div>
     <nav class="navbar-links">
         <a href="index.php">Início</a>
         <a href="produtos.php">Produtos</a>
@@ -118,9 +119,9 @@ $avaliacaoEstrelas = 4;
 
         <!-- COLUNA ESQUERDA: IMAGEM -->
         <div class="produto-imagem-box">
-            <img src="<?php echo htmlspecialchars($produto['imagem']); ?>"
-                 alt="<?php echo htmlspecialchars($produto['nome']); ?>"
-                 class="produto-imagem-principal">
+            <img src="../ImagensProdutos/<?php echo htmlspecialchars($produto['imagem']); ?>"
+     alt="<?php echo htmlspecialchars($produto['nome']); ?>"
+     class="produto-imagem-principal">
         </div>
 
         <!-- COLUNA DIREITA: INFORMAÇÕES -->
@@ -194,8 +195,8 @@ $avaliacaoEstrelas = 4;
         <div class="relacionados-grid">
             <?php foreach ($relacionados as $rel): ?>
                 <div class="card-relacionado">
-                    <img src="<?php echo htmlspecialchars($rel['imagem']); ?>"
-                         alt="<?php echo htmlspecialchars($rel['nome']); ?>">
+                    <img src="../ImagensProdutos/<?php echo htmlspecialchars($rel['imagem']); ?>"
+     alt="<?php echo htmlspecialchars($rel['nome']); ?>">
                     <h3><?php echo htmlspecialchars($rel['nome']); ?></h3>
                     <p class="card-preco">R$ <?php echo number_format($rel['preco'], 2, ',', '.'); ?></p>
                     <a href="produto.php?id=<?php echo intval($rel['id_produto']); ?>" class="btn btn-outline btn-pequeno">

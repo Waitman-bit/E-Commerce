@@ -33,8 +33,8 @@ if ($logado) {
     if ($stmt) {
         $stmt->bind_param('i', $_SESSION['id']);
         $stmt->execute();
-        $resultado = $stmt->get_result();
-        $usuarioAvatar = $resultado->fetch_assoc();
+        $resultadoAvatar = $stmt->get_result();
+        $usuarioAvatar = $resultadoAvatar->fetch_assoc();
         $stmt->close();
 
         $_SESSION['avatar'] = $usuarioAvatar['foto_perfil'] ?? '';
