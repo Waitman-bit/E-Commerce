@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Tempo de geração: 10/07/2026 às 00:21
+-- Host: localhost
+-- Tempo de geração: 19/07/2026 às 20:07
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -41,7 +41,10 @@ INSERT INTO `categoria` (`id_categoria`, `nome`) VALUES
 (2, 'Basquete'),
 (3, 'Corrida'),
 (4, 'Musculação'),
-(5, 'Natação');
+(5, 'Natação'),
+(6, 'Suplementos'),
+(7, 'Vestuário'),
+(8, 'Acessórios');
 
 -- --------------------------------------------------------
 
@@ -128,7 +131,7 @@ CREATE TABLE `produto` (
   `marca` varchar(20) NOT NULL,
   `id_categoria` int(11) NOT NULL,
   `dimensoes` decimal(10,2) NOT NULL,
-  `nome` varchar(20) NOT NULL,
+  `nome` varchar(150) NOT NULL,
   `genero` varchar(9) NOT NULL,
   `estoque` int(11) DEFAULT NULL,
   `descricao` varchar(50) NOT NULL,
@@ -170,7 +173,7 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`) VALUES
-(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$LLTatQFXkWmBFJv2pVhizufJbz5iIjcQk66Uk/CJHnQTsJ7g84u9G', 'cliente', NULL, NULL),
+(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$upOA080..VIRJw6QRPzfGu8FLUUXwPY661uEBB6kuQcTB9kxZRCVe', 'cliente', NULL, NULL),
 (8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL);
 
 --
@@ -240,7 +243,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de tabela `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de tabela `entrega`
