@@ -1,6 +1,5 @@
 /* ===== RESET E VARIÁVEIS GLOBAIS ===== */
 :root {
-    --cor-fundo: #0a0a0a;
     --cor-card: #181818;
     --cor-destaque: #FFD100;
     --cor-texto: #f5f5f5;
@@ -16,7 +15,7 @@
 }
 
 body {
-    background-color: var(--cor-fundo);
+    background-color: #0d0d0d;
     color: var(--cor-texto);
     font-family: 'Segoe UI', Arial, sans-serif;
     line-height: 1.6;
@@ -323,15 +322,6 @@ body {
 }
 
 @media (max-width: 500px) {
-    .navbar {
-        padding: 15px 20px;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .navbar-links a {
-        margin-left: 12px;
-        font-size: 13px;
-    }
     .produto-nome {
         font-size: 22px;
     }

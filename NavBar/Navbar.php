@@ -89,10 +89,10 @@ $avatarSrc = !empty($avatarUrl) ? $avatarUrl : '/E-Commerce/NavBar/Perfil.png';
         <a href="#">Futebol</a>
         <a href="#">Basquete</a>
         <a href="#">Corrida</a>
-        <a href="#">Academia</a>
+        <a href="#">Musculação</a>
         <a href="#">Natação</a>
         <a href="#">Suplementos</a>
-        <a href="#">Camisas de Times</a>
+        <a href="#">Vestuário</a>
         <a href="#">Acessórios</a>
       </div>
     </div>

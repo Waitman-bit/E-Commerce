@@ -94,12 +94,13 @@ $avaliacaoEstrelas = 4;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($produto['nome']); ?> - TitanSports</title>
+    <?php require_once '../NavBar/Navbar.php'; ?>
     <link rel="stylesheet" href="produto.css">
 </head>
 <body>
 
 <!-- ===== NAVBAR ===== -->
-<header class="navbar">
+<!-- <header class="navbar">
     <div class="navbar-logo"></span></div>
     <nav class="navbar-links">
         <a href="index.php">Início</a>
@@ -110,7 +111,7 @@ $avaliacaoEstrelas = 4;
             <a href="../Admin/painel.php" class="link-admin">Painel Admin</a>
         <?php endif; ?>
     </nav>
-</header>
+</header> -->
 
 <!-- ===== CONTEÚDO PRINCIPAL DO PRODUTO ===== -->
 <main class="produto-container">
@@ -150,10 +151,9 @@ $avaliacaoEstrelas = 4;
                 <!-- ===== USUÁRIO LOGADO: COMPRA LIBERADA ===== -->
                 <div class="produto-quantidade">
                     <label for="quantidade">Quantidade:</label>
-                    <input type="number" id="quantidade" name="quantidade"
-                           value="1" min="1" max="<?php echo $estoque; ?>"
-                           <?php echo $estoque <= 0 ? 'disabled' : ''; ?>>
-                </div>
+                    <input type="number" id="quantidade" name="quantidade" value="1" min="1" max="<?php echo $estoque; ?>"
+                         <?php echo $estoque <= 0 ? 'disabled' : ''; ?>>
+                    </div>
 
                 <div class="produto-botoes">
                     <button id="btnComprarAgora"

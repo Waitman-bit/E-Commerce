@@ -15,7 +15,9 @@
         <h1>Meu Carrinho</h1>
         <a href="../Index/Index.php"><img src="home.png" alt="Home"></a>
     </div>
-
+        <div class="btn-FinalizarCompra">
+            <button>Finalizar Compra</button>
+        </div>
     <div class="conteudo">
         
     </div>
