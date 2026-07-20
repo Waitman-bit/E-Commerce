@@ -134,11 +134,11 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
 
             <div class="form-header">
                 <div class="dot"></div>
-                <h1>Cadastro de produto</h1>
+                <h1>Cadastro de Produto</h1>
             </div>
 
             <div class="grid-1">
-                <label for="nome">Nome do produto</label>
+                <label for="nome">Nome do Produto</label>
                 <input type="text" id="nome" name="nome_php" placeholder="Ex: Tenis Nike Jordan 4 Toro Bravo">
             </div>
 
@@ -161,7 +161,7 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
                 </div>
 
                 <div>
-                    <label>Genero (opcional)</label>
+                    <label>Genêro (opcional)</label>
 
                     <input type="hidden" name="genero_php" id="genero_oculto" value="">
 
@@ -180,7 +180,6 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
 
             <div class="grid-1 mt-16">
                 <label>Tamanho</label>
-
                 <div class="size-group">
                     <button type="button" class="size-pill" onclick="toggleSize(this)">PP</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">P</button>
@@ -199,12 +198,12 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
 
             <!-- MORITA BANCOS DE DADOS - INPUT PARA RECEBER O VALOR DO PRODUTO -->
             <div class="grid-1">
-                <label for="preco">Preco (R$)</label>
+                <label for="preco">Preço (R$)</label>
                 <input type="number" step="0.01" min="0" id="preco" name="preco_php" placeholder="Ex: 199.90" onblur="formatarPreco(this)">
             </div>
 
             <div class="grid-1">
-                <label for="descricao">Descricao</label>
+                <label for="descricao">Descrição</label>
                 <textarea id="descricao" name="descricao_php"
                     placeholder="Descreva o produto: material, marca, caracteristicas..."></textarea>
             </div>
@@ -212,7 +211,7 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
             <!-- ARIKAWA BACK END - ENVIO SEGURO DO FORMULARIO COMPLETO -->
             <button type="button" class="btn-submit" onclick="submitForm()">
                 <i class="ti ti-device-floppy" aria-hidden="true"></i>
-                Cadastrar produto
+                Cadastrar Produto
             </button>
 
         </div>

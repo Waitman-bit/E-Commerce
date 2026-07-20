@@ -27,11 +27,14 @@ $resultado = mysqli_query($conn, $sql);
      </section> <br> <br>
       
     <div class="categorias-bar">
-  <a class="cat-chip" href="produtos.php?categoria=todos">Acessórios</a>
   <a class="cat-chip" href="produtos.php?categoria=corrida">Corrida</a>
+  <a class="cat-chip" href="produtos.php?categoria=basquete">Basquete</a>
    <a class="cat-chip" href="produtos.php?categoria=futebol">Futebol</a>
+   <a class="cat-chip" href="produtos.php?categoria=natacao">Natação</a>
+   <a class="cat-chip" href="produtos.php?categoria=musculacao">Musculação</a>
   <a class="cat-chip" href="produtos.php?categoria=suplementos">Suplementos</a>
-  <a class="cat-chip" href="produtos.php?categoria=camisas">Camisas de Time</a>
+  <a class="cat-chip" href="produtos.php?categoria=roupas">Vestuário</a>
+  <a class="cat-chip" href="produtos.php?categoria=todos">Acessórios</a>
 </div>
 
       <!-- Produtos -->

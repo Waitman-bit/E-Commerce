@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ===== BOTÃO: ADICIONAR AO CARRINHO (AJAX) =====
+    // ===== BOTÃO: ADICIONAR AO CARRINHO =====
     if (btnAdicionarCarrinho) {
         btnAdicionarCarrinho.addEventListener('click', function () {
 
@@ -95,29 +95,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const quantidade = obterQuantidade();
 
             btnAdicionarCarrinho.disabled = true;
+            btnAdicionarCarrinho.textContent = 'Adicionando...';
 
-            fetch('adicionar_carrinho.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    produto_id: idProduto,
-                    quantidade: quantidade
-                })
-            })
-            .then(resp => resp.json())
-            .then(data => {
-                btnAdicionarCarrinho.disabled = false;
-
-                if (data.sucesso) {
-                    exibirToast('Produto adicionado ao carrinho.', 'sucesso');
-                } else {
-                    exibirToast(data.mensagem || 'Erro ao adicionar produto.', 'erro');
-                }
-            })
-            .catch(() => {
-                btnAdicionarCarrinho.disabled = false;
-                exibirToast('Erro de conexão. Tente novamente.', 'erro');
-            });
+            window.location.href = '../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto) + '&quantidade=' + encodeURIComponent(quantidade);
         });
     }
 });
