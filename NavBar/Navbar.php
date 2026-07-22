@@ -61,11 +61,16 @@ $avatarSrc = !empty($avatarUrl) ? $avatarUrl : '/E-Commerce/NavBar/Perfil.png';
       <img src="/E-Commerce/NavBar/Logo-sem-fundo.png" alt="Logo">
     </a>
 
-    <form class="search-box">
-      <input type="search" placeholder="Buscar produtos, marcas e muito mais...">
-      <button type="submit">
+    <form class="search-box" action="../Index/index.php" method="GET">
+    <input
+        type="search"
+        name="pesquisa"
+        placeholder="Buscar produtos, marcas e muito mais..."
+    >
+
+    <button type="submit">
         <i class="fas fa-search"></i>
-      </button>
+    </button>
     </form>
 
     <div class="user-area">

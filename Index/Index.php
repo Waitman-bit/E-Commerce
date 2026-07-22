@@ -1,8 +1,34 @@
 <?php
 require_once("../connection.php");
 
-$sql = "SELECT * FROM produto";
-$resultado = mysqli_query($conn, $sql);
+$pesquisa = $_GET['pesquisa'] ?? '';
+
+if (!empty($pesquisa)) {
+
+    $busca = "%{$pesquisa}%";
+
+    $stmt = mysqli_prepare($conn, "
+        SELECT p.*
+        FROM produto p
+        INNER JOIN categoria c
+            ON p.id_categoria = c.id_categoria
+        WHERE
+            p.nome LIKE ?
+            OR p.marca LIKE ?
+            OR p.descricao LIKE ?
+            OR c.nome LIKE ?
+    ");
+
+    mysqli_stmt_bind_param($stmt, "ssss", $busca, $busca, $busca, $busca);
+    mysqli_stmt_execute($stmt);
+
+    $resultado = mysqli_stmt_get_result($stmt);
+
+} else {
+
+    $resultado = mysqli_query($conn, "SELECT * FROM produto");
+
+}
 ?>
 
 <!DOCTYPE html>
