@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 19/07/2026 às 20:07
+-- Tempo de geração: 23/07/2026 às 00:48
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -148,7 +148,47 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (1, 'Generica', 3, 0.00, 'Tenis Asics', 'Unissex', 10, 'Tenis de corrida', 'produto_6a4d896d10ffe9.81408047.webp', 0.00, 300.00),
 (2, 'Generica', 1, 0.00, 'Camisa Santos Charli', 'Unissex', 10, 'Camisa esportiva', 'produto_6a4d8af08ff304.10963099.jpg', 0.00, 250.00),
 (3, 'Generica', 1, 0.00, 'Luva Goleiro', 'Unissex', 10, 'Luvas de goleiro', 'produto_6a4d8f528ebd64.33366870.jpg', 0.00, 150.00),
-(4, 'Generica', 1, 0.00, 'Chuteira Mercurial N', 'Unissex', 10, 'Chuteira de campo', 'produto_6a4d8fc4587534.04441288.jpg', 0.00, 670.00);
+(4, 'Generica', 1, 0.00, 'Chuteira Mercurial N', 'Unissex', 10, 'Chuteira de campo', 'produto_6a4d8fc4587534.04441288.jpg', 0.00, 670.00),
+(5, 'Nike', 1, 30.00, 'Camisa Brasil 2022', 'Unissex', 30, 'Camisa oficial da Maior Seleção do Mundo', 'camisa_brasil.jpg', 0.25, 349.90),
+(6, 'Adidas', 1, 30.00, 'Camisa Real Madrid', 'Masculino', 20, 'Camisa oficial', 'real_madrid.jpg', 0.25, 399.90),
+(7, 'Umbro', 1, 22.00, 'Bola Campo Pro', 'Unissex', 40, 'Bola profissional', 'bola_umbro.jpg', 0.45, 199.90),
+(8, 'Penalty', 1, 18.00, 'Caneleira Matis', 'Unissex', 60, 'Proteção para jogo', 'caneleira.jpg', 0.30, 69.90),
+(9, 'Poker', 1, 20.00, 'Luva Goleiro Pro', 'Unissex', 15, 'Luva profissional', 'luva_goleiro.jpg', 0.45, 249.90),
+(10, 'Nike', 2, 34.00, 'Bola Basquete Elite', 'Unissex', 22, 'Bola oficial', 'bola_basquete.jpg', 0.60, 239.90),
+(11, 'Spalding', 2, 33.00, 'Bola NBA', 'Unissex', 18, 'Modelo NBA', 'bola_nba.jpg', 0.62, 299.90),
+(12, 'Jordan 4', 2, 36.00, 'Tênis Jordan 4', 'Masculino', 8, 'Tênis basquete', 'jordan_four.jpg', 0.95, 899.90),
+(13, 'Adidas', 2, 35.00, 'Tênis Harden Step', 'Masculino', 10, 'Tênis esportivo', 'harden.jpg', 0.90, 749.90),
+(14, 'Nike', 2, 30.00, 'Regata Basketball', 'Masculino', 25, 'Regata esportiva', 'regata_basket.jpg', 0.20, 129.90),
+(15, 'Olympikus', 3, 35.00, 'Corre 4', 'Masculino', 18, 'Tênis corrida', 'corre4.jpg', 0.75, 499.90),
+(16, 'Asics', 3, 36.00, 'Gel Nimbus', 'Unissex', 12, 'Amortecimento premium', 'gel_nimbus.jpg', 0.82, 999.90),
+(17, 'Nike', 3, 35.00, 'Pegasus 42', 'Masculino', 15, 'Tênis corrida', 'pegasus42.jpg', 0.78, 799.90),
+(18, 'Adidas', 3, 34.00, 'Adizero SL', 'Feminino', 20, 'Tênis leve', 'adizero.jpg', 0.72, 699.90),
+(19, 'Garmin', 3, 12.00, 'Relógio Forerunner', 'Unissex', 7, 'GPS esportivo', 'forerunner.jpg', 0.18, 1599.90),
+(20, 'Acte', 4, 100.00, 'Colchonete EVA', 'Unissex', 35, 'Colchonete fitness', 'colchonete.jpg', 1.10, 89.90),
+(21, 'Vollo', 4, 30.00, 'Par Halteres 5kg', 'Unissex', 20, 'Halter em ferro', 'halter5kg.jpg', 10.00, 199.90),
+(22, 'Muvin', 4, 20.00, 'Faixa Elástica', 'Unissex', 45, 'Faixa resistência', 'faixa.jpg', 0.20, 49.90),
+(23, 'Acte', 4, 25.00, 'Corda de Pular', 'Unissex', 50, 'Corda ajustável', 'corda.jpg', 0.30, 39.90),
+(24, 'Kikos', 4, 45.00, 'Roda Abdominal', 'Unissex', 18, 'Treino abdominal', 'abwheel.jpg', 0.80, 119.90),
+(25, 'Speedo', 5, 15.00, 'Óculos Hydro', 'Unissex', 30, 'Óculos natação', 'oculos.jpg', 0.08, 99.90),
+(26, 'Speedo', 5, 28.00, 'Touca Silicone', 'Unissex', 45, 'Touca profissional', 'touca.jpg', 0.05, 39.90),
+(27, 'Arena', 5, 18.00, 'Óculos Cobra', 'Unissex', 15, 'Alta performance', 'cobra.jpg', 0.07, 299.90),
+(28, 'Hammerhead', 5, 32.00, 'Maiô Training', 'Feminino', 12, 'Maiô esportivo', 'maio.jpg', 0.25, 179.90),
+(29, 'Speedo', 5, 30.00, 'Sunga Basic', 'Masculino', 20, 'Sunga esportiva', 'sunga.jpg', 0.15, 79.90),
+(30, 'IntegralMedica', 6, 25.00, 'Whey Protein 900g', 'Unissex', 25, 'Proteína concentrada', 'whey900.jpg', 0.90, 149.90),
+(31, 'Max Titanium', 6, 30.00, 'Creatina 300g', 'Unissex', 40, 'Creatina monohidratada', 'creatina.jpg', 0.30, 99.90),
+(32, 'Growth', 6, 25.00, 'Whey Isolado', 'Unissex', 18, 'Proteína isolada', 'whey_iso.jpg', 1.00, 239.90),
+(33, 'Dark Lab', 6, 20.00, 'Pré Treino', 'Unissex', 22, 'Energia treino', 'pretreino.jpg', 0.30, 89.90),
+(34, 'Universal', 6, 22.00, 'BCAA 240 Caps', 'Unissex', 14, 'Aminoácidos', 'bcaa.jpg', 0.45, 129.90),
+(35, 'Nike', 7, 28.00, 'Short Dri-FIT', 'Masculino', 30, 'Short esportivo', 'short_nike.jpg', 0.20, 119.90),
+(36, 'Adidas', 7, 28.00, 'Calça Moletom', 'Unissex', 18, 'Calça esportiva', 'calca.jpg', 0.55, 199.90),
+(37, 'Puma', 7, 30.00, 'Jaqueta Corta Vento', 'Unissex', 14, 'Jaqueta leve', 'jaqueta.jpg', 0.60, 299.90),
+(38, 'Fila', 7, 27.00, 'Camiseta Basic', 'Feminino', 35, 'Camiseta esportiva', 'camiseta_fila.jpg', 0.22, 89.90),
+(39, 'Under Armour', 7, 26.00, 'Meia Performance', 'Unissex', 50, 'Par de meias', 'meia.jpg', 0.10, 39.90),
+(40, 'Mizuno', 8, 45.00, 'Mochila Sport', 'Unissex', 18, 'Mochila resistente', 'mochila.jpg', 0.90, 199.90),
+(41, 'Nike', 8, 12.00, 'Garrafa 750ml', 'Unissex', 40, 'Garrafa Squeeze esportiva', 'garrafa.jpg', 0.18, 59.90),
+(42, 'Acte', 8, 18.00, 'Munhequeira', 'Unissex', 35, 'Suporte punho', 'munhequeira.jpg', 0.10, 34.90),
+(43, 'Poker', 8, 15.00, 'Faixa Capitão', 'Unissex', 25, 'Faixa elástica', 'capitao.jpg', 0.05, 24.90),
+(44, 'Adidas', 8, 25.00, 'Boné Running', 'Unissex', 20, 'Boné esportivo', 'bone.jpg', 0.12, 99.90);
 
 -- --------------------------------------------------------
 
@@ -279,7 +319,7 @@ ALTER TABLE `pedido`
 -- AUTO_INCREMENT de tabela `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT de tabela `usuario`

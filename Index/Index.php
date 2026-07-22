@@ -66,51 +66,32 @@ if (!empty($pesquisa)) {
       <!-- Produtos -->
        <section class="produtos-section">
   <h2 class="produtos-titulo">Produtos em Destaque</h2>
-
     <div class="cards-grid">
-
 <?php while($produto = mysqli_fetch_assoc($resultado)){ ?>
-
 <div class="product-card">
-
     <div class="card-img">
-
         <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
-
     </div>
-
     <div class="card-body">
-
-        
-
         <p class="card-name">
             <?php echo $produto['nome']; ?>
         </p>
-
         <div class="card-footer">
-
             <div>
-
                 <span class="card-price">
                     R$ <?php echo number_format($produto['preco'],2,",","."); ?>
                 </span>
-
             </div>
 
             <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
                 + Ver produto
             </a>
-
         </div>
-
     </div>
-
 </div>
 
 <?php } ?>
-
 </div>
-
 <footer>
   <p>&copy; 2026 TITAN SPORTS. Todos os direitos reservados.</p>
 </footer>
