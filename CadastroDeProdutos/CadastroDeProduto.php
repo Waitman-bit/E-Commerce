@@ -101,14 +101,10 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Produto</title>
-
     <link rel="stylesheet" href="CadastroDeProduto.css">
     <!-- WAITMAN FRONT END - IMPORTACAO DA BIBLIOTECA OFICIAL TABLER ICONS -->
-    <link rel="stylesheet" href="https://jsdelivr.net">
 </head>
-
 <body>
-
 <!-- WAITMAN FRONT END - ESTRUTURA VISUAL DO TOPO DA PAGINA -->
 <div class="TopBar">
     <h1>Cadastro de Produtos</h1>
@@ -199,7 +195,7 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
             <!-- MORITA BANCOS DE DADOS - INPUT PARA RECEBER O VALOR DO PRODUTO -->
             <div class="grid-1">
                 <label for="preco">Preço (R$)</label>
-                <input type="number" step="0.01" min="0" id="preco" name="preco_php" placeholder="Ex: 199.90" onblur="formatarPreco(this)">
+                <input type="text" step="0.01" min="0" inputmode = "decimal" id="preco" name="preco_php" placeholder="Ex: 199.90" onblur="formatarPreco(this)">
             </div>
 
             <div class="grid-1">
@@ -223,6 +219,5 @@ if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ER
 <script src="CadastroDeProduto.js"></script>
 <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
-
 </body>
 </html>

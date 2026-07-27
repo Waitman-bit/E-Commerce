@@ -26,7 +26,7 @@ if (!empty($pesquisa)) {
 
 } else {
 
-    $resultado = mysqli_query($conn, "SELECT * FROM produto");
+    $resultado = mysqli_query($conn, "SELECT * FROM produto ORDER BY RAND() LIMIT 4");
 
 }
 ?>
