@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 23/07/2026 às 00:48
+-- Tempo de geração: 28/07/2026 às 23:13
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -44,7 +44,8 @@ INSERT INTO `categoria` (`id_categoria`, `nome`) VALUES
 (5, 'Natação'),
 (6, 'Suplementos'),
 (7, 'Vestuário'),
-(8, 'Acessórios');
+(8, 'Acessórios'),
+(9, 'Artes Marciais');
 
 -- --------------------------------------------------------
 
@@ -153,10 +154,10 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (6, 'Adidas', 1, 30.00, 'Camisa Real Madrid', 'Masculino', 20, 'Camisa oficial', 'real_madrid.jpg', 0.25, 399.90),
 (7, 'Umbro', 1, 22.00, 'Bola Campo Pro', 'Unissex', 40, 'Bola profissional', 'bola_umbro.jpg', 0.45, 199.90),
 (8, 'Penalty', 1, 18.00, 'Caneleira Matis', 'Unissex', 60, 'Proteção para jogo', 'caneleira.jpg', 0.30, 69.90),
-(9, 'Poker', 1, 20.00, 'Luva Goleiro Futsal', 'Unissex', 15, 'Luva profissional', 'luva_goleiro.jpg', 0.45, 249.90),
+(9, 'Poker', 1, 20.00, 'Luva Goleiro Pro', 'Unissex', 15, 'Luva profissional', 'luva_goleiro.jpg', 0.45, 249.90),
 (10, 'Nike', 2, 34.00, 'Bola Basquete Elite', 'Unissex', 22, 'Bola oficial', 'bola_basquete.jpg', 0.60, 239.90),
 (11, 'Spalding', 2, 33.00, 'Bola NBA', 'Unissex', 18, 'Modelo NBA', 'bola_nba.jpg', 0.62, 299.90),
-(12, 'Jordan', 2, 36.00, 'Tênis Jordan 4', 'Masculino', 8, 'Tênis basquete', 'jordan_four.jpg', 0.95, 899.90),
+(12, 'Jordan 4', 2, 36.00, 'Tênis Jordan 4', 'Masculino', 8, 'Tênis basquete', 'jordan_four.jpg', 0.95, 899.90),
 (13, 'Adidas', 2, 35.00, 'Tênis Harden Step', 'Masculino', 10, 'Tênis esportivo', 'harden.jpg', 0.90, 749.90),
 (14, 'Nike', 2, 30.00, 'Regata Basketball', 'Masculino', 25, 'Regata esportiva', 'regata_basket.jpg', 0.20, 129.90),
 (15, 'Olympikus', 3, 35.00, 'Corre 4', 'Masculino', 18, 'Tênis corrida', 'corre4.jpg', 0.75, 499.90),
@@ -188,7 +189,16 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (41, 'Nike', 8, 12.00, 'Garrafa 750ml', 'Unissex', 40, 'Garrafa Squeeze esportiva', 'garrafa.jpg', 0.18, 59.90),
 (42, 'Acte', 8, 18.00, 'Munhequeira', 'Unissex', 35, 'Suporte punho', 'munhequeira.jpg', 0.10, 34.90),
 (43, 'Poker', 8, 15.00, 'Faixa Capitão', 'Unissex', 25, 'Faixa elástica', 'capitao.jpg', 0.05, 24.90),
-(44, 'Adidas', 8, 25.00, 'Boné Running', 'Unissex', 20, 'Boné esportivo', 'bone.jpg', 0.12, 99.90);
+(44, 'Adidas', 8, 25.00, 'Boné Running', 'Unissex', 20, 'Boné esportivo', 'bone.jpg', 0.12, 99.90),
+(45, 'Everlast', 9, 18.00, 'Luva de Boxe Pro', 'Unissex', 20, 'Luva para treino', 'luva_boxe.jpg', 0.80, 299.90),
+(46, 'Adidas', 9, 20.00, 'Kimono Jiu-Jitsu', 'Unissex', 15, 'Kimono profissional', 'kimono_bjj.jpg', 1.60, 449.90),
+(47, 'Venum', 9, 16.00, 'Short Muay Thai', 'Masculino', 25, 'Short para luta', 'short_muaythai.jpg', 0.25, 179.90),
+(48, 'Pretorian', 9, 12.00, 'Bandagem Elástica', 'Unissex', 50, 'Bandagem para mãos', 'bandagem.jpg', 0.10, 39.90),
+(50, 'Everlast', 9, 15.00, 'Caneleira Muay Thai', 'Unissex', 18, 'Proteção para pernas', 'caneleira_muaythai.jpg', 0.70, 229.90),
+(51, 'BoomBoxe', 9, 18.00, 'Boneco Simulador Bob', 'Unissex', 12, 'Treino de golpes', 'bob.jpg', 0.90, 349.90),
+(52, 'Adidas', 9, 25.00, 'Faixa Preta Jiu-Jitsu', 'Unissex', 10, 'Faixa oficial', 'faixa_preta.jpg', 0.15, 99.90),
+(53, 'Vollo', 9, 30.00, 'Saco de Pancadas 90cm', 'Unissex', 8, 'Saco de treino', 'saco_pancadas.jpg', 18.00, 499.90),
+(54, 'Everlast', 9, 14.00, 'Corda de Velocidade', 'Unissex', 30, 'Corda para treino', 'corda_boxe.jpg', 0.30, 69.90);
 
 -- --------------------------------------------------------
 
@@ -283,7 +293,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de tabela `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de tabela `entrega`
@@ -319,7 +329,7 @@ ALTER TABLE `pedido`
 -- AUTO_INCREMENT de tabela `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT de tabela `usuario`

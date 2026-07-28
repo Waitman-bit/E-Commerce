@@ -16,16 +16,13 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;         /* fica na frente de tudo */
-
     background-color: #ffe600;
     height: 65px;
     width: 100%;
     padding: 0 20px;
-
     display: flex;             /* alinha título e ícone lado a lado */
     align-items: center;       /* centraliza verticalmente */
     justify-content: space-between; /* título à esquerda, ícone à direita */
-
     color: rgb(6, 6, 6);
     font-family: 'Times New Roman', Times, serif;
 }
@@ -49,7 +46,7 @@ body {
 }
 
 button{
-     background-image: linear-gradient(45deg,rgb(213, 240, 10),rgb(208, 191, 6));
+    background-color: #ffe600;
      font-size: 20px;
      border: #000000;
      border-radius: 10px;
