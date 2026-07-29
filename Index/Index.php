@@ -57,6 +57,7 @@ if (!empty($pesquisa)) {
   <a class="cat-chip" href="produtos.php?categoria=basquete">Basquete</a>
    <a class="cat-chip" href="produtos.php?categoria=futebol">Futebol</a>
    <a class="cat-chip" href="produtos.php?categoria=natacao">Natação</a>
+   <a class="cat-chip" href="produtos.php?categoria=artes-marciais">Artes Marciais</a>
    <a class="cat-chip" href="produtos.php?categoria=musculacao">Musculação</a>
   <a class="cat-chip" href="produtos.php?categoria=suplementos">Suplementos</a>
   <a class="cat-chip" href="produtos.php?categoria=roupas">Vestuário</a>

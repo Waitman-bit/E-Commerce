@@ -88,17 +88,18 @@ $avatarSrc = !empty($avatarUrl) ? $avatarUrl : '/E-Commerce/NavBar/Perfil.png';
   <div class="menu-bar">
     <div class="dropdown">
       <button class="dropdown-btn">
-        Categorias ▼
+        Produtos ▼
       </button>
       <div class="dropdown-content">
-        <a href="#">Futebol</a>
-        <a href="#">Basquete</a>
-        <a href="#">Corrida</a>
-        <a href="#">Musculação</a>
-        <a href="#">Natação</a>
-        <a href="#">Suplementos</a>
-        <a href="#">Vestuário</a>
-        <a href="#">Acessórios</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Futebol">Futebol</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Basquete">Basquete</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Corrida">Corrida</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Musculação">Musculação</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Natação">Natação</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Artes%20Marciais">Artes Marciais</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Suplementos">Suplementos</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Vestuário">Vestuário</a>
+        <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Acessórios">Acessórios</a>
       </div>
     </div>
     <a href="#">Ofertas</a>

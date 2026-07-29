@@ -33,22 +33,13 @@
           <i class="ti ti-layout-dashboard"></i> Dashboard
         </button>
         <button class="nav-item">
-          <i class="ti ti-shopping-bag"></i> Pedidos
+          <i class="ti ti-shopping-bag"></i> Editar Produtos
         </button>
         <button class="nav-item">
          <a href="../CadastroDeProdutos/CadastroDeProduto.php"> <i class="ti ti-box"></i> Cadastrar Produtos</a>
         </button>
         <button class="nav-item">
-          <i class="ti ti-users"></i> Clientes
-        </button>
-        <button class="nav-item">
           <i class="ti ti-truck-delivery"></i> Estoque
-        </button>
-        <button class="nav-item">
-          <i class="ti ti-report-analytics"></i> Relatórios
-        </button>
-        <button class="nav-item">
-          <i class="ti ti-settings"></i> Configurações
         </button>
       </nav>
         <div class="sidebar-footer">
