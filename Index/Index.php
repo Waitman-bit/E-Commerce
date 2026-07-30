@@ -22,11 +22,13 @@ if (!empty($pesquisa)) {
     mysqli_stmt_bind_param($stmt, "ssss", $busca, $busca, $busca, $busca);
     mysqli_stmt_execute($stmt);
 
-    $resultado = mysqli_stmt_get_result($stmt);
+    $pesquisaResultado = mysqli_stmt_get_result($stmt);
 
 } else {
 
-    $resultado = mysqli_query($conn, "SELECT * FROM produto ORDER BY RAND() LIMIT 4");
+    $destaques = mysqli_query($conn, "SELECT * FROM produto ORDER BY RAND() LIMIT 4");
+
+    $todos = mysqli_query($conn, "SELECT * FROM produto ORDER BY nome ASC");
 
 }
 ?>
@@ -64,35 +66,106 @@ if (!empty($pesquisa)) {
   <a class="cat-chip" href="produtos.php?categoria=todos">Acessórios</a>
 </div>
 
-      <!-- Produtos -->
-       <section class="produtos-section">
-  <h2 class="produtos-titulo">Produtos em Destaque</h2>
+<!-- Produtos -->
+
+<?php if (!empty($pesquisa)) { ?>
+
+<section class="produtos-section">
+    <h2 class="produtos-titulo">
+        Resultados para "<?php echo htmlspecialchars($pesquisa); ?>"
+    </h2>
+
     <div class="cards-grid">
-<?php while($produto = mysqli_fetch_assoc($resultado)){ ?>
-<div class="product-card">
-    <div class="card-img">
-        <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
-    </div>
-    <div class="card-body">
-        <p class="card-name">
-            <?php echo $produto['nome']; ?>
-        </p>
-        <div class="card-footer">
-            <div>
-                <span class="card-price">
-                    R$ <?php echo number_format($produto['preco'],2,",","."); ?>
-                </span>
+        <?php while($produto = mysqli_fetch_assoc($pesquisaResultado)){ ?>
+        <div class="product-card">
+            <div class="card-img">
+                <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
             </div>
 
-            <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
-                + Ver produto
-            </a>
+            <div class="card-body">
+                <p class="card-name">
+                    <?php echo $produto['nome']; ?>
+                </p>
+
+                <div class="card-footer">
+                    <span class="card-price">
+                        R$ <?php echo number_format($produto['preco'],2,",","."); ?>
+                    </span>
+
+                    <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
+                        + Ver produto
+                    </a>
+                </div>
+            </div>
         </div>
+        <?php } ?>
     </div>
-</div>
+</section>
+
+<?php } else { ?>
+
+<section class="produtos-section">
+    <h2 class="produtos-titulo">Produtos em Destaque</h2>
+
+    <div class="cards-grid">
+        <?php while($produto = mysqli_fetch_assoc($destaques)){ ?>
+        <div class="product-card">
+            <div class="card-img">
+                <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+            </div>
+
+            <div class="card-body">
+                <p class="card-name">
+                    <?php echo $produto['nome']; ?>
+                </p>
+
+                <div class="card-footer">
+                    <span class="card-price">
+                        R$ <?php echo number_format($produto['preco'],2,",","."); ?>
+                    </span>
+
+                    <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
+                        + Ver produto
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+    </div>
+</section>
+
+<section class="produtos-section">
+    <h2 class="produtos-titulo">Todos os Produtos</h2>
+
+    <div class="cards-grid">
+        <?php while($produto = mysqli_fetch_assoc($todos)){ ?>
+        <div class="product-card">
+            <div class="card-img">
+                <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+            </div>
+
+            <div class="card-body">
+                <p class="card-name">
+                    <?php echo $produto['nome']; ?>
+                </p>
+
+                <div class="card-footer">
+                    <span class="card-price">
+                        R$ <?php echo number_format($produto['preco'],2,",","."); ?>
+                    </span>
+
+                    <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
+                        + Ver produto
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+    </div>
+</section>
 
 <?php } ?>
-</div>
+      
 <footer>
   <p>&copy; 2026 TITAN SPORTS. Todos os direitos reservados.</p>
 </footer>
