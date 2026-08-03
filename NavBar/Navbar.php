@@ -61,7 +61,7 @@ $avatarSrc = !empty($avatarUrl) ? $avatarUrl : '/E-Commerce/NavBar/Perfil.png';
       <img src="/E-Commerce/NavBar/Logo-sem-fundo.png" alt="Logo">
     </a>
 
-    <form class="search-box" action="../Index/index.php" method="GET">
+    <form class="search-box" action="/E-Commerce/Index/Index.php" method="GET">
     <input
         type="search"
         name="pesquisa"

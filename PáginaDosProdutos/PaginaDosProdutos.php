@@ -69,20 +69,7 @@ $categorias = $conn->query('SELECT nome FROM categoria ORDER BY nome ASC');
         <section class="hero">
             <h1><?php echo htmlspecialchars($tituloPagina); ?></h1>
         </section>
-
-        <section class="categorias-bar">
-            <a class="cat-chip <?php echo $nomeCategoria === '' ? 'active' : ''; ?>" href="PaginaDosProdutos.php">Todos</a>
-            <?php if ($categorias && $categorias->num_rows > 0): ?>
-                <?php while ($categoria = $categorias->fetch_assoc()): ?>
-                    <?php $categoriaNome = $categoria['nome']; ?>
-                    <a class="cat-chip <?php echo $nomeCategoria === $categoriaNome ? 'active' : ''; ?>"
-                       href="PaginaDosProdutos.php?categoria=<?php echo rawurlencode($categoriaNome); ?>">
-                        <?php echo htmlspecialchars($categoriaNome); ?>
-                    </a>
-                <?php endwhile; ?>
-            <?php endif; ?>
-        </section>
-
+        <br> <br>
         <section class="produtos-section">
             <?php if ($resultado && $resultado->num_rows > 0): ?>
                 <div class="cards-grid">
