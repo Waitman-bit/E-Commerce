@@ -118,9 +118,6 @@ $pedidos = [
     <a class="navbar-logo" href="../Index/Index.php">TITAN<span>SPORTS</span></a>
     <div class="navbar-actions">
         <a href="../Index/Index.php"><i class="fa fa-store"></i> Loja</a>
-        <?php if ($isAdmin): ?>
-        <a href="admin.php"><i class="fa fa-chart-bar"></i> Admin</a>
-        <?php endif; ?>
         <a href="perfil.php" class="active"><i class="fa fa-user"></i> Perfil</a>
     </div>
 </nav>
@@ -186,10 +183,6 @@ $pedidos = [
             <a href="admin.php" class="action-btn">
                 <span class="icon"><i class="fa fa-chart-line"></i></span>
                 Painel Admin
-            </a>
-            <a href="cadastro_produto.php" class="action-btn">
-                <span class="icon"><i class="fa fa-plus"></i></span>
-                Novo produto
             </a>
             <?php endif; ?>
 

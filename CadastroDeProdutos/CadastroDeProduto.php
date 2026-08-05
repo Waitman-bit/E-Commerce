@@ -20,50 +20,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $dimensoes = 0.00;
     $peso = 0.00;
     $estoque = 10;
-   // Nome padrão caso nenhuma imagem seja enviada
-$imagem_nome = "padrao.png";
+    // Nome padrão caso nenhuma imagem seja enviada
+    $imagem_nome = "padrao.png";
 
-// Upload da imagem
-if (isset($_FILES['imagem_php']) && $_FILES['imagem_php']['error'] === UPLOAD_ERR_OK) {
-
-    $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
-
-    $nome_original = $_FILES['imagem_php']['name'];
-    $extensao = strtolower(pathinfo($nome_original, PATHINFO_EXTENSION));
-
-    if (in_array($extensao, $extensoesPermitidas)) {
-
-        // Gera um nome único
-        $imagem_nome = uniqid('produto_', true) . "." . $extensao;
-
-        // Pasta onde as imagens ficarão
-        $diretorio_destino = "../ImagensProdutos/";
-
-        // Cria a pasta caso ela não exista
-        if (!is_dir($diretorio_destino)) {
-            mkdir($diretorio_destino, 0777, true);
-        }
-
-        // Move a imagem para a pasta
-        if (!move_uploaded_file(
-                $_FILES['imagem_php']['tmp_name'],
-                $diretorio_destino . $imagem_nome
-            )) {
-
-            die("Erro ao salvar a imagem.");
-        }
-
-    } else {
-        die("Formato de imagem inválido.");
+    function uploadErrorMessage($code) {
+        $errors = [
+            UPLOAD_ERR_INI_SIZE   => 'O arquivo excede upload_max_filesize.',
+            UPLOAD_ERR_FORM_SIZE  => 'O arquivo excede o limite do formulário.',
+            UPLOAD_ERR_PARTIAL    => 'O upload foi feito parcialmente.',
+            UPLOAD_ERR_NO_FILE    => 'Nenhum arquivo foi enviado.',
+            UPLOAD_ERR_NO_TMP_DIR => 'Pasta temporária ausente.',
+            UPLOAD_ERR_CANT_WRITE => 'Falha ao gravar o arquivo em disco.',
+            UPLOAD_ERR_EXTENSION  => 'Upload interrompido por extensão do PHP.',
+        ];
+        return $errors[$code] ?? 'Erro de upload desconhecido.';
     }
-}
 
-    // MORITA BANCOS DE DADOS - INSERCAO DO NOVO CAMPO PRECO NA TABELA
-    $stmt = $conn->prepare("
-        INSERT INTO produto 
+    // Upload da imagem
+    if (isset($_FILES['imagem_php'])) {
+        if ($_FILES['imagem_php']['error'] !== UPLOAD_ERR_OK) {
+            die('Erro no upload da imagem: ' . uploadErrorMessage($_FILES['imagem_php']['error']));
+        }
+
+        $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
+
+        $nome_original = $_FILES['imagem_php']['name'];
+        $extensao = strtolower(pathinfo($nome_original, PATHINFO_EXTENSION));
+
+        if (in_array($extensao, $extensoesPermitidas)) {
+
+            // Gera um nome único
+            $imagem_nome = uniqid('produto_', true) . "." . $extensao;
+
+            // Pasta onde as imagens ficarão
+            $diretorio_destino = "../ImagensProdutos/";
+
+            // Cria a pasta caso ela não exista
+            if (!is_dir($diretorio_destino) && !mkdir($diretorio_destino, 0777, true)) {
+                die('Erro ao criar pasta de upload. Verifique permissões em "ImagensProdutos".');
+            }
+
+            // Move a imagem para a pasta
+            if (!move_uploaded_file(
+                    $_FILES['imagem_php']['tmp_name'], 
+                    $diretorio_destino . $imagem_nome
+                )) {
+
+                die('Erro ao salvar a imagem. Verifique se o servidor tem permissão de escrita no diretório "ImagensProdutos".');
+            }
+
+        } else {
+            die("Formato de imagem inválido.");
+        }
+    }
+
+    $stmt = $conn->prepare(
+        "INSERT INTO produto 
         (marca, id_categoria, dimensoes, nome, genero, estoque, descricao, imagem, peso, preco) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    );
 
     // MORITA BANCOS DE DADOS - VINCULO DOS PARAMETROS ADICIONANDO O PRECO DECIMAL
     $stmt->bind_param(

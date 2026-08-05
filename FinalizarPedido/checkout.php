@@ -59,11 +59,12 @@ if (isset($_SESSION['checkout_erro'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Titan Sports</title>
+    <?php require_once('../NavBar/Navbar.php'); ?>
     <link rel="stylesheet" href="checkout.css">
 </head>
 <body>
 
-<?php require_once('../NavBar/Navbar.php'); ?>
+
 
 <div class="checkout-progress">
     <div class="progress-step done">
