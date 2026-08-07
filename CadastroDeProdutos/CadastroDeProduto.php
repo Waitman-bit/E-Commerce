@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Cria a pasta caso ela não exista
             if (!is_dir($diretorio_destino) && !mkdir($diretorio_destino, 0777, true)) {
-                die('Erro ao criar pasta de upload. Verifique permissões em "ImagensProdutos".');
+                die('Erro ao criar pasta de upload. Verifique permissions in "ImagensProdutos".');
             }
 
             // Move a imagem para a pasta
@@ -116,13 +116,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Produto</title>
+    <!-- IMPORTACAO DO TABLER ICONS -->
+    <link rel="stylesheet" href="https://jsdelivr.net">
     <link rel="stylesheet" href="CadastroDeProduto.css">
-    <!-- WAITMAN FRONT END - IMPORTACAO DA BIBLIOTECA OFICIAL TABLER ICONS -->
+    <style>
+        /* ESTILIZAÇÃO DO BOTÃO VOLTAR DENTRO DA BARRA AMARELA */
+        .topbar-back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: rgb(6, 6, 6); /* Cor preta original do seu texto da TopBar */
+            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif; /* Mantendo a fonte original da sua TopBar */
+            font-size: 24px; /* Tamanho proporcional para o título */
+            font-weight: bold;
+            transition: opacity 0.15s ease;
+            cursor: pointer;
+        }
+
+        .topbar-back-button:hover {
+            opacity: 0.7; /* Efeito sutil ao passar o mouse */
+        }
+
+        .topbar-back-button i {
+            font-size: 22px; /* Tamanho do ícone da seta */
+        }
+    </style>
 </head>
 <body>
-<!-- WAITMAN FRONT END - ESTRUTURA VISUAL DO TOPO DA PAGINA -->
+<!-- WAITMAN FRONT END - ESTRUTURA VISUAL DO TOPO DA PAGINA COM O BOTÃO NO LUGAR DO TEXTO -->
 <div class="TopBar">
-    <h1>Cadastro de Produtos</h1>
+    <a href="../Administrador/Adm.php" class="topbar-back-button">
+        <i class="ti ti-arrow-left"></i> Painel administrativo
+    </a>
 </div>
 
 <form action="CadastroDeProduto.php" method="POST" enctype="multipart/form-data" id="meuFormCadastro">
@@ -154,12 +180,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="grid-2">
-
                 <div>
                     <label for="categoria">Categoria</label>
                     <select id="categoria" name="categoria_php">
                         <option value="" disabled selected>Selecione...</option>
-
                         <?php
                         // ARIKAWA BACK END - EXIBICAO DAS OPCOES DO BANCO DE DADOS
                         if ($categorias_query && $categorias_query->num_rows > 0) {
@@ -173,20 +197,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div>
                     <label>Genêro (opcional)</label>
-
                     <input type="hidden" name="genero_php" id="genero_oculto" value="">
-
                     <div class="gender-group">
                         <button type="button" class="gender-btn" onclick="selectGender(this, 'Masculino')">
                             <i class="ti ti-man" aria-hidden="true"></i> Homem
                         </button>
-
                         <button type="button" class="gender-btn" onclick="selectGender(this, 'Feminino')">
                             <i class="ti ti-woman" aria-hidden="true"></i> Mulher
                         </button>
                     </div>
                 </div>
-
             </div>
 
             <div class="grid-1 mt-16">
@@ -203,36 +223,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <button type="button" class="size-pill" onclick="toggleSize(this)">40</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">41</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">42</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">43</button>
                 </div>
             </div>
 
-            <!-- MORITA BANCOS DE DADOS - INPUT PARA RECEBER O VALOR DO PRODUTO -->
             <div class="grid-1">
                 <label for="preco">Preço (R$)</label>
-                <input type="text" step="0.01" min="0" inputmode = "decimal" id="preco" name="preco_php" placeholder="Ex: 199.90" onblur="formatarPreco(this)">
+                <input type="number" step="0.01" id="preco" name="preco_php" placeholder="Ex: 199.90">
             </div>
 
             <div class="grid-1">
                 <label for="descricao">Descrição</label>
-                <textarea id="descricao" name="descricao_php"
-                    placeholder="Descreva o produto: material, marca, caracteristicas..."></textarea>
+                <textarea id="descricao" name="descricao_php" placeholder="Descreva o produto: material, marca, características..."></textarea>
             </div>
 
-            <!-- ARIKAWA BACK END - ENVIO SEGURO DO FORMULARIO COMPLETO -->
-            <button type="button" class="btn-submit" onclick="submitForm()">
-                <i class="ti ti-device-floppy" aria-hidden="true"></i>
+            <button type="submit" class="btn-submit">
                 Cadastrar Produto
             </button>
 
         </div>
-
     </div>
-
 </form>
-
-<script src="CadastroDeProduto.js"></script>
-<script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
 </body>
 </html>
