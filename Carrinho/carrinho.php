@@ -118,7 +118,7 @@ foreach ($itensCarrinho as $item) {
             <div class="resumo-carrinho">
                 <h2>Total do carrinho</h2>
                 <p><?php echo formatarPreco($totalCarrinho); ?></p>
-                <button>Finalizar Compra</button>
+                <a href="../Checkout/checkout.php" class="btn-finalizar-compra">Finalizar Compra</a>
             </div>
         <?php endif; ?>
     </div>
