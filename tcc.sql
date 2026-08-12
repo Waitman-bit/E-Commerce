@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Tempo de geração: 28/07/2026 às 23:13
+-- Host: 127.0.0.1
+-- Tempo de geração: 09/08/2026 às 22:22
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -64,6 +64,13 @@ CREATE TABLE `entrega` (
   `frete` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `entrega`
+--
+
+INSERT INTO `entrega` (`id_entrega`, `endereco`, `estado`, `cidade`, `cep`, `status`, `id_pedido`, `frete`) VALUES
+(1, 'Rua Abílio Corrêa Gomes, 2', 'SP', 'Taquaritinga', '15902-222', 'Entregue', 1, 10.00);
+
 -- --------------------------------------------------------
 
 --
@@ -78,6 +85,13 @@ CREATE TABLE `item_pedido` (
   `preco_unitario` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `item_pedido`
+--
+
+INSERT INTO `item_pedido` (`id`, `id_produto`, `id_pedido`, `quantidade`, `preco_unitario`) VALUES
+(1, 18, 1, 1, 699.90);
+
 -- --------------------------------------------------------
 
 --
@@ -91,6 +105,13 @@ CREATE TABLE `pagamento` (
   `status` varchar(50) NOT NULL,
   `id_pedido` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `pagamento`
+--
+
+INSERT INTO `pagamento` (`id_pagamento`, `tipo`, `valor`, `status`, `id_pedido`) VALUES
+(1, 'Cartão de Débito', 709.90, 'Aprovado', 1);
 
 -- --------------------------------------------------------
 
@@ -120,6 +141,13 @@ CREATE TABLE `pedido` (
   `valor_total` decimal(10,2) DEFAULT NULL,
   `id_usuario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `pedido`
+--
+
+INSERT INTO `pedido` (`id_pedido`, `data_pedido`, `status_pedido`, `valor_total`, `id_usuario`) VALUES
+(1, '2026-08-09 21:47:20', 'Pago', 709.90, 10);
 
 -- --------------------------------------------------------
 
@@ -163,7 +191,7 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (15, 'Olympikus', 3, 35.00, 'Corre 4', 'Masculino', 18, 'Tênis corrida', 'corre4.jpg', 0.75, 499.90),
 (16, 'Asics', 3, 36.00, 'Gel Nimbus', 'Unissex', 12, 'Amortecimento premium', 'gel_nimbus.jpg', 0.82, 999.90),
 (17, 'Nike', 3, 35.00, 'Pegasus 42', 'Masculino', 15, 'Tênis corrida', 'pegasus42.jpg', 0.78, 799.90),
-(18, 'Adidas', 3, 34.00, 'Adizero SL', 'Feminino', 20, 'Tênis leve', 'adizero.jpg', 0.72, 699.90),
+(18, 'Adidas', 3, 34.00, 'Adizero SL', 'Feminino', 19, 'Tênis leve', 'adizero.jpg', 0.72, 699.90),
 (19, 'Garmin', 3, 12.00, 'Relógio Forerunner', 'Unissex', 7, 'GPS esportivo', 'forerunner.jpg', 0.18, 1599.90),
 (20, 'Acte', 4, 100.00, 'Colchonete EVA', 'Unissex', 35, 'Colchonete fitness', 'colchonete.jpg', 1.10, 89.90),
 (21, 'Vollo', 4, 30.00, 'Par Halteres 5kg', 'Unissex', 20, 'Halter em ferro', 'halter5kg.jpg', 10.00, 199.90),
@@ -215,6 +243,8 @@ CREATE TABLE `usuario` (
   `senha` varchar(100) NOT NULL,
   `tipo` enum('admin','cliente') NOT NULL DEFAULT 'cliente',
   `cep` varchar(9) DEFAULT NULL,
+  `numero` varchar(10) DEFAULT NULL,
+  `complemento` varchar(100) DEFAULT NULL,
   `foto_perfil` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -222,9 +252,10 @@ CREATE TABLE `usuario` (
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`) VALUES
-(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$upOA080..VIRJw6QRPzfGu8FLUUXwPY661uEBB6kuQcTB9kxZRCVe', 'cliente', NULL, NULL),
-(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL);
+INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `numero`, `complemento`, `foto_perfil`) VALUES
+(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$upOA080..VIRJw6QRPzfGu8FLUUXwPY661uEBB6kuQcTB9kxZRCVe', 'cliente', NULL, NULL, NULL, NULL),
+(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL, NULL, NULL),
+(10, 'Gabriel Gallo Morita', '456.691.598-19', 'gabrielgallomorita2009@gmail.com', '(16) 9882-3282', '$2y$10$nKMsigpBiW3ZjF62aEeO9OtNK3o/P4ADhQ.TiIwFpe2ncGmy8wea.', 'cliente', '15902222', '2', '', NULL);
 
 --
 -- Índices para tabelas despejadas
@@ -299,19 +330,19 @@ ALTER TABLE `categoria`
 -- AUTO_INCREMENT de tabela `entrega`
 --
 ALTER TABLE `entrega`
-  MODIFY `id_entrega` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_entrega` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `item_pedido`
 --
 ALTER TABLE `item_pedido`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `pagamento`
 --
 ALTER TABLE `pagamento`
-  MODIFY `id_pagamento` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_pagamento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `parcela`
@@ -323,7 +354,7 @@ ALTER TABLE `parcela`
 -- AUTO_INCREMENT de tabela `pedido`
 --
 ALTER TABLE `pedido`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de tabela `produto`
@@ -335,7 +366,7 @@ ALTER TABLE `produto`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Restrições para tabelas despejadas

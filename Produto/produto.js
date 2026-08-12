@@ -39,6 +39,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ===== BOTÃO: COMPRAR AGORA =====
+    // Não existe (nem deve existir) um "criar_pedido.php": o pedido só é
+    // gravado de verdade dentro da transação em Pagamento/pagamento.php,
+    // depois que o cliente escolhe entrega e forma de pagamento.
+    // "Comprar Agora" então faz a mesma coisa que "Adicionar ao Carrinho"
+    // (usa o endpoint real de carrinho.php?add=1), só que em seguida já
+    // manda o usuário direto para o checkout, em vez de voltar ao carrinho.
     if (btnComprarAgora) {
         btnComprarAgora.addEventListener('click', function () {
 
@@ -54,31 +60,25 @@ document.addEventListener('DOMContentLoaded', function () {
             btnComprarAgora.disabled = true;
             btnComprarAgora.textContent = 'Processando...';
 
-            // Envia requisição para criar o pedido no servidor
-            fetch('criar_pedido.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    produto_id: idProduto,
-                    quantidade: quantidade
+            const urlAdicionar = '../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto)
+                + '&quantidade=' + encodeURIComponent(quantidade);
+
+            // Chama o mesmo endpoint de adicionar ao carrinho (carrinho.php
+            // responde com um redirect para carrinho.php, que o fetch segue
+            // sozinho; só precisamos aguardar terminar) e então seguimos
+            // direto para o checkout.
+            fetch(urlAdicionar)
+                .then(function (resp) {
+                    if (!resp.ok) {
+                        throw new Error('Falha ao adicionar o produto ao carrinho.');
+                    }
+                    window.location.href = '../Checkout/checkout.php';
                 })
-            })
-            .then(resp => resp.json())
-            .then(data => {
-                if (data.sucesso) {
-                    // Redireciona para o checkout após criar o pedido
-                    window.location.href = 'checkout.php?pedido=' + data.pedido_id;
-                } else {
-                    exibirToast(data.mensagem || 'Não foi possível concluir a compra.', 'erro');
+                .catch(function () {
+                    exibirToast('Não foi possível concluir a compra. Tente novamente.', 'erro');
                     btnComprarAgora.disabled = false;
                     btnComprarAgora.textContent = 'Comprar Agora';
-                }
-            })
-            .catch(() => {
-                exibirToast('Erro de conexão. Tente novamente.', 'erro');
-                btnComprarAgora.disabled = false;
-                btnComprarAgora.textContent = 'Comprar Agora';
-            });
+                });
         });
     }
 

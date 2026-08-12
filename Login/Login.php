@@ -21,6 +21,8 @@
                 <input type="email" name="email" placeholder="Email">
                 <input type="tel" maxlength="15" name="telefone" placeholder="(16) 99999-9999" id="telefone">
                 <input type="text" placeholder="CEP" maxlength="9" pattern="\d{5}-\d{3}" name="cep" placeholder="CEP" id="cep">
+                <input type="text" name="numero" placeholder="Número" maxlength="10">
+                <input type="text" name="complemento" placeholder="Complemento (opcional)" maxlength="100">
                 <input type="text" name="cpf" placeholder="CPF" maxlength="14" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="CPF" id="cpf">
                 <input type="password" name="senha" placeholder="Senha">
                 <button name="registrar">Registrar</button>
@@ -71,6 +73,8 @@
         $tel = trim($_POST['telefone']);
         $senha = trim($_POST['senha']);
         $cep = trim($_POST['cep']);
+        $numero = trim($_POST['numero']);
+        $complemento = trim($_POST['complemento']);
         $cpf = trim($_POST['cpf']);
 
         // Verifica campos vazios
@@ -79,7 +83,8 @@
             empty($tel) ||
             empty($senha) ||
             empty($cep) ||
-            empty($cpf)) 
+            empty($numero) ||
+            empty($cpf))
             {
             echo "<span style='color:white;'>Preencha todos os campos!</span>";
             }
@@ -108,17 +113,19 @@
                     // INSERT SEGURO
                     $stmt = $conn->prepare(
                         "INSERT INTO usuario
-                    (nome, email, telefone, senha, cep, cpf)
-                    VALUES (?, ?, ?, ?, ?, ?)"
+                    (nome, email, telefone, senha, cep, numero, complemento, cpf)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                     );
 
                     $stmt->bind_param(
-                        "ssssss",
+                        "ssssssss",
                         $nome,
                         $email,
                         $tel,
                         $senhaHash,
                         $cep,
+                        $numero,
+                        $complemento,
                         $cpf
                     );
 

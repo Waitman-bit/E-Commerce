@@ -157,3 +157,23 @@ button:hover {
 .btn-remover:hover {
   background: #e0311f;
 }
+
+/* Botão "Finalizar Compra" com a identidade visual amarela do site */
+.btn-finalizar-compra {
+    display: inline-block;
+    background: #F5C000;
+    color: #111;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s ease;
+    text-align: center;
+}
+
+.btn-finalizar-compra:hover {
+    background: #c99f00;
+}
