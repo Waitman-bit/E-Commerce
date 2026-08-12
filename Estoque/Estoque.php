@@ -101,6 +101,7 @@ $stmtProdutos->execute();
 $produtos = $stmtProdutos->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmtProdutos->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -114,7 +115,6 @@ $stmtProdutos->close();
     <header class="topbar">
         <a class="back-link" href="../Administrador/Adm.php"><i class="ti ti-arrow-left"></i> Painel administrativo</a>
         <div class="title"><span>GESTÃO</span><h1>Estoque</h1></div>
-        <a class="new-product" href="../CadastroDeProdutos/CadastroDeProduto.php"><i class="ti ti-plus"></i> Novo produto</a>
     </header>
 
     <main class="container">

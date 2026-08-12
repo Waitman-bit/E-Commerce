@@ -117,38 +117,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Produto</title>
     <!-- IMPORTACAO DO TABLER ICONS -->
-    <link rel="stylesheet" href="https://jsdelivr.net">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link rel="stylesheet" href="CadastroDeProduto.css">
-    <style>
-        /* ESTILIZAÇÃO DO BOTÃO VOLTAR DENTRO DA BARRA AMARELA */
-        .topbar-back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            color: rgb(6, 6, 6); /* Cor preta original do seu texto da TopBar */
-            text-decoration: none;
-            font-family: 'Times New Roman', Times, serif; /* Mantendo a fonte original da sua TopBar */
-            font-size: 24px; /* Tamanho proporcional para o título */
-            font-weight: bold;
-            transition: opacity 0.15s ease;
-            cursor: pointer;
-        }
-
-        .topbar-back-button:hover {
-            opacity: 0.7; /* Efeito sutil ao passar o mouse */
-        }
-
-        .topbar-back-button i {
-            font-size: 22px; /* Tamanho do ícone da seta */
-        }
-    </style>
 </head>
 <body>
 <!-- WAITMAN FRONT END - ESTRUTURA VISUAL DO TOPO DA PAGINA COM O BOTÃO NO LUGAR DO TEXTO -->
 <div class="TopBar">
     <a href="../Administrador/Adm.php" class="topbar-back-button">
-        <i class="ti ti-arrow-left"></i> Painel administrativo
+        <i class="ti ti-arrow-left"> </i> Painel administrativo
     </a>
+            <h1>Cadastro de Produto</h1>
 </div>
 
 <form action="CadastroDeProduto.php" method="POST" enctype="multipart/form-data" id="meuFormCadastro">
@@ -218,6 +196,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <button type="button" class="size-pill" onclick="toggleSize(this)">G</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">GG</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">XG</button>
+                    <button type="button" class="size-pill" onclick="toggleSize(this)">36</button>
+                    <button type="button" class="size-pill" onclick="toggleSize(this)">37</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">38</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">39</button>
                     <button type="button" class="size-pill" onclick="toggleSize(this)">40</button>

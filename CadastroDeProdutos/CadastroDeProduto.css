@@ -21,15 +21,27 @@ body {
   left: 0;
   right: 0;
   z-index: 1000;
-  background-color: #ffe600;
+  background-color: #171616;
   height: 65px;
   width: 100%;
   padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: rgb(6, 6, 6);
   font-family: 'Times New Roman', Times, serif;
+  box-shadow: 0 2px 4px rgb(88, 83, 83);
+}
+
+.TopBar h1 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #f5c400;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .TopBar img {
@@ -43,6 +55,27 @@ body {
   min-height: 100vh;
   padding-top: 100px;
 }
+
+.topbar-back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: rgb(213, 205, 205); /* Cor preta original do seu texto da TopBar */
+            text-decoration: none;
+            font-family: 'Times New Roman', Times, serif; /* Mantendo a fonte original da sua TopBar */
+            font-size: 18px; /* Tamanho proporcional para o título */
+            font-weight: bold;
+            transition: opacity 0.15s ease;
+            cursor: pointer;
+        }
+
+        .topbar-back-button:hover {
+            opacity: 0.7; /* Efeito sutil ao passar o mouse */
+        }
+
+        .topbar-back-button i {
+            font-size: 22px; /* Tamanho do ícone da seta */
+        }
 
 /* WAITMAN FRONT END - COLUNA ESQUERDA AREA DE FOTO */
 .lado-foto {
@@ -230,6 +263,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* WAITMAN FRONT END - BOTOES DE SELECAO GENERO E TAMANHOS */
