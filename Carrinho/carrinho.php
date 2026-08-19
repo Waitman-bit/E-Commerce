@@ -88,7 +88,7 @@ foreach ($itensCarrinho as $item) {
 <body>
     <div class="TopBar">
         <h1>Meu Carrinho</h1>
-        <a href="../Index/Index.php"><img src="home.png" alt="Home"></a>
+        <a href="../Index/Index.php">Voltar Para a Loja</a>
     </div>
 
     <div class="conteudo">
@@ -98,7 +98,12 @@ foreach ($itensCarrinho as $item) {
 
         <?php if (empty($itensCarrinho)): ?>
             <div class="carrinho-vazio">
-                <h2>Seu carrinho está vazio.</h2>
+                <h2>Seu carrinho está vazio.</h2> <br>
+                <div id="botao-explore">
+                    <button>
+                        <a href="../Index/Index.php">Explore Nossos Produtos</a>
+                    </button>
+                </div>
             </div>
         <?php else: ?>
             <div class="lista-itens">

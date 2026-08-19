@@ -26,7 +26,13 @@ if (!empty($pesquisa)) {
 
 } else {
 
-    $destaques = mysqli_query($conn, "SELECT * FROM produto ORDER BY RAND() LIMIT 4");
+    $destaques = mysqli_query($conn, "
+        SELECT p.*, c.nome AS categoria_nome
+        FROM produto p
+        INNER JOIN categoria c ON p.id_categoria = c.id_categoria
+        ORDER BY RAND()
+        LIMIT 4
+    ");
 
     $todos = mysqli_query($conn, "SELECT * FROM produto ORDER BY nome ASC");
 
@@ -79,10 +85,16 @@ if (!empty($pesquisa)) {
         <?php while($produto = mysqli_fetch_assoc($pesquisaResultado)){ ?>
         <div class="product-card">
             <div class="card-img">
-                <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+                <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>">
+                    <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+                </a>
             </div>
 
             <div class="card-body">
+                <p class="card-category">
+                    <?php echo htmlspecialchars($produto['categoria_nome']); ?>
+                </p>
+
                 <p class="card-name">
                     <?php echo $produto['nome']; ?>
                 </p>
@@ -93,7 +105,7 @@ if (!empty($pesquisa)) {
                     </span>
 
                     <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
-                        + Ver produto
+                        Ver mais
                     </a>
                 </div>
             </div>
@@ -105,16 +117,22 @@ if (!empty($pesquisa)) {
 <?php } else { ?>
 
 <section class="produtos-section">
-    <h2 class="produtos-titulo">Produtos em Destaque</h2>
+    <h2 class="produtos-titulo">Mais Populares</h2>
 
     <div class="cards-grid">
         <?php while($produto = mysqli_fetch_assoc($destaques)){ ?>
         <div class="product-card">
             <div class="card-img">
-                <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+                <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>">
+                    <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+                </a>
             </div>
 
             <div class="card-body">
+                <p class="card-category">
+                    <?php echo htmlspecialchars($produto['categoria_nome']); ?>
+                </p>
+
                 <p class="card-name">
                     <?php echo $produto['nome']; ?>
                 </p>
@@ -125,7 +143,7 @@ if (!empty($pesquisa)) {
                     </span>
 
                     <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
-                        + Ver produto
+                        Ver mais
                     </a>
                 </div>
             </div>

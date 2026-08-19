@@ -11,25 +11,40 @@ body {
 }
 
 .TopBar {
-    position: fixed;       /* fica grudada no topo */
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;         /* fica na frente de tudo */
-    background-color: #ffe600;
-    height: 65px;
-    width: 100%;
-    padding: 0 20px;
-    display: flex;             /* alinha título e ícone lado a lado */
-    align-items: center;       /* centraliza verticalmente */
-    justify-content: space-between; /* título à esquerda, ícone à direita */
-    color: rgb(6, 6, 6);
-    font-family: 'Times New Roman', Times, serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: #171616;
+  height: 70px;
+  width: 100%;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Times New Roman', Times, serif;
+  box-shadow: 0 2px 4px rgb(88, 83, 83);
 }
 
-.TopBar img {
-    height: 35px;          /* ajusta tamanho do ícone */
-    cursor: pointer;
+.TopBar h1 {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #f5c400;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.TopBar a {
+  color: #f5c400;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: bold;
+  transition: color 0.3s ease;
 }
 
 .conteudo {
@@ -45,7 +60,7 @@ body {
     right: 20px;
 }
 
-button{
+.btn-FinalizarCompra button {
     background-color: #ffe600;
      font-size: 20px;
      border: #000000;
@@ -63,7 +78,7 @@ button{
     }
 }
 
-button:hover {
+.btn-FinalizarCompra button:hover {
    animation-name:animation ;
    animation-duration: 0.5s;
    animation-timing-function:ease-in-out ;
@@ -87,11 +102,30 @@ button:hover {
 }
 
 .carrinho-vazio {
-  background: #1a1a1a;
-  border: 1px solid #ffea00;
-  border-radius: 10px;
-  padding: 30px;
+  padding: 50px;
   text-align: center;
+}
+
+.carrinho-vazio h2 {
+  font-size: 25px;
+  color: #d2cccc;
+}
+
+.carrinho-vazio a {
+  font-size: 20px;
+  color: #0a0a0a;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.carrinho-vazio button {
+  background: #e5b906;
+  color: #000;
+  border: none;
+  border-radius: 7px;
+  padding: 15px 10px;
+  font-size: 17px;
+  cursor: pointer;
 }
 
 .lista-itens {
@@ -158,7 +192,6 @@ button:hover {
   background: #e0311f;
 }
 
-/* Botão "Finalizar Compra" com a identidade visual amarela do site */
 .btn-finalizar-compra {
     display: inline-block;
     background: #F5C000;
