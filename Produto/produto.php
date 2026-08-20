@@ -177,7 +177,7 @@ $avaliacaoEstrelas = 4;
                     <button class="btn btn-outline" disabled>Adicionar ao Carrinho</button>
                 </div>
                 <p class="aviso-login">Você precisa estar logado para comprar este produto.</p>
-                <a href="../Login/login.php" class="btn btn-amarelo btn-login">Fazer Login</a>
+                <a href="../Login/Login.php" class="btn btn-amarelo btn-login">Fazer Login</a>
             <?php endif; ?>
         </div>
     </section>
@@ -195,9 +195,8 @@ $avaliacaoEstrelas = 4;
         <div class="relacionados-grid">
             <?php foreach ($relacionados as $rel): ?>
                 <div class="card-relacionado">
-                    <img src="../ImagensProdutos/<?php echo htmlspecialchars($rel['imagem']); ?>"
-     alt="<?php echo htmlspecialchars($rel['nome']); ?>">
-                    <h3><?php echo htmlspecialchars($rel['nome']); ?></h3>
+                    <img src="../ImagensProdutos/<?php echo htmlspecialchars($rel['imagem']); ?>" alt="<?php echo htmlspecialchars($rel['nome']); ?>">
+                    <h3> <?php echo htmlspecialchars($rel['nome']); ?></h3>
                     <p class="card-preco">R$ <?php echo number_format($rel['preco'], 2, ',', '.'); ?></p>
                     <a href="produto.php?id=<?php echo intval($rel['id_produto']); ?>" class="btn btn-outline btn-pequeno">
                         Ver Produto

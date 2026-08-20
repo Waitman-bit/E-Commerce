@@ -6,6 +6,24 @@ function formatarPreco($valor) {
     return 'R$ ' . number_format((float) $valor, 2, ',', '.');
 }
 
+function calcularTotalItensCarrinho($carrinho) {
+    if (!is_array($carrinho)) {
+        return 0;
+    }
+
+    $total = 0;
+    foreach ($carrinho as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+
+        $quantidade = isset($item['quantidade']) ? max(0, intval($item['quantidade'])) : 0;
+        $total += $quantidade;
+    }
+
+    return $total;
+}
+
 $mensagem = '';
 $itensCarrinho = [];
 
@@ -28,6 +46,7 @@ if (isset($_GET['remove']) && isset($_GET['id'])) {
 if (isset($_GET['add']) && isset($_GET['id'])) {
     $idProduto = intval($_GET['id']);
     $quantidade = isset($_GET['quantidade']) ? max(1, intval($_GET['quantidade'])) : 1;
+    $isAjax = isset($_GET['ajax']) || (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
     if ($idProduto > 0) {
         $stmt = $conn->prepare('SELECT id_produto, nome, preco, imagem FROM produto WHERE id_produto = ?');
@@ -57,10 +76,32 @@ if (isset($_GET['add']) && isset($_GET['id'])) {
 
             $_SESSION['carrinho'] = $carrinho;
             $_SESSION['carrinho_mensagem'] = 'Produto adicionado ao carrinho.';
+
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => true,
+                    'mensagem' => 'Produto adicionado ao carrinho.',
+                    'quantidade_total' => calcularTotalItensCarrinho($_SESSION['carrinho'])
+                ]);
+                exit;
+            }
+
             header('Location: carrinho.php');
             exit;
         } else {
             $_SESSION['carrinho_mensagem'] = 'Produto não encontrado.';
+
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                http_response_code(404);
+                echo json_encode([
+                    'success' => false,
+                    'mensagem' => 'Produto não encontrado.'
+                ]);
+                exit;
+            }
+
             header('Location: carrinho.php');
             exit;
         }

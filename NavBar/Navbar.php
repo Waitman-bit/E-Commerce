@@ -46,6 +46,17 @@ if ($logado && !empty($_SESSION['avatar'])) {
 }
 
 $avatarSrc = !empty($avatarUrl) ? $avatarUrl : '/E-Commerce/NavBar/Perfil.png';
+
+$totalItensCarrinho = 0;
+if (isset($_SESSION['carrinho']) && is_array($_SESSION['carrinho'])) {
+    foreach ($_SESSION['carrinho'] as $itemCarrinho) {
+        if (!is_array($itemCarrinho)) {
+            continue;
+        }
+
+        $totalItensCarrinho += isset($itemCarrinho['quantidade']) ? max(0, intval($itemCarrinho['quantidade'])) : 0;
+    }
+}
 ?>
 
 <link rel="stylesheet" href="/E-Commerce/NavBar/NavBar.css">
@@ -82,7 +93,10 @@ $avatarSrc = !empty($avatarUrl) ? $avatarUrl : '/E-Commerce/NavBar/Perfil.png';
         </div>
       </a>
     </div>
-    <a href="../Carrinho/carrinho.php"><img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon"></a>
+    <a href="../Carrinho/carrinho.php" class="cart-link">
+      <img src="/E-Commerce/NavBar/carrinho.png" alt="Carrinho" class="cart-icon">
+      <span class="cart-badge" data-cart-count="<?= intval($totalItensCarrinho) ?>"><?= intval($totalItensCarrinho) ?></span>
+    </a>
   </div>
 
   <div class="menu-bar">

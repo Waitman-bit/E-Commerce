@@ -8,7 +8,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnComprarAgora = document.getElementById('btnComprarAgora');
     const btnAdicionarCarrinho = document.getElementById('btnAdicionarCarrinho');
     const inputQuantidade = document.getElementById('quantidade');
-    const toast = document.getElementById('toast');
+    let toast = document.getElementById('toast');
+
+    function garantirToast() {
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.className = 'toast';
+            document.body.appendChild(toast);
+        }
+
+        return toast;
+    }
 
     /**
      * Exibe uma mensagem toast temporária na tela
@@ -16,17 +27,38 @@ document.addEventListener('DOMContentLoaded', function () {
      * @param {string} tipo - 'sucesso' ou 'erro'
      */
     function exibirToast(mensagem, tipo = 'sucesso') {
-        toast.textContent = mensagem;
-        toast.classList.remove('toast-erro');
+        const toastAtual = garantirToast();
+        toastAtual.textContent = mensagem;
+        toastAtual.classList.remove('toast-erro');
         if (tipo === 'erro') {
-            toast.classList.add('toast-erro');
+            toastAtual.classList.add('toast-erro');
         }
-        toast.classList.add('toast-show');
+        toastAtual.classList.add('toast-show');
 
         // Remove o toast automaticamente após 3 segundos
         setTimeout(() => {
-            toast.classList.remove('toast-show');
+            toastAtual.classList.remove('toast-show');
         }, 3000);
+    }
+
+    function atualizarContadorCarrinho(quantidadeTotal) {
+        let cartBadge = document.querySelector('.cart-badge');
+
+        if (!cartBadge) {
+            const cartLink = document.querySelector('.cart-link');
+            if (!cartLink) {
+                return;
+            }
+
+            cartBadge = document.createElement('span');
+            cartBadge.className = 'cart-badge';
+            cartLink.appendChild(cartBadge);
+        }
+
+        const quantidade = Number(quantidadeTotal) || 0;
+        cartBadge.textContent = String(quantidade);
+        cartBadge.dataset.cartCount = String(quantidade);
+        cartBadge.style.display = quantidade > 0 ? 'flex' : 'none';
     }
 
     /**
@@ -50,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Verificação extra de segurança no front-end
             if (!USUARIO_LOGADO) {
-                window.location.href = '../Login/login.php';
+                window.location.href = '../Login/Login.php';
                 return;
             }
 
@@ -87,17 +119,43 @@ document.addEventListener('DOMContentLoaded', function () {
         btnAdicionarCarrinho.addEventListener('click', function () {
 
             if (!USUARIO_LOGADO) {
-                window.location.href = '../Login/login.php';
+                window.location.href = '../Login/Login.php';
                 return;
             }
 
             const idProduto = btnAdicionarCarrinho.dataset.id;
             const quantidade = obterQuantidade();
+            const urlAdicionar = '../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto)
+                + '&quantidade=' + encodeURIComponent(quantidade)
+                + '&ajax=1';
 
             btnAdicionarCarrinho.disabled = true;
             btnAdicionarCarrinho.textContent = 'Adicionando...';
 
-            window.location.href = '../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto) + '&quantidade=' + encodeURIComponent(quantidade);
+            fetch(urlAdicionar, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(async function (resp) {
+                    const dados = resp.headers.get('content-type')?.includes('application/json')
+                        ? await resp.json()
+                        : {};
+
+                    if (!resp.ok || !dados.success) {
+                        throw new Error(dados.mensagem || 'Não foi possível adicionar o produto ao carrinho.');
+                    }
+
+                    atualizarContadorCarrinho(dados.quantidade_total || 0);
+                    exibirToast(dados.mensagem || 'Produto adicionado ao carrinho.');
+                })
+                .catch(function (erro) {
+                    exibirToast(erro.message || 'Não foi possível adicionar o produto ao carrinho.', 'erro');
+                })
+                .finally(function () {
+                    btnAdicionarCarrinho.disabled = false;
+                    btnAdicionarCarrinho.textContent = 'Adicionar ao Carrinho';
+                });
         });
     }
 });
