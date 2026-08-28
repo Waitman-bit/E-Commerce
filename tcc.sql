@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Tempo de geração: 09/08/2026 às 22:22
+-- Host: localhost
+-- Tempo de geração: 28/08/2026 às 13:54
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -50,6 +50,23 @@ INSERT INTO `categoria` (`id_categoria`, `nome`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `contas_receber`
+--
+
+CREATE TABLE `contas_receber` (
+  `id` int(11) NOT NULL,
+  `data_vencimento` date NOT NULL,
+  `numero_parcela` int(11) NOT NULL,
+  `valor_parcela` decimal(10,2) NOT NULL,
+  `data_pagamento` date DEFAULT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `valor_pago` decimal(10,2) DEFAULT NULL,
+  `valor_pago_posven` decimal(10,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `entrega`
 --
 
@@ -69,7 +86,7 @@ CREATE TABLE `entrega` (
 --
 
 INSERT INTO `entrega` (`id_entrega`, `endereco`, `estado`, `cidade`, `cep`, `status`, `id_pedido`, `frete`) VALUES
-(1, 'Rua Abílio Corrêa Gomes, 2', 'SP', 'Taquaritinga', '15902-222', 'Entregue', 1, 10.00);
+(1, 'Abilio Correa, 2 - talavassw', 'sp', 'taquagueticetuba', '15902-222', 'Aguardando envio', 1, 14.90);
 
 -- --------------------------------------------------------
 
@@ -90,43 +107,8 @@ CREATE TABLE `item_pedido` (
 --
 
 INSERT INTO `item_pedido` (`id`, `id_produto`, `id_pedido`, `quantidade`, `preco_unitario`) VALUES
-(1, 18, 1, 1, 699.90);
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `pagamento`
---
-
-CREATE TABLE `pagamento` (
-  `id_pagamento` int(11) NOT NULL,
-  `tipo` varchar(50) NOT NULL,
-  `valor` decimal(10,2) NOT NULL,
-  `status` varchar(50) NOT NULL,
-  `id_pedido` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `pagamento`
---
-
-INSERT INTO `pagamento` (`id_pagamento`, `tipo`, `valor`, `status`, `id_pedido`) VALUES
-(1, 'Cartão de Débito', 709.90, 'Aprovado', 1);
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `parcela`
---
-
-CREATE TABLE `parcela` (
-  `id_parcela` int(11) NOT NULL,
-  `id_pagamento` int(11) NOT NULL,
-  `valor_parcela` decimal(10,2) NOT NULL,
-  `status` varchar(50) NOT NULL,
-  `numero_parcela` int(11) NOT NULL,
-  `data_vencimento` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(1, 19, 1, 1, 1599.90),
+(2, 14, 1, 1, 129.90);
 
 -- --------------------------------------------------------
 
@@ -139,15 +121,16 @@ CREATE TABLE `pedido` (
   `data_pedido` datetime NOT NULL,
   `status_pedido` varchar(50) NOT NULL,
   `valor_total` decimal(10,2) DEFAULT NULL,
-  `id_usuario` int(11) NOT NULL
+  `id_usuario` int(11) NOT NULL,
+  `tipo_pagamento` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `pedido`
 --
 
-INSERT INTO `pedido` (`id_pedido`, `data_pedido`, `status_pedido`, `valor_total`, `id_usuario`) VALUES
-(1, '2026-08-09 21:47:20', 'Pago', 709.90, 10);
+INSERT INTO `pedido` (`id_pedido`, `data_pedido`, `status_pedido`, `valor_total`, `id_usuario`, `tipo_pagamento`) VALUES
+(1, '2026-08-06 09:50:24', 'Confirmado', 1744.70, 8, NULL);
 
 -- --------------------------------------------------------
 
@@ -186,13 +169,13 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (10, 'Nike', 2, 34.00, 'Bola Basquete Elite', 'Unissex', 22, 'Bola oficial', 'bola_basquete.jpg', 0.60, 239.90),
 (11, 'Spalding', 2, 33.00, 'Bola NBA', 'Unissex', 18, 'Modelo NBA', 'bola_nba.jpg', 0.62, 299.90),
 (12, 'Jordan 4', 2, 36.00, 'Tênis Jordan 4', 'Masculino', 8, 'Tênis basquete', 'jordan_four.jpg', 0.95, 899.90),
-(13, 'Adidas', 2, 35.00, 'Tênis Harden Step', 'Masculino', 10, 'Tênis esportivo', 'harden.jpg', 0.90, 749.90),
-(14, 'Nike', 2, 30.00, 'Regata Basketball', 'Masculino', 25, 'Regata esportiva', 'regata_basket.jpg', 0.20, 129.90),
+(13, 'Adidas', 2, 35.00, 'Tênis Harden Step', 'Masculino', 10, 'Tênis esportivo próprio para basquete', 'harden.jpg', 0.90, 749.90),
+(14, 'Nike', 2, 30.00, 'Regata Basketball', 'Masculino', 24, 'Regata esportiva', 'regata_basket.jpg', 0.20, 129.90),
 (15, 'Olympikus', 3, 35.00, 'Corre 4', 'Masculino', 18, 'Tênis corrida', 'corre4.jpg', 0.75, 499.90),
 (16, 'Asics', 3, 36.00, 'Gel Nimbus', 'Unissex', 12, 'Amortecimento premium', 'gel_nimbus.jpg', 0.82, 999.90),
 (17, 'Nike', 3, 35.00, 'Pegasus 42', 'Masculino', 15, 'Tênis corrida', 'pegasus42.jpg', 0.78, 799.90),
-(18, 'Adidas', 3, 34.00, 'Adizero SL', 'Feminino', 19, 'Tênis leve', 'adizero.jpg', 0.72, 699.90),
-(19, 'Garmin', 3, 12.00, 'Relógio Forerunner', 'Unissex', 7, 'GPS esportivo', 'forerunner.jpg', 0.18, 1599.90),
+(18, 'Adidas', 3, 34.00, 'Adizero SL', 'Feminino', 20, 'Tênis leve', 'adizero.jpg', 0.75, 699.90),
+(19, 'Garmin', 3, 12.00, 'Relógio Forerunner', 'Unissex', 6, 'GPS esportivo', 'forerunner.jpg', 0.18, 1599.90),
 (20, 'Acte', 4, 100.00, 'Colchonete EVA', 'Unissex', 35, 'Colchonete fitness', 'colchonete.jpg', 1.10, 89.90),
 (21, 'Vollo', 4, 30.00, 'Par Halteres 5kg', 'Unissex', 20, 'Halter em ferro', 'halter5kg.jpg', 10.00, 199.90),
 (22, 'Muvin', 4, 20.00, 'Faixa Elástica', 'Unissex', 45, 'Faixa resistência', 'faixa.jpg', 0.20, 49.90),
@@ -217,7 +200,7 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (41, 'Nike', 8, 12.00, 'Garrafa 750ml', 'Unissex', 40, 'Garrafa Squeeze esportiva', 'garrafa.jpg', 0.18, 59.90),
 (42, 'Acte', 8, 18.00, 'Munhequeira', 'Unissex', 35, 'Suporte punho', 'munhequeira.jpg', 0.10, 34.90),
 (43, 'Poker', 8, 15.00, 'Faixa Capitão', 'Unissex', 25, 'Faixa elástica', 'capitao.jpg', 0.05, 24.90),
-(44, 'Adidas', 8, 25.00, 'Boné Running', 'Unissex', 20, 'Boné esportivo', 'bone.jpg', 0.12, 99.90),
+(44, 'Adidas', 7, 25.00, 'Boné Running', 'Unissex', 20, 'Boné esportivo', 'bone.jpg', 0.12, 70.00),
 (45, 'Everlast', 9, 18.00, 'Luva de Boxe Pro', 'Unissex', 20, 'Luva para treino', 'luva_boxe.jpg', 0.80, 299.90),
 (46, 'Adidas', 9, 20.00, 'Kimono Jiu-Jitsu', 'Unissex', 15, 'Kimono profissional', 'kimono_bjj.jpg', 1.60, 449.90),
 (47, 'Venum', 9, 16.00, 'Short Muay Thai', 'Masculino', 25, 'Short para luta', 'short_muaythai.jpg', 0.25, 179.90),
@@ -226,7 +209,9 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (51, 'BoomBoxe', 9, 18.00, 'Boneco Simulador Bob', 'Unissex', 12, 'Treino de golpes', 'bob.jpg', 0.90, 349.90),
 (52, 'Adidas', 9, 25.00, 'Faixa Preta Jiu-Jitsu', 'Unissex', 10, 'Faixa oficial', 'faixa_preta.jpg', 0.15, 99.90),
 (53, 'Vollo', 9, 30.00, 'Saco de Pancadas 90cm', 'Unissex', 8, 'Saco de treino', 'saco_pancadas.jpg', 18.00, 499.90),
-(54, 'Everlast', 9, 14.00, 'Corda de Velocidade', 'Unissex', 30, 'Corda para treino', 'corda_boxe.jpg', 0.30, 69.90);
+(54, 'Everlast', 9, 14.00, 'Corda de Velocidade', 'Unissex', 30, 'Corda para treino', 'corda_boxe.jpg', 0.30, 69.90),
+(55, 'Generica', 1, 0.00, 'Chuteira Nike Phantom Luna II Academy Campo Masculina - Branco', 'Masculino', 10, 'Chuteira Nike Phantom Luna II', 'produto_6a739161e611a0.20579811.jpg', 0.00, 400.00),
+(56, 'Generica', 3, 0.00, 'Viseira Para Corrida Hupi Run For Fun Preta', 'Unissex', 10, 'Viseira Para Corrida Hupi Run For Fun Preta', 'produto_6a73a5a49abf93.12801221.jpg', 0.00, 55.00);
 
 -- --------------------------------------------------------
 
@@ -243,8 +228,6 @@ CREATE TABLE `usuario` (
   `senha` varchar(100) NOT NULL,
   `tipo` enum('admin','cliente') NOT NULL DEFAULT 'cliente',
   `cep` varchar(9) DEFAULT NULL,
-  `numero` varchar(10) DEFAULT NULL,
-  `complemento` varchar(100) DEFAULT NULL,
   `foto_perfil` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -252,10 +235,9 @@ CREATE TABLE `usuario` (
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `numero`, `complemento`, `foto_perfil`) VALUES
-(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$upOA080..VIRJw6QRPzfGu8FLUUXwPY661uEBB6kuQcTB9kxZRCVe', 'cliente', NULL, NULL, NULL, NULL),
-(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL, NULL, NULL),
-(10, 'Gabriel Gallo Morita', '456.691.598-19', 'gabrielgallomorita2009@gmail.com', '(16) 9882-3282', '$2y$10$nKMsigpBiW3ZjF62aEeO9OtNK3o/P4ADhQ.TiIwFpe2ncGmy8wea.', 'cliente', '15902222', '2', '', NULL);
+INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`) VALUES
+(1, 'Davi Waitman', NULL, 'teste@gmail.com', '(16) 99999-9999', '$2y$10$upOA080..VIRJw6QRPzfGu8FLUUXwPY661uEBB6kuQcTB9kxZRCVe', 'cliente', NULL, NULL),
+(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL);
 
 --
 -- Índices para tabelas despejadas
@@ -266,6 +248,13 @@ INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`
 --
 ALTER TABLE `categoria`
   ADD PRIMARY KEY (`id_categoria`);
+
+--
+-- Índices de tabela `contas_receber`
+--
+ALTER TABLE `contas_receber`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_contas_receber_pedido` (`id_pedido`);
 
 --
 -- Índices de tabela `entrega`
@@ -281,20 +270,6 @@ ALTER TABLE `item_pedido`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_id_produto` (`id_produto`),
   ADD KEY `fk_id_pedido` (`id_pedido`);
-
---
--- Índices de tabela `pagamento`
---
-ALTER TABLE `pagamento`
-  ADD PRIMARY KEY (`id_pagamento`),
-  ADD KEY `fk_pagamento_pedido` (`id_pedido`);
-
---
--- Índices de tabela `parcela`
---
-ALTER TABLE `parcela`
-  ADD PRIMARY KEY (`id_parcela`),
-  ADD KEY `fk_parcela_pagamento` (`id_pagamento`);
 
 --
 -- Índices de tabela `pedido`
@@ -327,6 +302,12 @@ ALTER TABLE `categoria`
   MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
+-- AUTO_INCREMENT de tabela `contas_receber`
+--
+ALTER TABLE `contas_receber`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `entrega`
 --
 ALTER TABLE `entrega`
@@ -336,19 +317,7 @@ ALTER TABLE `entrega`
 -- AUTO_INCREMENT de tabela `item_pedido`
 --
 ALTER TABLE `item_pedido`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `pagamento`
---
-ALTER TABLE `pagamento`
-  MODIFY `id_pagamento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT de tabela `parcela`
---
-ALTER TABLE `parcela`
-  MODIFY `id_parcela` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `pedido`
@@ -360,17 +329,23 @@ ALTER TABLE `pedido`
 -- AUTO_INCREMENT de tabela `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Restrições para tabelas despejadas
 --
+
+--
+-- Restrições para tabelas `contas_receber`
+--
+ALTER TABLE `contas_receber`
+  ADD CONSTRAINT `fk_contas_receber_pedido` FOREIGN KEY (`id_pedido`) REFERENCES `pedido` (`id_pedido`);
 
 --
 -- Restrições para tabelas `entrega`
@@ -384,18 +359,6 @@ ALTER TABLE `entrega`
 ALTER TABLE `item_pedido`
   ADD CONSTRAINT `fk_id_pedido` FOREIGN KEY (`id_pedido`) REFERENCES `pedido` (`id_pedido`),
   ADD CONSTRAINT `fk_id_produto` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id_produto`);
-
---
--- Restrições para tabelas `pagamento`
---
-ALTER TABLE `pagamento`
-  ADD CONSTRAINT `fk_pagamento_pedido` FOREIGN KEY (`id_pedido`) REFERENCES `pedido` (`id_pedido`);
-
---
--- Restrições para tabelas `parcela`
---
-ALTER TABLE `parcela`
-  ADD CONSTRAINT `fk_parcela_pagamento` FOREIGN KEY (`id_pagamento`) REFERENCES `pagamento` (`id_pagamento`);
 
 --
 -- Restrições para tabelas `pedido`
