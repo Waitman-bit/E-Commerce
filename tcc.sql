@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Tempo de geração: 28/08/2026 às 13:54
+-- Tempo de geração: 30/08/2026 às 19:32
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -216,6 +216,21 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `recuperacao_senha`
+--
+
+CREATE TABLE `recuperacao_senha` (
+  `id` int(11) NOT NULL,
+  `id_usuario` int(11) NOT NULL,
+  `codigo_hash` varchar(255) NOT NULL,
+  `expira_em` datetime NOT NULL,
+  `usado` tinyint(1) NOT NULL DEFAULT 0,
+  `criado_em` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `usuario`
 --
 
@@ -285,6 +300,13 @@ ALTER TABLE `produto`
   ADD PRIMARY KEY (`id_produto`);
 
 --
+-- Índices de tabela `recuperacao_senha`
+--
+ALTER TABLE `recuperacao_senha`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_recuperacao_usuario` (`id_usuario`);
+
+--
 -- Índices de tabela `usuario`
 --
 ALTER TABLE `usuario`
@@ -332,6 +354,12 @@ ALTER TABLE `produto`
   MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
+-- AUTO_INCREMENT de tabela `recuperacao_senha`
+--
+ALTER TABLE `recuperacao_senha`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
@@ -365,6 +393,12 @@ ALTER TABLE `item_pedido`
 --
 ALTER TABLE `pedido`
   ADD CONSTRAINT `pedido_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`);
+
+--
+-- Restrições para tabelas `recuperacao_senha`
+--
+ALTER TABLE `recuperacao_senha`
+  ADD CONSTRAINT `fk_recuperacao_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
