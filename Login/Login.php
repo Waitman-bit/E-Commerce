@@ -35,7 +35,7 @@
                 <span>Preencha com suas informações!</span>
                 <input type="email" name="email" placeholder="Email">
                 <input type="password" name="senha" placeholder="Senha">
-                <a href="../NovaSenha/NovaSenha.php">Esqueceu a Senha?</a>
+                <a href="../RecuperaçãoDeSenha/recuperacao.php">Esqueceu a Senha?</a>
                 <button name="fazerlogin">Fazer Login</button>
             </form>
         </div>
