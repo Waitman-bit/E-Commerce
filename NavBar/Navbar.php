@@ -1,7 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../session_config.php';
+titan_start_session();
 
 function buildNavbarAvatarUrl($valor) {
     if (empty($valor)) {

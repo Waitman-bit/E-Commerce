@@ -7,7 +7,6 @@
  * caso o usuário atualize a página (padrão Post/Redirect/Get).
  */
 
-session_start();
 require_once('../connection.php');
 
 function formatarPreco($valor)

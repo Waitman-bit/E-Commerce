@@ -12,7 +12,6 @@
  * Não recria o carrinho: lê diretamente de $_SESSION['carrinho'].
  */
 
-session_start();
 require_once('../connection.php');
 require_once('frete.php');
 

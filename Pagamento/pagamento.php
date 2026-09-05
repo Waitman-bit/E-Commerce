@@ -21,7 +21,6 @@
  * apenas para compor a experiência visual do checkout.
  */
 
-session_start();
 require_once('../connection.php');
 require_once('../Checkout/frete.php');
 

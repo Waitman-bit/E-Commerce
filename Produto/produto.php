@@ -1,10 +1,8 @@
 <?php
-    $idProduto = isset($_GET['id']) ? intval($_GET['id']) : 0;
 /**
  * TitanSports - Página de Detalhes do Produto
  * Exibe informações detalhadas de um produto específico
  */
-session_start();
 
 // ===== CONEXÃO COM BANCO DE DADOS =====
 require_once('../connection.php');

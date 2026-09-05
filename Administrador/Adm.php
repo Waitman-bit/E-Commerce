@@ -1,3 +1,12 @@
+<?php
+require_once __DIR__ . '/../session_config.php';
+titan_start_session();
+
+if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'admin') {
+    header("Location: ../Login/Login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -8,14 +17,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 </head>
 <body>
-  <?php
-  session_start();
-
-  if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'admin') {
-      header("Location: ../Login/Login.php");
-      exit();
-  }
-  ?>
   <div class="dash">
     <!-- SIDEBAR -->
     <aside class="sidebar">
