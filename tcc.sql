@@ -244,7 +244,8 @@ CREATE TABLE `usuario` (
   `tipo` enum('admin','cliente') NOT NULL DEFAULT 'cliente',
   `cep` varchar(9) DEFAULT NULL,
   `foto_perfil` varchar(255) DEFAULT NULL,
-  `numero` varchar(10) DEFAULT NULL
+  `numero` varchar(10) DEFAULT NULL,
+  `data_cadastro` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -254,6 +255,12 @@ CREATE TABLE `usuario` (
 INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`, `numero`) VALUES
 (1, 'Davi Waitman', NULL, 'davi.waitman@gmail.com', '(16) 99999-9999', '$2y$10$upOA080..VIRJw6QRPzfGu8FLUUXwPY661uEBB6kuQcTB9kxZRCVe', 'cliente', NULL, NULL, NULL),
 (8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL, NULL);
+
+-- Registra a data automaticamente para novos usuários, sem atribuir uma
+-- data fictícia aos cadastros que já existiam antes desta coluna.
+CREATE TRIGGER `usuario_definir_data_cadastro`
+BEFORE INSERT ON `usuario`
+FOR EACH ROW SET NEW.`data_cadastro` = COALESCE(NEW.`data_cadastro`, NOW());
 
 --
 -- Índices para tabelas despejadas

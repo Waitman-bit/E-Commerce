@@ -58,22 +58,42 @@ new Chart(revenueCtx, {
 });
 
 
-// Categorias do gráfico
-
+// Categorias mais vendidas: dados enviados pelo PHP a partir do banco.
 const catCtx = document.getElementById('catChart');
+const catLegend = document.getElementById('catLegend');
+const dadosCategorias = window.dadosCategorias || [];
+const coresCategorias = ['#F5C000', '#a88800', '#5a4800', '#2a2200', '#d99d00', '#776000', '#403600', '#b58e00', '#665200'];
+const labelsCategorias = dadosCategorias.map((categoria) => categoria.nome);
+const valoresCategorias = dadosCategorias.map((categoria) => categoria.quantidade);
+const totalVendido = valoresCategorias.reduce((total, quantidade) => total + quantidade, 0);
+
+if (dadosCategorias.length === 0) {
+  catLegend.textContent = 'Nenhuma venda confirmada ainda.';
+} else {
+  dadosCategorias.forEach((categoria, indice) => {
+    const itemLegenda = document.createElement('span');
+    itemLegenda.className = 'legend-item';
+
+    const cor = document.createElement('span');
+    cor.className = 'leg-sq';
+    cor.style.backgroundColor = coresCategorias[indice % coresCategorias.length];
+
+    const percentual = ((categoria.quantidade / totalVendido) * 100).toFixed(1);
+    itemLegenda.append(cor, document.createTextNode(` ${categoria.nome} ${percentual}%`));
+    catLegend.appendChild(itemLegenda);
+  });
+}
 
 new Chart(catCtx, {
   type: 'doughnut',
   data: {
-    labels: ['Eletrônicos', 'Roupas', 'Casa', 'Outros'],
-    datasets: [
-      {
-        data: [40, 25, 20, 15],
-        backgroundColor: ['#F5C000', '#a88800', '#5a4800', '#2a2200'],
-        borderWidth: 0,
-        hoverOffset: 6,
-      },
-    ],
+    labels: labelsCategorias,
+    datasets: [{
+      data: valoresCategorias,
+      backgroundColor: valoresCategorias.map((_, indice) => coresCategorias[indice % coresCategorias.length]),
+      borderWidth: 0,
+      hoverOffset: 6,
+    }],
   },
   options: {
     responsive: true,
@@ -88,7 +108,10 @@ new Chart(catCtx, {
         borderColor: '#2a2a28',
         borderWidth: 1,
         callbacks: {
-          label: (ctx) => ' ' + ctx.label + ': ' + ctx.parsed + '%',
+          label: (ctx) => {
+            const percentual = totalVendido ? ((ctx.parsed / totalVendido) * 100).toFixed(1) : 0;
+            return ` ${ctx.label}: ${ctx.parsed} unidade(s) (${percentual}%)`;
+          },
         },
       },
     },
