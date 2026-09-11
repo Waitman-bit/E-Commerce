@@ -7,7 +7,7 @@
  * caso o usuário atualize a página (padrão Post/Redirect/Get).
  */
 
-require_once('../connection.php');
+require_once __DIR__ . '/../connection.php';
 
 function formatarPreco($valor)
 {

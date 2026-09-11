@@ -43,14 +43,18 @@ function getGenderSelected() {
     return active ? active.dataset.value : null;
 }
 
-// MORITA BANCOS DE DADOS - CORRIGE O PRECO COLOCANDO CENTAVOS QUANDO CLICA FORA
+// MORITA BANCOS DE DADOS - NORMALIZA E FORMATA O PRECO EM VALOR DECIMAL
 function formatarPreco(input) {
-    let valor = input.value;
-    
-    valor = valor.replace(',', '.');
-    
+    let valor = input.value.trim();
+
+    valor = valor.replace(/\./g, '').replace(',', '.');
+
     if (valor !== "" && !isNaN(valor)) {
-        input.value = parseFloat(valor).toFixed(2);
+        const numero = parseFloat(valor);
+        input.value = numero.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 }
 
@@ -61,7 +65,7 @@ function submitForm() {
     const descricao = document.getElementById('descricao').value.trim();
     
     let precoRaw = document.getElementById('preco').value.trim();
-    precoRaw = precoRaw.replace(',', '.');
+    precoRaw = precoRaw.replace(/\./g, '').replace(',', '.');
     const preco = parseFloat(precoRaw);
 
     if (!nome) {
@@ -87,4 +91,4 @@ function submitForm() {
     document.getElementById('meuFormCadastro').submit();
 }
 
- $('#preco').mask("#.##0,00", {reverse: true});
+ $('#preco').mask('000.000.000,00', { reverse: true, placeholder: '0,00' });

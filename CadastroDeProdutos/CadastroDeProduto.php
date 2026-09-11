@@ -1,6 +1,6 @@
 <?php
 // ARIKAWA BACK END - CONEXAO COM O BANCO DE DADOS
-require_once '../connection.php';
+require_once __DIR__ . '/../connection.php';
 
 // ARIKAWA BACK END - BUSCA AS CATEGORIAS REGISTRADAS
 $categorias_query = $conn->query("SELECT id_categoria, nome FROM categoria");
@@ -208,7 +208,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="grid-1">
                 <label for="preco">Preço (R$)</label>
-                <input type="number" step="0.01" id="preco" name="preco_php" placeholder="Ex: 199.90">
+                <input type="text" inputmode="decimal" id="preco" name="preco_php" placeholder="Ex: 199,90" autocomplete="off" spellcheck="false">
             </div>
 
             <div class="grid-1">
@@ -223,5 +223,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 </form>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script src="CadastroDeProduto.js"></script>
 </body>
 </html>

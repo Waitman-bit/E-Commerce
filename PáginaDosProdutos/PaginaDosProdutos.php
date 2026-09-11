@@ -76,8 +76,10 @@ $categorias = $conn->query('SELECT nome FROM categoria ORDER BY nome ASC');
                     <?php while ($produto = $resultado->fetch_assoc()): ?>
                         <article class="product-card">
                             <div class="card-img">
-                                <img src="../ImagensProdutos/<?php echo htmlspecialchars($produto['imagem']); ?>"
-                                     alt="<?php echo htmlspecialchars($produto['nome']); ?>">
+                               <a href="../Produto/produto.php?id=<?php echo intval($produto['id_produto']); ?>">
+                                    <img src="../ImagensProdutos/<?php echo htmlspecialchars($produto['imagem']); ?>"
+                                         alt="<?php echo htmlspecialchars($produto['nome']); ?>">
+                                </a>
                             </div>
                             <div class="card-body">
                                 <span class="card-category"><?php echo htmlspecialchars($produto['categoria_nome']); ?></span>

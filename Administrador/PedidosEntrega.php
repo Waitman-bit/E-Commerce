@@ -17,7 +17,7 @@
  * antes de alterar o banco).
  */
 
-require_once('../connection.php');
+require_once __DIR__ . '/../connection.php';
 require_once('../Checkout/frete.php');
 
 // ===== SEGURANÇA: SOMENTE ADMIN =====

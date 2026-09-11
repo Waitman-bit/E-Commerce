@@ -12,7 +12,7 @@
  * Não recria o carrinho: lê diretamente de $_SESSION['carrinho'].
  */
 
-require_once('../connection.php');
+require_once __DIR__ . '/../connection.php';
 require_once('frete.php');
 
 function formatarPreco($valor)

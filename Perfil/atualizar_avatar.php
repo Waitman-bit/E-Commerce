@@ -106,7 +106,7 @@ if (!move_uploaded_file($arquivo['tmp_name'], $caminho_completo)) {
 $caminho_relativo = 'uploads/avatares/' . $nome_arquivo;
 
 // Atualizar no banco de dados
-require_once '../connection.php';
+require_once __DIR__ . '/../connection.php';
 
 $sql = "UPDATE usuario SET foto_perfil = ? WHERE id_usuario = ?";
 $stmt = $conn->prepare($sql);

@@ -5,7 +5,7 @@
  */
 
 // ===== CONEXÃO COM BANCO DE DADOS =====
-require_once('../connection.php');
+require_once __DIR__ . '/../connection.php';
 
 // ===== VALIDAÇÃO DO ID RECEBIDO PELA URL =====
 $idProduto = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -137,7 +137,7 @@ $avaliacaoEstrelas = 4;
             </div>
 
             <p class="produto-preco"><?php echo $precoFormatado; ?></p>
-
+            
             <p class="produto-estoque-status <?php echo $statusClasse; ?>">
                 <?php echo $statusEstoque; ?> 
                 <?php if ($estoque > 0): ?>
@@ -145,13 +145,16 @@ $avaliacaoEstrelas = 4;
                 <?php endif; ?>
             </p>
 
+            <!-- ===== USUÁRIO LOGADO: COMPRA LIBERADA ===== -->
             <?php if ($logado): ?>
-                <!-- ===== USUÁRIO LOGADO: COMPRA LIBERADA ===== -->
+                <!-- ===== FORMULÁRIO DE QUANTIDADE ===== -->
                 <div class="produto-quantidade">
                     <label for="quantidade">Quantidade:</label>
                     <input type="number" id="quantidade" name="quantidade" value="1" min="1" max="<?php echo $estoque; ?>"
                          <?php echo $estoque <= 0 ? 'disabled' : ''; ?>>
                     </div>
+                    <!-- ===== Formulario de tamanhos===== -->
+                     
 
                 <div class="produto-botoes">
                     <button id="btnComprarAgora"
@@ -193,7 +196,9 @@ $avaliacaoEstrelas = 4;
         <div class="relacionados-grid">
             <?php foreach ($relacionados as $rel): ?>
                 <div class="card-relacionado">
-                    <img src="../ImagensProdutos/<?php echo htmlspecialchars($rel['imagem']); ?>" alt="<?php echo htmlspecialchars($rel['nome']); ?>">
+                    <a href="produto.php?id=<?php echo intval($rel['id_produto']); ?>">
+                        <img src="../ImagensProdutos/<?php echo htmlspecialchars($rel['imagem']); ?>" alt="<?php echo htmlspecialchars($rel['nome']); ?>">
+                    </a>
                     <h3> <?php echo htmlspecialchars($rel['nome']); ?></h3>
                     <p class="card-preco">R$ <?php echo number_format($rel['preco'], 2, ',', '.'); ?></p>
                     <a href="produto.php?id=<?php echo intval($rel['id_produto']); ?>" class="btn btn-outline btn-pequeno">

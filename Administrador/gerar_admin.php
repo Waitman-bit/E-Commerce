@@ -1,5 +1,5 @@
 <?php
-include("../connection.php");
+require_once __DIR__ . '/../connection.php';
 
 $senhaHash = password_hash("4dm1n", PASSWORD_DEFAULT);
 

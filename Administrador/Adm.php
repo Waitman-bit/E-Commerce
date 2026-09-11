@@ -22,20 +22,28 @@ if ($stmtClientes) {
 // Compara os cadastros deste mês com os do mês anterior.
 $novosClientesMes = 0;
 $novosClientesMesAnterior = 0;
-$stmtCrescimento = $conn->prepare(
-    "SELECT
-        SUM(data_cadastro >= DATE_FORMAT(CURDATE(), '%Y-%m-01')) AS mes_atual,
-        SUM(data_cadastro >= DATE_FORMAT(CURDATE() - INTERVAL 1 MONTH, '%Y-%m-01')
-            AND data_cadastro < DATE_FORMAT(CURDATE(), '%Y-%m-01')) AS mes_anterior
-     FROM usuario
-     WHERE tipo = 'cliente'"
-);
-if ($stmtCrescimento) {
-    $stmtCrescimento->execute();
-    $crescimento = $stmtCrescimento->get_result()->fetch_assoc();
-    $novosClientesMes = (int) ($crescimento['mes_atual'] ?? 0);
-    $novosClientesMesAnterior = (int) ($crescimento['mes_anterior'] ?? 0);
-    $stmtCrescimento->close();
+$usuarioTemDataCadastro = false;
+$colunaDataCadastro = $conn->query("SHOW COLUMNS FROM usuario LIKE 'data_cadastro'");
+if ($colunaDataCadastro && $colunaDataCadastro->num_rows > 0) {
+    $usuarioTemDataCadastro = true;
+}
+
+if ($usuarioTemDataCadastro) {
+    $stmtCrescimento = $conn->prepare(
+        "SELECT
+            SUM(data_cadastro >= DATE_FORMAT(CURDATE(), '%Y-%m-01')) AS mes_atual,
+            SUM(data_cadastro >= DATE_FORMAT(CURDATE() - INTERVAL 1 MONTH, '%Y-%m-01')
+                AND data_cadastro < DATE_FORMAT(CURDATE(), '%Y-%m-01')) AS mes_anterior
+         FROM usuario
+         WHERE tipo = 'cliente'"
+    );
+    if ($stmtCrescimento) {
+        $stmtCrescimento->execute();
+        $crescimento = $stmtCrescimento->get_result()->fetch_assoc();
+        $novosClientesMes = (int) ($crescimento['mes_atual'] ?? 0);
+        $novosClientesMesAnterior = (int) ($crescimento['mes_anterior'] ?? 0);
+        $stmtCrescimento->close();
+    }
 }
 
 if ($novosClientesMesAnterior > 0) {

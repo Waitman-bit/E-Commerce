@@ -1,5 +1,5 @@
 <?php
-require_once('../connection.php');
+require_once __DIR__ . '/../connection.php';
 
 function formatarPreco($valor) {
     return 'R$ ' . number_format((float) $valor, 2, ',', '.');

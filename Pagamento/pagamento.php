@@ -21,7 +21,7 @@
  * apenas para compor a experiência visual do checkout.
  */
 
-require_once('../connection.php');
+require_once __DIR__ . '/../connection.php';
 require_once('../Checkout/frete.php');
 
 function formatarPreco($valor)

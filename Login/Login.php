@@ -5,7 +5,7 @@ titan_start_session();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-include("../connection.php");
+require_once __DIR__ . '/../connection.php';
 
 $mensagem = '';
 

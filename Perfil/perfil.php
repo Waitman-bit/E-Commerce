@@ -9,7 +9,7 @@ if (!isset($_SESSION['id'])) {
 }
 
 // Carregar dados do usuário do banco de dados
-require_once '../connection.php';
+require_once __DIR__ . '/../connection.php';
 
 function buildAvatarUrl($valor) {
     if (empty($valor)) {
