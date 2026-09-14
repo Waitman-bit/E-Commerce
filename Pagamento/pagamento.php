@@ -8,7 +8,7 @@
  * Ao confirmar o pagamento:
  *  1. Revalida estoque e preço de cada item direto no banco.
  *  2. Revalida o frete no servidor (nunca confia no valor do navegador).
- *  3. Registra pedido, item_pedido, entrega, pagamento e parcela (se houver)
+ *  3. Registra pedido, item_pedido, entrega e contas_receber (se houver parcelas)
  *     dentro de uma transação MySQL.
  *  4. Reduz o estoque.
  *  5. Limpa o carrinho e os dados de checkout da sessão.
@@ -152,10 +152,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $erroResumo === null) {
             $dataPedido = date('Y-m-d H:i:s');
             $statusPedido = 'Pago'; // pagamento simulado sempre "aprovado"
 
+            $tipoPagamentoTexto = [
+                'credito' => 'Cartão de Crédito',
+                'debito'  => 'Cartão de Débito',
+                'pix'     => 'Pix',
+            ][$formaPagamento];
+
+            // O método de pagamento pertence ao pedido. As parcelas e os
+            // recebimentos ficam em contas_receber, conforme o esquema atual.
             $stmtPedido = $conn->prepare(
-                'INSERT INTO pedido (data_pedido, status_pedido, valor_total, id_usuario) VALUES (?, ?, ?, ?)'
+                'INSERT INTO pedido (data_pedido, status_pedido, valor_total, id_usuario, tipo_pagamento) VALUES (?, ?, ?, ?, ?)'
             );
-            $stmtPedido->bind_param('ssdi', $dataPedido, $statusPedido, $resumoFinal['total'], $idUsuario);
+            $stmtPedido->bind_param('ssdis', $dataPedido, $statusPedido, $resumoFinal['total'], $idUsuario, $tipoPagamentoTexto);
             $stmtPedido->execute();
             $idPedido = $conn->insert_id;
             $stmtPedido->close();
@@ -207,54 +215,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $erroResumo === null) {
             $stmtEntrega->execute();
             $stmtEntrega->close();
 
-            // ---- Pagamento ----
-            $tipoPagamentoTexto = [
-                'credito' => 'Cartão de Crédito',
-                'debito'  => 'Cartão de Débito',
-                'pix'     => 'Pix',
-            ][$formaPagamento];
-
-            $statusPagamento = 'Aprovado';
-
-            $stmtPagamento = $conn->prepare(
-                'INSERT INTO pagamento (tipo, valor, status, id_pedido) VALUES (?, ?, ?, ?)'
+            // ---- Contas a receber ----
+            // pagamento e parcela não existem mais no banco. Cada parcela é
+            // registrada diretamente em contas_receber e vinculada ao pedido.
+            $quantidadeParcelas = $formaPagamento === 'credito' ? $parcelas : 1;
+            $stmtContaReceber = $conn->prepare(
+                'INSERT INTO contas_receber (data_vencimento, numero_parcela, valor_parcela, data_pagamento, id_pedido, valor_pago, valor_pago_posven)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)'
             );
-            $stmtPagamento->bind_param('sdsi', $tipoPagamentoTexto, $resumoFinal['total'], $statusPagamento, $idPedido);
-            $stmtPagamento->execute();
-            $idPagamento = $conn->insert_id;
-            $stmtPagamento->close();
 
-            // ---- Parcelas (somente cartão de crédito) ----
-            if ($formaPagamento === 'credito' && $parcelas > 1) {
+            if ($quantidadeParcelas > 1) {
                 $valorBase = floor(($resumoFinal['total'] / $parcelas) * 100) / 100;
                 $somaParcelas = $valorBase * ($parcelas - 1);
                 $ultimaParcela = round($resumoFinal['total'] - $somaParcelas, 2);
 
-                $stmtParcela = $conn->prepare(
-                    'INSERT INTO parcela (id_pagamento, valor_parcela, status, numero_parcela, data_vencimento) VALUES (?, ?, ?, ?, ?)'
-                );
-
                 for ($i = 1; $i <= $parcelas; $i++) {
                     $valorParcela = ($i === $parcelas) ? $ultimaParcela : $valorBase;
-                    $statusParcela = ($i === 1) ? 'Paga' : 'Pendente';
                     $vencimento = date('Y-m-d', strtotime("+{$i} month", strtotime($dataPedido)));
+                    $dataPagamento = $i === 1 ? date('Y-m-d', strtotime($dataPedido)) : null;
+                    $valorPago = $i === 1 ? $valorParcela : null;
+                    $valorPagoPosven = null;
 
-                    $stmtParcela->bind_param('idsis', $idPagamento, $valorParcela, $statusParcela, $i, $vencimento);
-                    $stmtParcela->execute();
+                    $stmtContaReceber->bind_param('sidsidd', $vencimento, $i, $valorParcela, $dataPagamento, $idPedido, $valorPago, $valorPagoPosven);
+                    $stmtContaReceber->execute();
                 }
-                $stmtParcela->close();
-            } elseif ($formaPagamento === 'credito') {
-                // à vista no crédito = 1 parcela paga
-                $stmtParcela = $conn->prepare(
-                    'INSERT INTO parcela (id_pagamento, valor_parcela, status, numero_parcela, data_vencimento) VALUES (?, ?, ?, ?, ?)'
-                );
-                $statusParcela = 'Paga';
+            } else {
+                // Pix, débito e crédito à vista são recebidos imediatamente
+                // nesta simulação.
                 $numeroParcela = 1;
                 $vencimento = date('Y-m-d', strtotime($dataPedido));
-                $stmtParcela->bind_param('idsis', $idPagamento, $resumoFinal['total'], $statusParcela, $numeroParcela, $vencimento);
-                $stmtParcela->execute();
-                $stmtParcela->close();
+                $dataPagamento = $vencimento;
+                $valorPago = $resumoFinal['total'];
+                $valorPagoPosven = null;
+                $stmtContaReceber->bind_param('sidsidd', $vencimento, $numeroParcela, $resumoFinal['total'], $dataPagamento, $idPedido, $valorPago, $valorPagoPosven);
+                $stmtContaReceber->execute();
             }
+            $stmtContaReceber->close();
 
             $conn->commit();
 

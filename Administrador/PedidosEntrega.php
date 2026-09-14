@@ -86,7 +86,7 @@ $filtroStatusEntrega = trim($_GET['status_entrega'] ?? '');
 $filtroRegiao = trim($_GET['regiao'] ?? '');
 $filtroMetodo = trim($_GET['metodo'] ?? '');
 
-// ===== CONSULTA PRINCIPAL (pedido + usuario + entrega + pagamento) =====
+// ===== CONSULTA PRINCIPAL (pedido + usuario + entrega + contas a receber) =====
 $condicoes = [];
 $parametros = [];
 $tipos = '';
@@ -116,11 +116,23 @@ $sql = 'SELECT
             p.id_pedido, p.data_pedido, p.status_pedido, p.valor_total,
             u.nome AS cliente_nome, u.telefone AS cliente_telefone,
             e.id_entrega, e.endereco, e.estado, e.cidade, e.cep, e.status AS status_entrega, e.frete,
-            pg.tipo AS tipo_pagamento, pg.status AS status_pagamento
+            p.tipo_pagamento,
+            COALESCE(
+                (
+                    SELECT CASE
+                        WHEN COUNT(*) = 0 THEN NULL
+                        WHEN SUM(cr.data_pagamento IS NULL) = 0 THEN \'Pago\'
+                        WHEN SUM(cr.data_pagamento IS NOT NULL) > 0 THEN \'Parcialmente pago\'
+                        ELSE \'Pendente\'
+                    END
+                    FROM contas_receber cr
+                    WHERE cr.id_pedido = p.id_pedido
+                ),
+                CASE WHEN p.status_pedido IN (\'Pago\', \'Confirmado\') THEN \'Pago\' ELSE NULL END
+            ) AS status_pagamento
         FROM pedido p
         JOIN usuario u ON u.id_usuario = p.id_usuario
-        LEFT JOIN entrega e ON e.id_pedido = p.id_pedido
-        LEFT JOIN pagamento pg ON pg.id_pedido = p.id_pedido';
+        LEFT JOIN entrega e ON e.id_pedido = p.id_pedido';
 
 if (!empty($condicoes)) {
     $sql .= ' WHERE ' . implode(' AND ', $condicoes);

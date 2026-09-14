@@ -30,7 +30,7 @@ $idPedido = (int) $_SESSION['ultimo_pedido_id'];
 // Garante que o pedido pertence ao usuário logado (impede acessar pedido
 // de outro cliente trocando o valor na sessão/URL).
 $stmtPedido = $conn->prepare(
-    'SELECT id_pedido, data_pedido, status_pedido, valor_total FROM pedido WHERE id_pedido = ? AND id_usuario = ?'
+    'SELECT id_pedido, data_pedido, status_pedido, valor_total, tipo_pagamento FROM pedido WHERE id_pedido = ? AND id_usuario = ?'
 );
 $stmtPedido->bind_param('ii', $idPedido, $idUsuario);
 $stmtPedido->execute();
@@ -59,19 +59,31 @@ $stmtEntrega->execute();
 $entrega = $stmtEntrega->get_result()->fetch_assoc();
 $stmtEntrega->close();
 
-$stmtPagamento = $conn->prepare('SELECT * FROM pagamento WHERE id_pedido = ?');
-$stmtPagamento->bind_param('i', $idPedido);
-$stmtPagamento->execute();
-$pagamento = $stmtPagamento->get_result()->fetch_assoc();
-$stmtPagamento->close();
+// O esquema atual registra forma de pagamento no pedido e as parcelas em
+// contas_receber; as tabelas pagamento e parcela não fazem parte dele.
+$stmtParcelas = $conn->prepare(
+    'SELECT data_vencimento, numero_parcela, valor_parcela, data_pagamento, valor_pago
+     FROM contas_receber WHERE id_pedido = ? ORDER BY numero_parcela ASC'
+);
+$stmtParcelas->bind_param('i', $idPedido);
+$stmtParcelas->execute();
+$parcelas = $stmtParcelas->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmtParcelas->close();
 
-$parcelas = [];
-if ($pagamento) {
-    $stmtParcelas = $conn->prepare('SELECT * FROM parcela WHERE id_pagamento = ? ORDER BY numero_parcela ASC');
-    $stmtParcelas->bind_param('i', $pagamento['id_pagamento']);
-    $stmtParcelas->execute();
-    $parcelas = $stmtParcelas->get_result()->fetch_all(MYSQLI_ASSOC);
-    $stmtParcelas->close();
+$pagamento = null;
+if (!empty($pedido['tipo_pagamento'])) {
+    $todasParcelasPagas = !empty($parcelas);
+    foreach ($parcelas as $parcela) {
+        if ($parcela['data_pagamento'] === null) {
+            $todasParcelasPagas = false;
+            break;
+        }
+    }
+
+    $pagamento = [
+        'tipo' => $pedido['tipo_pagamento'],
+        'status' => $todasParcelasPagas ? 'Pago' : 'Pendente',
+    ];
 }
 ?>
 <!DOCTYPE html>
@@ -149,7 +161,7 @@ if ($pagamento) {
                             <?php echo $parcela['numero_parcela']; ?>x
                             - <?php echo formatarPreco($parcela['valor_parcela']); ?>
                             - vence em <?php echo date('d/m/Y', strtotime($parcela['data_vencimento'])); ?>
-                            - <?php echo htmlspecialchars($parcela['status']); ?>
+                            - <?php echo $parcela['data_pagamento'] !== null ? 'Pago' : 'Pendente'; ?>
                         </li>
                     <?php endforeach; ?>
                 </ul>

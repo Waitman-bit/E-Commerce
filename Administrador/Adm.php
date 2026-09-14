@@ -182,6 +182,9 @@ if ($pedidosMesAnterior > 0) {
             <i class="ti ti-truck-delivery"></i> Estoque
           </a>
         </button>
+        <a href="PedidosEntrega.php" class="nav-item">
+          <i class="ti ti-package-export"></i> Pedidos e Entregas
+        </a>
         <button class="nav-item">
           <a href="../Index/Index.php">
             <i class="ti ti-home"></i> Início

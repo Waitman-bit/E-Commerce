@@ -35,7 +35,7 @@ if (!isset($_SESSION['carrinho']) || !is_array($_SESSION['carrinho']) || count($
 $idUsuario = (int) $_SESSION['id'];
 
 // ===== 3. BUSCA OS DADOS ATUAIS DO USUÁRIO =====
-$stmt = $conn->prepare('SELECT nome, cpf, email, telefone, cep, numero, complemento FROM usuario WHERE id_usuario = ?');
+$stmt = $conn->prepare('SELECT nome, cpf, email, telefone, cep, numero FROM usuario WHERE id_usuario = ?');
 $stmt->bind_param('i', $idUsuario);
 $stmt->execute();
 $usuario = $stmt->get_result()->fetch_assoc();
@@ -92,7 +92,9 @@ $dadosForm = [
     'cep'          => $usuario['cep'] ?? '',
     'logradouro'   => '',
     'numero'       => $usuario['numero'] ?? '',
-    'complemento'  => $usuario['complemento'] ?? '',
+    // O complemento é específico desta entrega. A tabela usuario não possui
+    // essa coluna no esquema atual, portanto ele não é salvo no perfil.
+    'complemento'  => '',
     'cidade'       => '',
     'estado'       => '',
     'telefone'     => $usuario['telefone'] ?? '',
@@ -145,17 +147,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($erros) && empty($avisoEstoque)) {
         // Estes campos pertencem ao cadastro do usuário (tabela `usuario`).
-        // Se o cliente os alterar aqui no checkout, atualizamos o perfil dele
-        // também, para que o telefone/CEP exibido no painel administrativo
-        // fique sempre consistente com o que foi usado nesta entrega.
+        // O complemento permanece apenas nos dados desta entrega, pois não
+        // existe uma coluna correspondente na tabela usuario.
         $stmtAtualizaUsuario = $conn->prepare(
-            'UPDATE usuario SET telefone = ?, numero = ?, complemento = ?, cep = ? WHERE id_usuario = ?'
+            'UPDATE usuario SET telefone = ?, numero = ?, cep = ? WHERE id_usuario = ?'
         );
         $stmtAtualizaUsuario->bind_param(
-            'ssssi',
+            'sssi',
             $dadosForm['telefone'],
             $dadosForm['numero'],
-            $dadosForm['complemento'],
             $cepLimpo,
             $idUsuario
         );
