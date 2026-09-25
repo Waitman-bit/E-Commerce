@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const campoCpf = document.getElementById('cpf');
     const campoCep = document.getElementById('cep');
     const campoLogradouro = document.getElementById('logradouro');
     const campoCidade = document.getElementById('cidade');
@@ -22,6 +23,20 @@ document.addEventListener('DOMContentLoaded', function () {
             valor = valor.slice(0, 5) + '-' + valor.slice(5);
         }
         return valor;
+    }
+
+    function mascararCpf(valor) {
+        valor = valor.replace(/\D/g, '').slice(0, 11);
+        if (valor.length <= 3) return valor;
+        if (valor.length <= 6) return valor.slice(0, 3) + '.' + valor.slice(3);
+        if (valor.length <= 9) return valor.slice(0, 3) + '.' + valor.slice(3, 6) + '.' + valor.slice(6);
+        return valor.slice(0, 3) + '.' + valor.slice(3, 6) + '.' + valor.slice(6, 9) + '-' + valor.slice(9);
+    }
+
+    if (campoCpf) {
+        campoCpf.addEventListener('input', function () {
+            campoCpf.value = mascararCpf(campoCpf.value);
+        });
     }
 
     campoCep.addEventListener('input', function () {

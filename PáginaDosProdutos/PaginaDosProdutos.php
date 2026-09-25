@@ -61,6 +61,7 @@ $categorias = $conn->query('SELECT nome FROM categoria ORDER BY nome ASC');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos</title>
+     <link rel="icon" href="../logoicon.ico" type="image/png">
     <?php require_once __DIR__ . '/../NavBar/Navbar.php'; ?>
     <link rel="stylesheet" href="PaginaDosProdutos.css">
 </head>

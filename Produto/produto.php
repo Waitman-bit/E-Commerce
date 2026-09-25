@@ -16,8 +16,12 @@ $produto = null;
 if ($idProduto <= 0) {
     $erro = "ID inválido. Não foi possível identificar o produto.";
 } else {
-    // ===== BUSCA DO PRODUTO COM JOIN NA CATEGORIA =====
-    $query = "SELECT p.*, c.nome as categoria FROM produto p 
+    // ===== BUSCA DO PRODUTO COM JOIN NA CATEGORIA E SOMA DO ESTOQUE EM produto_tamanho =====
+    $query = "SELECT p.*, c.nome as categoria,
+                      (SELECT COALESCE(SUM(pt.estoque), 0)
+                       FROM produto_tamanho pt
+                       WHERE pt.id_produto = p.id_produto) AS estoque
+              FROM produto p 
               LEFT JOIN categoria c ON p.id_categoria = c.id_categoria 
               WHERE p.id_produto = ?";
     $stmt = $conn->prepare($query);
@@ -37,6 +41,7 @@ if ($erro) {
     <!DOCTYPE html>
     <html lang="pt-br">
     <head>
+    <link rel="icon" href="../logoicon.ico" type="image/png">
         <meta charset="UTF-8">
         <title>Erro - TitanSports</title>
         <link rel="stylesheet" href="produto.css">

@@ -1,282 +1,271 @@
 <?php
-/**
- * pagamento.php
- *
- * Etapa final da compra. Depende de $_SESSION['checkout'] (definida em
- * ../Checkout/checkout.php) e de $_SESSION['carrinho'].
- *
- * Ao confirmar o pagamento:
- *  1. Revalida estoque e preço de cada item direto no banco.
- *  2. Revalida o frete no servidor (nunca confia no valor do navegador).
- *  3. Registra pedido, item_pedido, entrega e contas_receber (se houver parcelas)
- *     dentro de uma transação MySQL.
- *  4. Reduz o estoque.
- *  5. Limpa o carrinho e os dados de checkout da sessão.
- *  6. Redireciona para confirmacao.php (padrão Post/Redirect/Get, evita
- *     pedido duplicado se o usuário atualizar a página).
- *
- * PAGAMENTO SIMULADO: não há integração real com gateway de pagamento.
- * Nenhum dado sensível de cartão (número completo ou CVV) é enviado ao
- * servidor ou salvo no banco — os campos de cartão no formulário servem
- * apenas para compor a experiência visual do checkout.
- */
-
 require_once __DIR__ . '/../connection.php';
-require_once('../Checkout/frete.php');
+require_once __DIR__ . '/../Checkout/frete.php';
+require_once __DIR__ . '/../asaas_config.php';
 
 function formatarPreco($valor)
 {
     return 'R$ ' . number_format((float) $valor, 2, ',', '.');
 }
 
-// ===== 1. VALIDAÇÕES DE ACESSO =====
+function validarCpfBrasileiro(string $cpf): bool
+{
+    $cpf = preg_replace('/\D/', '', $cpf);
+    if (strlen($cpf) !== 11) {
+        return false;
+    }
+
+    if (preg_match('/^(\d)\1{10}$/', $cpf)) {
+        return false;
+    }
+
+    $soma = 0;
+    for ($i = 0; $i < 9; $i++) {
+        $soma += ((int) $cpf[$i]) * (10 - $i);
+    }
+    $digito1 = 11 - ($soma % 11);
+    $digito1 = $digito1 >= 10 ? 0 : $digito1;
+
+    if (((int) $cpf[9]) !== $digito1) {
+        return false;
+    }
+
+    $soma = 0;
+    for ($i = 0; $i < 10; $i++) {
+        $soma += ((int) $cpf[$i]) * (11 - $i);
+    }
+    $digito2 = 11 - ($soma % 11);
+    $digito2 = $digito2 >= 10 ? 0 : $digito2;
+
+    return ((int) $cpf[10]) === $digito2;
+}
+
+function titan_estoque_disponivel(mysqli $conn, int $idProduto): int
+{
+    $stmt = $conn->prepare('SELECT COALESCE(SUM(estoque), 0) AS total FROM produto_tamanho WHERE id_produto = ?');
+    $stmt->bind_param('i', $idProduto);
+    $stmt->execute();
+    $resultado = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return (int) ($resultado['total'] ?? 0);
+}
+
+function titan_baixar_estoque(mysqli $conn, int $idProduto, int $quantidade): void
+{
+    if ($quantidade <= 0) {
+        return;
+    }
+
+    $totalDisponivel = titan_estoque_disponivel($conn, $idProduto);
+    if ($totalDisponivel < $quantidade) {
+        throw new Exception('Estoque insuficiente para este item.');
+    }
+
+    $stmt = $conn->prepare('SELECT id_tamanho, estoque FROM produto_tamanho WHERE id_produto = ? ORDER BY estoque DESC, id_tamanho ASC');
+    $stmt->bind_param('i', $idProduto);
+    $stmt->execute();
+    $linhas = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+
+    $restante = $quantidade;
+    foreach ($linhas as $linha) {
+        if ($restante <= 0) {
+            break;
+        }
+
+        $disponivel = (int) ($linha['estoque'] ?? 0);
+        if ($disponivel <= 0) {
+            continue;
+        }
+
+        $retirar = min($restante, $disponivel);
+        $idTamanho = (int) $linha['id_tamanho'];
+
+        $update = $conn->prepare('UPDATE produto_tamanho SET estoque = estoque - ? WHERE id_produto = ? AND id_tamanho = ? AND estoque >= ?');
+        $update->bind_param('iiii', $retirar, $idProduto, $idTamanho, $retirar);
+        $update->execute();
+        $afetadas = $update->affected_rows;
+        $update->close();
+
+        if ($afetadas !== 1) {
+            throw new Exception('Não foi possível reservar o estoque do produto.');
+        }
+
+        $restante -= $retirar;
+    }
+
+    if ($restante > 0) {
+        throw new Exception('Estoque insuficiente para este item.');
+    }
+}
+
+function titan_asaas_obter_ou_criar_cliente(string $nome, string $cpf, string $email): string
+{
+    [, $busca] = titan_asaas_request('GET', '/customers?cpfCnpj=' . $cpf);
+    if (!empty($busca['data'][0]['id'])) {
+        return $busca['data'][0]['id'];
+    }
+
+    [$status, $criado] = titan_asaas_request('POST', '/customers', [
+        'name'    => $nome,
+        'cpfCnpj' => $cpf,
+        'email'   => $email,
+    ]);
+    if ($status >= 300 || empty($criado['id'])) {
+        throw new Exception('Erro ao cadastrar cliente no Asaas: ' . json_encode($criado));
+    }
+
+    return $criado['id'];
+}
+
+function titan_criar_pedido_pix(mysqli $conn, int $idUsuario): array
+{
+    $ck = $_SESSION['checkout'];
+
+    $stmt = $conn->prepare('SELECT nome, cpf, email FROM usuario WHERE id_usuario = ?');
+    $stmt->bind_param('i', $idUsuario);
+    $stmt->execute();
+    $usuario = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    if (!$usuario) {
+        throw new Exception('Usuário não encontrado.');
+    }
+
+    $cpf = preg_replace('/\D/', '', $usuario['cpf'] ?? '');
+    if (!validarCpfBrasileiro($cpf)) {
+        throw new Exception('CPF inválido no cadastro. Atualize seu perfil com um CPF real antes de pagar.');
+    }
+
+    $frete = titan_calcular_frete($ck['estado'], $ck['metodo_entrega']);
+    if ($frete === false) {
+        throw new Exception('Não foi possível calcular o frete.');
+    }
+
+    $conn->begin_transaction();
+    try {
+        // ===== ITENS + BAIXA DE ESTOQUE (preço vem do banco) =====
+        $itens = [];
+        $subtotal = 0.0;
+
+        foreach ($_SESSION['carrinho'] as $idProduto => $itemSessao) {
+            $idProduto = (int) $idProduto;
+            $qtd = max(1, (int) $itemSessao['quantidade']);
+
+            $stmt = $conn->prepare('SELECT nome, preco FROM produto WHERE id_produto = ?');
+            $stmt->bind_param('i', $idProduto);
+            $stmt->execute();
+            $prod = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            if (!$prod) {
+                continue;
+            }
+
+            titan_baixar_estoque($conn, $idProduto, $qtd);
+
+            $preco = (float) $prod['preco'];
+            $itens[] = ['id' => $idProduto, 'qtd' => $qtd, 'preco' => $preco];
+            $subtotal += $preco * $qtd;
+        }
+
+        if (!$itens) {
+            throw new Exception('Carrinho vazio.');
+        }
+
+        $total = round($subtotal + $frete['valor'], 2);
+
+        // ===== PEDIDO =====
+        $stmt = $conn->prepare("INSERT INTO pedido (valor_total, data_pedido, id_usuario, status_pedido, tipo_pagamento)
+                                VALUES (?, NOW(), ?, 'Aguardando pagamento', 'pix')");
+        $stmt->bind_param('di', $total, $idUsuario);
+        $stmt->execute();
+        $idPedido = $conn->insert_id;
+        $stmt->close();
+
+        // ===== ITEM_PEDIDO =====
+        $stmt = $conn->prepare('INSERT INTO item_pedido (quantidade, preco_unitario, id_produto, id_pedido) VALUES (?, ?, ?, ?)');
+        foreach ($itens as $i) {
+            $stmt->bind_param('idii', $i['qtd'], $i['preco'], $i['id'], $idPedido);
+            $stmt->execute();
+        }
+        $stmt->close();
+
+        // ===== ENTREGA =====
+        $endereco = $ck['logradouro'] . ', ' . $ck['numero'] . ($ck['complemento'] !== '' ? ' - ' . $ck['complemento'] : '');
+        $stmt = $conn->prepare("INSERT INTO entrega (endereco, estado, cidade, cep, status, id_pedido, frete)
+                                VALUES (?, ?, ?, ?, 'Pendente', ?, ?)");
+        $stmt->bind_param('ssssid', $endereco, $ck['estado'], $ck['cidade'], $ck['cep'], $idPedido, $frete['valor']);
+        $stmt->execute();
+        $stmt->close();
+
+        // ===== CLIENTE + COBRANÇA NO ASAAS =====
+        $clienteId = titan_asaas_obter_ou_criar_cliente($usuario['nome'], $cpf, $usuario['email']);
+
+        [$status, $cobranca] = titan_asaas_request('POST', '/payments', [
+            'customer'    => $clienteId,
+            'billingType' => 'PIX',
+            'value'       => $total,
+            'dueDate'     => date('Y-m-d'),
+            'description' => 'Pedido #' . $idPedido . ' - TitanSports',
+            'externalReference' => (string) $idPedido,
+        ]);
+        if ($status >= 300 || empty($cobranca['id'])) {
+            throw new Exception('Erro ao gerar a cobrança: ' . json_encode($cobranca));
+        }
+        $paymentId = $cobranca['id'];
+
+        [$statusQr, $qr] = titan_asaas_request('GET', '/payments/' . $paymentId . '/pixQrCode');
+        if ($statusQr >= 300 || empty($qr['payload'])) {
+            throw new Exception('Erro ao gerar o QR Code: ' . json_encode($qr));
+        }
+
+        // ===== CONTAS_RECEBER (1 parcela) =====
+        $vencimento = date('Y-m-d H:i:s', strtotime($qr['expirationDate'] ?? '+1 day'));
+        $stmt = $conn->prepare('INSERT INTO contas_receber (id_pedido, numero_parcela, valor_parcela, data_vencimento, asaas_payment_id)
+                                VALUES (?, 1, ?, ?, ?)');
+        $stmt->bind_param('idss', $idPedido, $total, $vencimento, $paymentId);
+        $stmt->execute();
+        $stmt->close();
+
+        $conn->commit();
+    } catch (Throwable $e) {
+        $conn->rollback();
+        throw $e;
+    }
+
+    return [
+        'pedido'     => $idPedido,
+        'payment_id' => $paymentId,
+        'total'      => $total,
+        'qr_base64'  => $qr['encodedImage'],
+        'copia_cola' => $qr['payload'],
+        'expira'     => date('H:i', strtotime($qr['expirationDate'] ?? '+1 day')),
+    ];
+}
+
+// ===== GUARDAS =====
 if (!isset($_SESSION['id'])) {
     header('Location: ../Login/Login.php');
     exit;
 }
-
-if (!isset($_SESSION['carrinho']) || !is_array($_SESSION['carrinho']) || count($_SESSION['carrinho']) === 0) {
+if (empty($_SESSION['carrinho']) || !is_array($_SESSION['carrinho'])) {
     header('Location: ../Carrinho/carrinho.php');
     exit;
 }
-
-if (!isset($_SESSION['checkout']) || !is_array($_SESSION['checkout'])) {
+if (empty($_SESSION['checkout'])) {
     header('Location: ../Checkout/checkout.php');
     exit;
 }
 
-$idUsuario = (int) $_SESSION['id'];
-$checkoutSessao = $_SESSION['checkout'];
+$erro = null;
+$pix = $_SESSION['pedido_em_andamento'] ?? null;
 
-// ===== 2. MONTA RESUMO ATUAL (para exibição) A PARTIR DO BANCO =====
-function montarResumoPedido($conn, $carrinhoSessao, $checkoutSessao)
-{
-    $itens = [];
-    $subtotal = 0.0;
-    $erro = null;
-
-    foreach ($carrinhoSessao as $idProduto => $itemSessao) {
-        $stmt = $conn->prepare('SELECT id_produto, nome, preco, imagem, estoque FROM produto WHERE id_produto = ? FOR UPDATE');
-        // FOR UPDATE só tem efeito dentro de uma transação; fora dela o MySQLi
-        // simplesmente ignora o lock (usado aqui de forma inofensiva também
-        // para a pré-visualização).
-        $stmt->bind_param('i', $idProduto);
-        $stmt->execute();
-        $produto = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        if (!$produto) {
-            $erro = 'Um dos produtos do carrinho não está mais disponível.';
-            break;
-        }
-
-        $quantidade = max(1, (int) $itemSessao['quantidade']);
-
-        if ($quantidade > (int) $produto['estoque']) {
-            $erro = 'Estoque insuficiente para "' . $produto['nome'] . '".';
-            break;
-        }
-
-        $precoUnitario = (float) $produto['preco'];
-
-        $itens[] = [
-            'id'         => (int) $produto['id_produto'],
-            'nome'       => $produto['nome'],
-            'imagem'     => $produto['imagem'],
-            'preco'      => $precoUnitario,
-            'quantidade' => $quantidade,
-            'subtotal'   => $precoUnitario * $quantidade,
-        ];
-
-        $subtotal += $precoUnitario * $quantidade;
-    }
-
-    if ($erro) {
-        return ['erro' => $erro];
-    }
-
-    $frete = titan_calcular_frete($checkoutSessao['estado'], $checkoutSessao['metodo_entrega']);
-
-    if ($frete === false) {
-        return ['erro' => 'Não foi possível recalcular o frete. Volte ao checkout.'];
-    }
-
-    return [
-        'itens'     => $itens,
-        'subtotal'  => $subtotal,
-        'frete'     => $frete['valor'],
-        'prazo'     => $frete['prazo'],
-        'total'     => $subtotal + $frete['valor'],
-    ];
-}
-
-$resumo = montarResumoPedido($conn, $_SESSION['carrinho'], $checkoutSessao);
-
-if (isset($resumo['erro'])) {
-    $erroResumo = $resumo['erro'];
-} else {
-    $erroResumo = null;
-}
-
-// ===== 3. PROCESSA O PAGAMENTO (POST) =====
-$erros = [];
-$sucesso = false;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $erroResumo === null) {
-
-    $formaPagamento = $_POST['forma_pagamento'] ?? '';
-    $parcelas = isset($_POST['parcelas']) ? max(1, min(12, (int) $_POST['parcelas'])) : 1;
-
-    $formasValidas = ['credito', 'debito', 'pix'];
-
-    if (!in_array($formaPagamento, $formasValidas, true)) {
-        $erros[] = 'Selecione uma forma de pagamento válida.';
-    }
-
-    if ($formaPagamento !== 'credito') {
-        $parcelas = 1;
-    }
-
-    // Revalida tudo de novo, imediatamente antes de gravar (defesa contra
-    // condição de corrida entre a exibição da página e o clique em confirmar).
-    $resumoFinal = montarResumoPedido($conn, $_SESSION['carrinho'], $checkoutSessao);
-
-    if (isset($resumoFinal['erro'])) {
-        $erros[] = $resumoFinal['erro'];
-    }
-
-    if (empty($erros)) {
-        $conn->begin_transaction();
-
-        try {
-            $dataPedido = date('Y-m-d H:i:s');
-            $statusPedido = 'Pago'; // pagamento simulado sempre "aprovado"
-
-            $tipoPagamentoTexto = [
-                'credito' => 'Cartão de Crédito',
-                'debito'  => 'Cartão de Débito',
-                'pix'     => 'Pix',
-            ][$formaPagamento];
-
-            // O método de pagamento pertence ao pedido. As parcelas e os
-            // recebimentos ficam em contas_receber, conforme o esquema atual.
-            $stmtPedido = $conn->prepare(
-                'INSERT INTO pedido (data_pedido, status_pedido, valor_total, id_usuario, tipo_pagamento) VALUES (?, ?, ?, ?, ?)'
-            );
-            $stmtPedido->bind_param('ssdis', $dataPedido, $statusPedido, $resumoFinal['total'], $idUsuario, $tipoPagamentoTexto);
-            $stmtPedido->execute();
-            $idPedido = $conn->insert_id;
-            $stmtPedido->close();
-
-            // ---- Itens do pedido + baixa de estoque ----
-            $stmtItem = $conn->prepare(
-                'INSERT INTO item_pedido (id_produto, id_pedido, quantidade, preco_unitario) VALUES (?, ?, ?, ?)'
-            );
-            $stmtEstoque = $conn->prepare(
-                'UPDATE produto SET estoque = estoque - ? WHERE id_produto = ? AND estoque >= ?'
-            );
-
-            foreach ($resumoFinal['itens'] as $item) {
-                $stmtItem->bind_param('iiid', $item['id'], $idPedido, $item['quantidade'], $item['preco']);
-                $stmtItem->execute();
-
-                $stmtEstoque->bind_param('iii', $item['quantidade'], $item['id'], $item['quantidade']);
-                $stmtEstoque->execute();
-
-                if ($stmtEstoque->affected_rows === 0) {
-                    throw new Exception('Estoque insuficiente para "' . $item['nome'] . '" no momento da confirmação.');
-                }
-            }
-            $stmtItem->close();
-            $stmtEstoque->close();
-
-            // ---- Entrega ----
-            $enderecoFinal = $checkoutSessao['metodo_entrega'] === 'retirada'
-                ? 'Retirada na loja'
-                : trim($checkoutSessao['logradouro'] . ', ' . $checkoutSessao['numero']
-                    . ($checkoutSessao['complemento'] !== '' ? ' - ' . $checkoutSessao['complemento'] : ''));
-
-            $statusEntrega = $checkoutSessao['metodo_entrega'] === 'retirada' ? 'Aguardando retirada' : 'Aguardando envio';
-            $cepFormatado = substr($checkoutSessao['cep'], 0, 5) . '-' . substr($checkoutSessao['cep'], 5);
-
-            $stmtEntrega = $conn->prepare(
-                'INSERT INTO entrega (endereco, estado, cidade, cep, status, id_pedido, frete) VALUES (?, ?, ?, ?, ?, ?, ?)'
-            );
-            $stmtEntrega->bind_param(
-                'sssssid',
-                $enderecoFinal,
-                $checkoutSessao['estado'],
-                $checkoutSessao['cidade'],
-                $cepFormatado,
-                $statusEntrega,
-                $idPedido,
-                $resumoFinal['frete']
-            );
-            $stmtEntrega->execute();
-            $stmtEntrega->close();
-
-            // ---- Contas a receber ----
-            // pagamento e parcela não existem mais no banco. Cada parcela é
-            // registrada diretamente em contas_receber e vinculada ao pedido.
-            $quantidadeParcelas = $formaPagamento === 'credito' ? $parcelas : 1;
-            $stmtContaReceber = $conn->prepare(
-                'INSERT INTO contas_receber (data_vencimento, numero_parcela, valor_parcela, data_pagamento, id_pedido, valor_pago, valor_pago_posven)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)'
-            );
-
-            if ($quantidadeParcelas > 1) {
-                $valorBase = floor(($resumoFinal['total'] / $parcelas) * 100) / 100;
-                $somaParcelas = $valorBase * ($parcelas - 1);
-                $ultimaParcela = round($resumoFinal['total'] - $somaParcelas, 2);
-
-                for ($i = 1; $i <= $parcelas; $i++) {
-                    $valorParcela = ($i === $parcelas) ? $ultimaParcela : $valorBase;
-                    $vencimento = date('Y-m-d', strtotime("+{$i} month", strtotime($dataPedido)));
-                    $dataPagamento = $i === 1 ? date('Y-m-d', strtotime($dataPedido)) : null;
-                    $valorPago = $i === 1 ? $valorParcela : null;
-                    $valorPagoPosven = null;
-
-                    $stmtContaReceber->bind_param('sidsidd', $vencimento, $i, $valorParcela, $dataPagamento, $idPedido, $valorPago, $valorPagoPosven);
-                    $stmtContaReceber->execute();
-                }
-            } else {
-                // Pix, débito e crédito à vista são recebidos imediatamente
-                // nesta simulação.
-                $numeroParcela = 1;
-                $vencimento = date('Y-m-d', strtotime($dataPedido));
-                $dataPagamento = $vencimento;
-                $valorPago = $resumoFinal['total'];
-                $valorPagoPosven = null;
-                $stmtContaReceber->bind_param('sidsidd', $vencimento, $numeroParcela, $resumoFinal['total'], $dataPagamento, $idPedido, $valorPago, $valorPagoPosven);
-                $stmtContaReceber->execute();
-            }
-            $stmtContaReceber->close();
-
-            $conn->commit();
-
-            // ---- Limpeza da sessão ----
-            unset($_SESSION['carrinho']);
-            unset($_SESSION['checkout']);
-            $_SESSION['ultimo_pedido_id'] = $idPedido;
-
-            header('Location: confirmacao.php');
-            exit;
-
-        } catch (Throwable $e) {
-            $conn->rollback();
-            $erros[] = 'Não foi possível concluir o pedido: ' . $e->getMessage();
-        }
-    }
-}
-
-$listaOpcoesParcelas = [];
-if (!isset($resumo['erro'])) {
-    for ($i = 1; $i <= 12; $i++) {
-        $valorParcela = $resumo['total'] / $i;
-        $listaOpcoesParcelas[] = [
-            'numero' => $i,
-            'valor'  => $valorParcela,
-        ];
+if (!$pix) {
+    try {
+        $pix = titan_criar_pedido_pix($conn, (int) $_SESSION['id']);
+        $_SESSION['pedido_em_andamento'] = $pix;
+    } catch (Throwable $e) {
+        $erro = $e->getMessage();
     }
 }
 ?>
@@ -286,12 +275,12 @@ if (!isset($resumo['erro'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagamento - TitanSports</title>
-    <link rel="stylesheet" href="pagamento.css">
+    <link rel="stylesheet" href="../Checkout/checkout.css">
 </head>
 <body>
 
 <div class="topo-checkout">
-    <h1>Pagamento</h1>
+    <h1>Pagamento via Pix</h1>
     <a href="../Checkout/checkout.php" class="link-voltar">&larr; Voltar ao checkout</a>
 </div>
 
@@ -301,161 +290,38 @@ if (!isset($resumo['erro'])) {
     <span class="etapa">3. Confirmação</span>
 </div>
 
-<?php if ($erroResumo): ?>
-    <div class="alerta alerta-erro">
-        <?php echo htmlspecialchars($erroResumo); ?>
-        <br><a href="../Checkout/checkout.php" style="color:#fff;">Voltar ao checkout</a>
-    </div>
+<?php if ($erro): ?>
+    <div class="alerta alerta-erro"><?php echo htmlspecialchars($erro); ?></div>
+<?php else: ?>
+    <section class="card-checkout" style="max-width:480px;margin:0 auto;text-align:center;">
+        <h2>Pedido #<?php echo (int) $pix['pedido']; ?></h2>
+        <p>Total: <strong><?php echo formatarPreco($pix['total']); ?></strong></p>
+        <img src="data:image/png;base64,<?php echo $pix['qr_base64']; ?>" alt="QR Code Pix" style="width:240px;height:240px;">
+        <p>Ou copie o código:</p>
+        <textarea id="pix" readonly rows="4" style="width:100%;"><?php echo htmlspecialchars($pix['copia_cola']); ?></textarea>
+        <button type="button" class="btn-continuar" id="btnCopiar">Copiar código Pix</button>
+        <p>Válido até <?php echo htmlspecialchars($pix['expira']); ?>. Aguardando pagamento...</p>
+    </section>
+
+    <script>
+        document.getElementById('btnCopiar').addEventListener('click', function () {
+            navigator.clipboard.writeText(document.getElementById('pix').value);
+            this.textContent = 'Copiado!';
+        });
+
+        const paymentId = <?php echo json_encode($pix['payment_id']); ?>;
+        const timer = setInterval(async function () {
+            try {
+                const r = await fetch('status.php?id=' + paymentId);
+                const d = await r.json();
+                if (d.status === 'approved') {
+                    clearInterval(timer);
+                    location.href = 'sucesso.php?pedido=' + d.pedido;
+                }
+            } catch (e) { /* tenta de novo no próximo ciclo */ }
+        }, 5000);
+    </script>
 <?php endif; ?>
 
-<?php if (!empty($erros)): ?>
-    <div class="alerta alerta-erro">
-        <ul>
-            <?php foreach ($erros as $erro): ?>
-                <li><?php echo htmlspecialchars($erro); ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php endif; ?>
-
-<?php if (!$erroResumo): ?>
-<div class="container-checkout">
-
-    <form method="POST" id="formPagamento" class="coluna-dados">
-
-        <section class="card-checkout">
-            <h2>Forma de pagamento</h2>
-            <div class="abas-pagamento">
-                <label class="aba-pagamento">
-                    <input type="radio" name="forma_pagamento" value="credito" checked>
-                    <span>Cartão de Crédito</span>
-                </label>
-                <label class="aba-pagamento">
-                    <input type="radio" name="forma_pagamento" value="debito">
-                    <span>Cartão de Débito</span>
-                </label>
-                <label class="aba-pagamento">
-                    <input type="radio" name="forma_pagamento" value="pix">
-                    <span>Pix</span>
-                </label>
-            </div>
-
-            <div id="painelCredito" class="painel-pagamento">
-                <div class="linha-dados">
-                    <div class="campo">
-                        <label>Nome no cartão</label>
-                        <input type="text" id="nomeCartao" placeholder="Como está impresso no cartão">
-                    </div>
-                </div>
-                <div class="linha-dados">
-                    <div class="campo">
-                        <label>Número do cartão</label>
-                        <input type="text" id="numeroCartao" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="off">
-                    </div>
-                    <div class="campo campo-pequeno">
-                        <label>Validade</label>
-                        <input type="text" id="validadeCartao" placeholder="MM/AA" maxlength="5">
-                    </div>
-                    <div class="campo campo-pequeno">
-                        <label>CVV</label>
-                        <input type="password" id="cvvCartao" placeholder="123" maxlength="4" autocomplete="off">
-                    </div>
-                </div>
-                <div class="linha-dados">
-                    <div class="campo">
-                        <label>Parcelamento</label>
-                        <select name="parcelas" id="parcelas">
-                            <?php foreach ($listaOpcoesParcelas as $opcao): ?>
-                                <option value="<?php echo $opcao['numero']; ?>">
-                                    <?php echo $opcao['numero']; ?>x de <?php echo formatarPreco($opcao['valor']); ?>
-                                    <?php echo $opcao['numero'] === 1 ? '(à vista)' : 'sem juros'; ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <p class="nota-seguranca">🔒 Ambiente de simulação. Nenhum número de cartão ou CVV é enviado ao servidor.</p>
-            </div>
-
-            <div id="painelDebito" class="painel-pagamento" style="display:none;">
-                <div class="linha-dados">
-                    <div class="campo">
-                        <label>Nome no cartão</label>
-                        <input type="text" placeholder="Como está impresso no cartão">
-                    </div>
-                </div>
-                <div class="linha-dados">
-                    <div class="campo">
-                        <label>Número do cartão</label>
-                        <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="off">
-                    </div>
-                    <div class="campo campo-pequeno">
-                        <label>Validade</label>
-                        <input type="text" placeholder="MM/AA" maxlength="5">
-                    </div>
-                    <div class="campo campo-pequeno">
-                        <label>CVV</label>
-                        <input type="password" placeholder="123" maxlength="4" autocomplete="off">
-                    </div>
-                </div>
-                <p class="nota-seguranca">🔒 Ambiente de simulação. Nenhum número de cartão ou CVV é enviado ao servidor.</p>
-            </div>
-
-            <div id="painelPix" class="painel-pagamento" style="display:none;">
-                <div class="pix-box">
-                    <div class="pix-qr">QR CODE<br>(simulado)</div>
-                    <p>Escaneie o QR Code ou use o código Pix Copia e Cola abaixo:</p>
-                    <div class="pix-codigo">00020126TITANSPORTS-SIMULADO-PIX5204000053039865802BR</div>
-                    <p class="nota-seguranca">🔒 Ambiente de simulação — a aprovação é imediata para fins de teste.</p>
-                </div>
-            </div>
-        </section>
-
-        <button type="submit" class="btn-continuar">Confirmar pagamento</button>
-    </form>
-
-    <aside class="coluna-resumo">
-        <div class="card-checkout resumo-pedido">
-            <h2>Resumo da compra</h2>
-
-            <div class="lista-resumo-itens">
-                <?php foreach ($resumo['itens'] as $item): ?>
-                    <div class="resumo-item">
-                        <img src="../ImagensProdutos/<?php echo htmlspecialchars($item['imagem']); ?>" alt="<?php echo htmlspecialchars($item['nome']); ?>">
-                        <div class="resumo-item-info">
-                            <span class="resumo-item-nome"><?php echo htmlspecialchars($item['nome']); ?></span>
-                            <span class="resumo-item-qtd">Qtd: <?php echo $item['quantidade']; ?></span>
-                        </div>
-                        <span class="resumo-item-preco"><?php echo formatarPreco($item['subtotal']); ?></span>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <div class="resumo-linha"><span>Subtotal</span><span><?php echo formatarPreco($resumo['subtotal']); ?></span></div>
-            <div class="resumo-linha"><span>Frete (<?php echo htmlspecialchars($checkoutSessao['metodo_entrega']); ?>)</span><span><?php echo formatarPreco($resumo['frete']); ?></span></div>
-            <div class="resumo-linha"><span>Prazo estimado</span><span><?php echo htmlspecialchars($resumo['prazo']); ?></span></div>
-            <div class="resumo-linha resumo-total"><span>Total</span><span><?php echo formatarPreco($resumo['total']); ?></span></div>
-
-            <div class="resumo-endereco">
-                <strong>Entregar em:</strong>
-                <p>
-                    <?php if ($checkoutSessao['metodo_entrega'] === 'retirada'): ?>
-                        Retirada na loja
-                    <?php else: ?>
-                        <?php echo htmlspecialchars($checkoutSessao['logradouro'] . ', ' . $checkoutSessao['numero']); ?><br>
-                        <?php echo htmlspecialchars($checkoutSessao['cidade'] . ' - ' . $checkoutSessao['estado']); ?><br>
-                        CEP: <?php echo htmlspecialchars($checkoutSessao['cep']); ?>
-                    <?php endif; ?>
-                </p>
-            </div>
-        </div>
-    </aside>
-</div>
-<?php endif; ?>
-
-<script>
-    const TOTAL_COMPRA = <?php echo json_encode($resumo['total'] ?? 0); ?>;
-</script>
-<script src="pagamento.js"></script>
 </body>
 </html>

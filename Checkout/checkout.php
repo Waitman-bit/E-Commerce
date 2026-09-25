@@ -56,7 +56,12 @@ $subtotal = 0.0;
 $avisoEstoque = [];
 
 foreach ($_SESSION['carrinho'] as $idProduto => $itemSessao) {
-    $stmtProd = $conn->prepare('SELECT id_produto, nome, preco, imagem, estoque FROM produto WHERE id_produto = ?');
+    $stmtProd = $conn->prepare('SELECT p.id_produto, p.nome, p.preco, p.imagem,
+                                    COALESCE((SELECT SUM(pt.estoque)
+                                              FROM produto_tamanho pt
+                                              WHERE pt.id_produto = p.id_produto), 0) AS estoque
+                                FROM produto p
+                                WHERE p.id_produto = ?');
     $stmtProd->bind_param('i', $idProduto);
     $stmtProd->execute();
     $produtoAtual = $stmtProd->get_result()->fetch_assoc();
@@ -89,6 +94,7 @@ foreach ($_SESSION['carrinho'] as $idProduto => $itemSessao) {
 // ===== 5. PROCESSA O FORMULÁRIO (POST) =====
 $erros = [];
 $dadosForm = [
+    'cpf'          => $usuario['cpf'] ?? '',
     'cep'          => $usuario['cep'] ?? '',
     'logradouro'   => '',
     'numero'       => $usuario['numero'] ?? '',
@@ -102,6 +108,7 @@ $dadosForm = [
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $dadosForm['cpf']         = trim($_POST['cpf'] ?? '');
     $dadosForm['cep']         = trim($_POST['cep'] ?? '');
     $dadosForm['logradouro']  = trim($_POST['logradouro'] ?? '');
     $dadosForm['numero']      = trim($_POST['numero'] ?? '');
@@ -111,7 +118,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dadosForm['telefone']    = trim($_POST['telefone'] ?? '');
     $dadosForm['metodo_entrega'] = $_POST['metodo_entrega'] ?? '';
 
+    $cpfLimpo = preg_replace('/\D/', '', $dadosForm['cpf']);
     $cepLimpo = preg_replace('/\D/', '', $dadosForm['cep']);
+
+    if (strlen($cpfLimpo) !== 11) {
+        $erros[] = 'CPF não cadastrado ou inválido. Atualize seu cadastro antes de finalizar o pedido.';
+    }
 
     if (strlen($cepLimpo) !== 8) {
         $erros[] = 'Informe um CEP válido (8 dígitos).';
@@ -174,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'frete_valor'    => $freteCalculado['valor'],
             'frete_prazo'    => $freteCalculado['prazo'],
         ];
-
+        unset($_SESSION['pedido_em_andamento']);
         header('Location: ../Pagamento/pagamento.php');
         exit;
     }
@@ -186,6 +198,7 @@ sort($listaUf);
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="icon" href="../logoicon.ico" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - TitanSports</title>
@@ -240,7 +253,7 @@ sort($listaUf);
             <div class="linha-dados">
                 <div class="campo">
                     <label>CPF</label>
-                    <input type="text" value="<?php echo htmlspecialchars($usuario['cpf'] ?? 'Não informado'); ?>" disabled>
+                    <input type="text" name="cpf" id="cpf" value="<?php echo htmlspecialchars($dadosForm['cpf'] ?: 'Não informado'); ?>" readonly>
                 </div>
                 <div class="campo">
                     <label>Telefone</label>

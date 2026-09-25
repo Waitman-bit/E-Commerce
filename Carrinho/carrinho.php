@@ -120,6 +120,7 @@ foreach ($itensCarrinho as $item) {
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <link rel="icon" href="../logoicon.ico" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="carrinho.css">

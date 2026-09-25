@@ -88,10 +88,11 @@ $resumoEstoque = [
 ];
 $resultadoEstoque = $conn->query(
     'SELECT
-        COUNT(*) AS produtos,
-        COALESCE(SUM(estoque), 0) AS unidades,
-        COALESCE(SUM(COALESCE(estoque, 0) <= 5), 0) AS baixo
-     FROM produto'
+        COUNT(DISTINCT p.id_produto) AS produtos,
+        COALESCE(SUM(pt.estoque), 0) AS unidades,
+        COALESCE(SUM(CASE WHEN COALESCE(pt.estoque, 0) <= 5 THEN 1 ELSE 0 END), 0) AS baixo
+     FROM produto p
+     LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto'
 );
 if ($resultadoEstoque) {
     $resumoEstoque = $resultadoEstoque->fetch_assoc();
@@ -146,6 +147,7 @@ if ($pedidosMesAnterior > 0) {
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <link rel="icon" href="../logoicon.ico" type="image/png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>

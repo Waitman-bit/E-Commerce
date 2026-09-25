@@ -70,11 +70,20 @@ $categoriaSelecionada = filter_input(INPUT_GET, 'categoria', FILTER_VALIDATE_INT
 $busca = trim($_GET['busca'] ?? '');
 $somenteBaixo = isset($_GET['baixo']) && $_GET['baixo'] === '1';
 
-$resumo = $conn->query('SELECT COUNT(*) AS produtos, COALESCE(SUM(estoque), 0) AS unidades, COALESCE(SUM(estoque * preco), 0) AS valor, COALESCE(SUM(estoque <= 5), 0) AS baixo, COALESCE(SUM(estoque = 0), 0) AS zerado FROM produto')->fetch_assoc();
+$resumo = $conn->query('SELECT COUNT(DISTINCT p.id_produto) AS produtos,
+        COALESCE(SUM(pt.estoque), 0) AS unidades,
+        COALESCE(SUM(CASE WHEN COALESCE(pt.estoque, 0) <= 5 THEN 1 ELSE 0 END), 0) AS baixo,
+        COALESCE(SUM(CASE WHEN COALESCE(pt.estoque, 0) = 0 THEN 1 ELSE 0 END), 0) AS zerado,
+        COALESCE(SUM(p.preco * COALESCE(pt.estoque, 0)), 0) AS valor
+        FROM produto p
+        LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto')->fetch_assoc();
 $categorias = $conn->query('SELECT id_categoria, nome FROM categoria ORDER BY nome')->fetch_all(MYSQLI_ASSOC);
 
-$sql = 'SELECT p.id_produto, p.nome, p.estoque, p.preco, p.imagem, c.nome AS categoria
-        FROM produto p LEFT JOIN categoria c ON c.id_categoria = p.id_categoria WHERE 1=1';
+$sql = 'SELECT p.id_produto, p.nome, COALESCE(SUM(pt.estoque), 0) AS estoque, p.preco, p.imagem, c.nome AS categoria
+        FROM produto p
+        LEFT JOIN categoria c ON c.id_categoria = p.id_categoria
+        LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto
+        WHERE 1=1';
 $tipos = '';
 $parametros = [];
 if ($categoriaSelecionada > 0) {
@@ -90,9 +99,10 @@ if ($busca !== '') {
     $parametros[] = $termoBusca;
 }
 if ($somenteBaixo) {
-    $sql .= ' AND COALESCE(p.estoque, 0) <= 5';
+    $sql .= ' AND COALESCE(SUM(pt.estoque), 0) <= 5';
 }
-$sql .= ' ORDER BY COALESCE(p.estoque, 0) ASC, p.nome ASC';
+$sql .= ' GROUP BY p.id_produto, p.nome, p.preco, p.imagem, c.nome
+          ORDER BY COALESCE(SUM(pt.estoque), 0) ASC, p.nome ASC';
 $stmtProdutos = $conn->prepare($sql);
 if ($tipos !== '') {
     $stmtProdutos->bind_param($tipos, ...$parametros);
@@ -105,6 +115,7 @@ $stmtProdutos->close();
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <link rel="icon" href="../logoicon.ico" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estoque | Titan Sports</title>
