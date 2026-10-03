@@ -33,35 +33,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($quantidade === false || $quantidade < 0) {
             redirecionar('Informe uma quantidade válida para o estoque.', 'error');
         }
-        $sql = 'UPDATE produto SET estoque = ? WHERE id_produto = ?';
         $mensagem = 'Estoque atualizado com sucesso.';
     } elseif ($operacao === 'entrada' || $operacao === 'saida') {
         if ($quantidade === false || $quantidade < 1) {
             redirecionar('Informe uma quantidade maior que zero.', 'error');
         }
-        if ($operacao === 'entrada') {
-            $sql = 'UPDATE produto SET estoque = COALESCE(estoque, 0) + ? WHERE id_produto = ?';
-            $mensagem = 'Entrada registrada com sucesso.';
-        } else {
-            $sql = 'UPDATE produto SET estoque = COALESCE(estoque, 0) - ? WHERE id_produto = ? AND COALESCE(estoque, 0) >= ?';
-            $mensagem = 'Saída registrada com sucesso.';
-        }
+        $mensagem = $operacao === 'entrada' ? 'Entrada registrada com sucesso.' : 'Saída registrada com sucesso.';
     } else {
         redirecionar('Operação de estoque inválida.', 'error');
     }
 
-    $stmt = $conn->prepare($sql);
-    if ($operacao === 'saida') {
-        $stmt->bind_param('iii', $quantidade, $idProduto, $quantidade);
-    } else {
-        $stmt->bind_param('ii', $quantidade, $idProduto);
-    }
-    $stmt->execute();
-    $alterados = $stmt->affected_rows;
-    $stmt->close();
+    $conn->begin_transaction();
+    try {
+        $stmt = $conn->prepare('SELECT id_tamanho, estoque FROM produto_tamanho WHERE id_produto = ? ORDER BY estoque DESC, id_tamanho ASC FOR UPDATE');
+        $stmt->bind_param('i', $idProduto);
+        $stmt->execute();
+        $itensEstoque = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
 
-    if ($alterados < 1) {
-        redirecionar($operacao === 'saida' ? 'A saída não foi registrada: estoque insuficiente ou produto inexistente.' : 'Produto não encontrado.', 'error');
+        if ($itensEstoque === []) {
+            throw new RuntimeException('O produto não possui tamanhos cadastrados para receber estoque.');
+        }
+
+        $totalAtual = array_sum(array_map(static fn($item) => (int) $item['estoque'], $itensEstoque));
+        if ($operacao === 'ajustar') {
+            $operacao = $quantidade >= $totalAtual ? 'entrada' : 'saida';
+            $quantidade = abs($quantidade - $totalAtual);
+        }
+
+        if ($quantidade > 0 && $operacao === 'entrada') {
+            $idTamanho = (int) $itensEstoque[0]['id_tamanho'];
+            $stmt = $conn->prepare('UPDATE produto_tamanho SET estoque = estoque + ? WHERE id_produto = ? AND id_tamanho = ?');
+            $stmt->bind_param('iii', $quantidade, $idProduto, $idTamanho);
+            $stmt->execute();
+            $stmt->close();
+        }
+
+        if ($quantidade > 0 && $operacao === 'saida') {
+            if ($totalAtual < $quantidade) {
+                throw new RuntimeException('Estoque insuficiente para registrar a saída.');
+            }
+
+            $restante = $quantidade;
+            foreach ($itensEstoque as $item) {
+                if ($restante === 0) {
+                    break;
+                }
+                $retirar = min($restante, (int) $item['estoque']);
+                if ($retirar === 0) {
+                    continue;
+                }
+                $idTamanho = (int) $item['id_tamanho'];
+                $stmt = $conn->prepare('UPDATE produto_tamanho SET estoque = estoque - ? WHERE id_produto = ? AND id_tamanho = ? AND estoque >= ?');
+                $stmt->bind_param('iiii', $retirar, $idProduto, $idTamanho, $retirar);
+                $stmt->execute();
+                if ($stmt->affected_rows !== 1) {
+                    $stmt->close();
+                    throw new RuntimeException('Não foi possível atualizar o estoque.');
+                }
+                $stmt->close();
+                $restante -= $retirar;
+            }
+        }
+        $conn->commit();
+    } catch (Throwable $e) {
+        $conn->rollback();
+        redirecionar($e->getMessage(), 'error');
     }
     redirecionar($mensagem);
 }
@@ -98,11 +135,11 @@ if ($busca !== '') {
     $parametros[] = $termoBusca;
     $parametros[] = $termoBusca;
 }
+$sql .= ' GROUP BY p.id_produto, p.nome, p.preco, p.imagem, c.nome';
 if ($somenteBaixo) {
-    $sql .= ' AND COALESCE(SUM(pt.estoque), 0) <= 5';
+    $sql .= ' HAVING COALESCE(SUM(pt.estoque), 0) <= 5';
 }
-$sql .= ' GROUP BY p.id_produto, p.nome, p.preco, p.imagem, c.nome
-          ORDER BY COALESCE(SUM(pt.estoque), 0) ASC, p.nome ASC';
+$sql .= ' ORDER BY COALESCE(SUM(pt.estoque), 0) ASC, p.nome ASC';
 $stmtProdutos = $conn->prepare($sql);
 if ($tipos !== '') {
     $stmtProdutos->bind_param($tipos, ...$parametros);

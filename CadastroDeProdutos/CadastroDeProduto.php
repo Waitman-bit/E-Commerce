@@ -1,5 +1,9 @@
 <?php
 // ARIKAWA BACK END - CONEXAO COM O BANCO DE DADOS
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 require_once __DIR__ . '/../connection.php';
 
 // ARIKAWA BACK END - BUSCA AS CATEGORIAS REGISTRADAS
@@ -19,9 +23,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $marca = "Generica";
     $dimensoes = 0.00;
     $peso = 0.00;
-    $estoque = 10;
+    $tamanhos = json_decode($_POST['tamanhos_php'] ?? '[]', true);
+    if (!is_array($tamanhos)) {
+        die('Dados de tamanhos inválidos.');
+    }
+
+    $tamanhosValidados = [];
+    foreach ($tamanhos as $tamanho) {
+        $descricaoTamanho = trim((string) ($tamanho['tamanho'] ?? ''));
+        $estoqueTamanho = filter_var($tamanho['estoque'] ?? null, FILTER_VALIDATE_INT);
+
+        if ($descricaoTamanho === '' || strlen($descricaoTamanho) > 10 || $estoqueTamanho === false || $estoqueTamanho <= 0 || isset($tamanhosValidados[$descricaoTamanho])) {
+            die('Os tamanhos e estoques informados sao invalidos.');
+        }
+
+        $tamanhosValidados[$descricaoTamanho] = $estoqueTamanho;
+    }
     // Nome padrão caso nenhuma imagem seja enviada
-    $imagem_nome = "padrao.png";
+    $imagem_nome = "sem-imagem.svg";
 
     function uploadErrorMessage($code) {
         $errors = [
@@ -75,34 +94,74 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $stmt = $conn->prepare(
-        "INSERT INTO produto 
-        (marca, id_categoria, dimensoes, nome, genero, estoque, descricao, imagem, peso, preco) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    );
+    "INSERT INTO produto
+    (marca, id_categoria, dimensoes, nome, genero, descricao, imagem, peso, preco)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+);
 
-    // MORITA BANCOS DE DADOS - VINCULO DOS PARAMETROS ADICIONANDO O PRECO DECIMAL
     $stmt->bind_param(
-        "sidssissdd", 
+        "sidsssddd",
         $marca,
         $id_categoria,
         $dimensoes,
         $nome,
         $genero,
-        $estoque,
         $descricao,
         $imagem_nome,
         $peso,
         $preco
     );
 
-    if ($stmt->execute()) {
+    $conn->begin_transaction();
+
+    try {
+        if (!$stmt->execute()) {
+            throw new RuntimeException('Nao foi possivel cadastrar o produto: ' . $stmt->error);
+        }
+
+        $idProduto = $conn->insert_id;
+
+        if (!empty($tamanhosValidados)) {
+            $buscarTamanho = $conn->prepare('SELECT id_tamanho FROM tamanho WHERE descricao = ? LIMIT 1');
+            $criarTamanho = $conn->prepare('INSERT INTO tamanho (descricao) VALUES (?)');
+            $vincularEstoque = $conn->prepare('INSERT INTO produto_tamanho (id_produto, id_tamanho, estoque) VALUES (?, ?, ?)');
+
+            foreach ($tamanhosValidados as $descricaoTamanho => $estoqueTamanho) {
+            $buscarTamanho->bind_param('s', $descricaoTamanho);
+            $buscarTamanho->execute();
+            $tamanhoExistente = $buscarTamanho->get_result()->fetch_assoc();
+
+            if ($tamanhoExistente) {
+                $idTamanho = (int) $tamanhoExistente['id_tamanho'];
+            } else {
+                $criarTamanho->bind_param('s', $descricaoTamanho);
+                if (!$criarTamanho->execute()) {
+                    throw new RuntimeException('Nao foi possivel cadastrar o tamanho: ' . $criarTamanho->error);
+                }
+                $idTamanho = $conn->insert_id;
+            }
+
+            $vincularEstoque->bind_param('iii', $idProduto, $idTamanho, $estoqueTamanho);
+            if (!$vincularEstoque->execute()) {
+                throw new RuntimeException('Nao foi possivel registrar o estoque por tamanho: ' . $vincularEstoque->error);
+            }
+        }
+
+            $buscarTamanho->close();
+            $criarTamanho->close();
+            $vincularEstoque->close();
+        }
+
+        $conn->commit();
         echo "<script>
                 alert('Produto cadastrado com sucesso!');
                 window.location.href='CadastroDeProduto.php';
               </script>";
-    } else {
+    } catch (Throwable $e) {
+        $conn->rollback();
+        error_log('Erro cadastro produto: ' . $e->getMessage());
         echo "<script>
-                alert('Erro ao cadastrar no banco: " . $stmt->error . "');
+                alert('Erro ao cadastrar produto e estoque: " . addslashes($e->getMessage()) . "');
               </script>";
     }
 
@@ -127,10 +186,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <a href="../Administrador/Adm.php" class="topbar-back-button">
         <i class="ti ti-arrow-left"> </i> Painel administrativo
     </a>
-            <h1>Cadastro de Produto</h1>
+        <h1>Cadastro de Produto</h1>
 </div>
 
-<form action="CadastroDeProduto.php" method="POST" enctype="multipart/form-data" id="meuFormCadastro">
+<form 
+    action="CadastroDeProduto.php" 
+    method="POST" 
+    enctype="multipart/form-data" 
+    id="meuFormCadastro"
+    onsubmit="return submitForm()"
+>
 
     <div class="page">
 
@@ -188,25 +253,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
 
-            <div class="grid-1 mt-16">
-                <label>Tamanho</label>
-                <div class="size-group">
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">PP</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">P</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">M</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">G</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">GG</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">XG</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">36</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">37</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">38</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">39</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">40</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">41</button>
-                    <button type="button" class="size-pill" onclick="toggleSize(this)">42</button>
-                </div>
-            </div>
-
+        <div class="grid-1 mt-16">
+        <label>Tamanho</label>
+    <div class="size-group">
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="PP">PP</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="P">P</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="M">M</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="G">G</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="GG">GG</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="XG">XG</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="36">36</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="37">37</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="38">38</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="39">39</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="40">40</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="41">41</button>
+        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="42">42</button>
+        <button type="button" class="size-pill unico" onclick="toggleUniqueSize(this)" data-size="UNICO">Tamanho Único</button>
+        </div>
+    <div id="estoque-tamanhos" class="estoque-tamanhos"></div>
+    <!-- Guarda os tamanhos e estoques para o PHP -->
+    <input type="hidden" name="tamanhos_php" id="tamanhos_php">
+</div>
             <div class="grid-1">
                 <label for="preco">Preço (R$)</label>
                 <input type="text" inputmode="decimal" id="preco" name="preco_php" placeholder="Ex: 199,90" autocomplete="off" spellcheck="false">

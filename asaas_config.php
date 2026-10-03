@@ -18,7 +18,7 @@ if (!$asaasApiKey) {
 }
 
 define('ASAAS_API_KEY', $asaasApiKey);
-define('ASAAS_BASE_URL', 'https://api-sandbox.asaas.com/v3'); // troca pra api.asaas.com/v3 quando for produção
+define('ASAAS_BASE_URL', 'https://api-sandbox.asaas.com/v3'); 
 
 /**
  * Faz uma chamada à API do Asaas e devolve [statusHttp, corpoDecodificado].
@@ -38,7 +38,13 @@ function titan_asaas_request(string $method, string $path, ?array $body = null):
     if ($body !== null) {
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
     }
-    $resposta = curl_exec($ch);
+
+   $resposta = curl_exec($ch);
+    if ($resposta === false) {
+        curl_close($ch);
+        return [0, null];
+    }
+
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 

@@ -39,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $categoria = filter_input(INPUT_POST, 'id_categoria', FILTER_VALIDATE_INT);
         $genero = $_POST['genero'] ?? 'Unissex';
         $descricao = trim($_POST['descricao'] ?? '');
-        $estoque = filter_input(INPUT_POST, 'estoque', FILTER_VALIDATE_INT);
         $dimensoes = str_replace(',', '.', trim($_POST['dimensoes'] ?? '0'));
         $peso = str_replace(',', '.', trim($_POST['peso'] ?? '0'));
         $preco = str_replace(',', '.', trim($_POST['preco'] ?? ''));
@@ -47,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $generosValidos = ['Masculino', 'Feminino', 'Unissex'];
         if ($nome === '' || mb_strlen($nome) > 150 || $marca === '' || mb_strlen($marca) > 20 || !$categoria ||
             !in_array($genero, $generosValidos, true) || $descricao === '' || mb_strlen($descricao) > 50 ||
-            $estoque === false || $estoque < 0 || !is_numeric($dimensoes) || (float) $dimensoes < 0 ||
+            !is_numeric($dimensoes) || (float) $dimensoes < 0 ||
             !is_numeric($peso) || (float) $peso < 0 || !is_numeric($preco) || (float) $preco < 0) {
             $erro = 'Revise os campos obrigatórios e informe valores numéricos válidos.';
         } else {
@@ -79,11 +78,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($erro === '') {
-                    $stmt = $conn->prepare('UPDATE produto SET marca = ?, id_categoria = ?, dimensoes = ?, nome = ?, genero = ?, estoque = ?, descricao = ?, imagem = ?, peso = ?, preco = ? WHERE id_produto = ?');
+                    $stmt = $conn->prepare('UPDATE produto SET marca = ?, id_categoria = ?, dimensoes = ?, nome = ?, genero = ?, descricao = ?, imagem = ?, peso = ?, preco = ? WHERE id_produto = ?');
                     $dimensoesNumero = (float) $dimensoes;
                     $pesoNumero = (float) $peso;
                     $precoNumero = (float) $preco;
-                    $stmt->bind_param('sidssissddi', $marca, $categoria, $dimensoesNumero, $nome, $genero, $estoque, $descricao, $imagem, $pesoNumero, $precoNumero, $idProduto);
+                    $stmt->bind_param('sidsssdddi', $marca, $categoria, $dimensoesNumero, $nome, $genero, $descricao, $imagem, $pesoNumero, $precoNumero, $idProduto);
                     if ($stmt->execute()) {
                         $stmt->close();
                         redirectToProduct($idProduto, 'Produto atualizado com sucesso.');
@@ -98,10 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $categorias = $conn->query('SELECT id_categoria, nome FROM categoria ORDER BY nome')->fetch_all(MYSQLI_ASSOC);
-$produtos = $conn->query('SELECT p.id_produto, p.nome, p.preco, p.estoque, p.imagem, c.nome AS categoria FROM produto p LEFT JOIN categoria c ON c.id_categoria = p.id_categoria ORDER BY p.nome')->fetch_all(MYSQLI_ASSOC);
+$produtos = $conn->query('SELECT p.id_produto, p.nome, p.preco, COALESCE(SUM(pt.estoque), 0) AS estoque, p.imagem, c.nome AS categoria
+    FROM produto p
+    LEFT JOIN categoria c ON c.id_categoria = p.id_categoria
+    LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto
+    GROUP BY p.id_produto, p.nome, p.preco, p.imagem, c.nome
+    ORDER BY p.nome')->fetch_all(MYSQLI_ASSOC);
 
 if ($idSelecionado > 0) {
-    $stmt = $conn->prepare('SELECT * FROM produto WHERE id_produto = ?');
+    $stmt = $conn->prepare('SELECT p.*, COALESCE(SUM(pt.estoque), 0) AS estoque
+        FROM produto p
+        LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto
+        WHERE p.id_produto = ?
+        GROUP BY p.id_produto');
     $stmt->bind_param('i', $idSelecionado);
     $stmt->execute();
     $produtoSelecionado = $stmt->get_result()->fetch_assoc();
@@ -163,18 +171,18 @@ if ($idSelecionado > 0) {
                     <input type="hidden" name="id_produto" value="<?= (int) $produtoSelecionado['id_produto'] ?>">
                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_editar_produto']) ?>">
                     <div class="edit-grid">
-                        <div class="image-field">
-                            <label for="imagem">Imagem do produto</label>
-                            <label class="image-preview" for="imagem"><img id="preview-image" src="../ImagensProdutos/<?= e($produtoSelecionado['imagem']) ?>" alt="Imagem atual de <?= e($produtoSelecionado['nome']) ?>"><span><i class="ti ti-camera"></i> Alterar imagem</span></label>
-                            <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-                            <small>JPG, PNG ou WEBP · até 5 MB</small>
-                        </div>
+<div class="image-field">
+                             <label for="imagem">Imagem do produto</label>
+                             <label class="image-preview" for="imagem"><img id="preview-image" src="../ImagensProdutos/<?= e($produtoSelecionado['imagem']) ?>" alt="Imagem atual de <?= e($produtoSelecionado['nome']) ?>" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 240 220%27%3E%3Crect fill=%27%231a1a1a%27 width=%27240%27 height=%27220%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23555%27 font-size=%2714%27%3ESem imagem%3C/text%3E%3C/svg%3E'"><span><i class="ti ti-camera"></i> Alterar imagem</span></label>
+                             <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                             <small>JPG, PNG ou WEBP · até 5 MB</small>
+                         </div>
                         <div class="form-fields">
                             <div class="field full"><label for="nome">Nome *</label><input id="nome" name="nome" maxlength="150" required value="<?= e($produtoSelecionado['nome']) ?>"></div>
                             <div class="field"><label for="marca">Marca *</label><input id="marca" name="marca" maxlength="20" required value="<?= e($produtoSelecionado['marca']) ?>"></div>
                             <div class="field"><label for="id_categoria">Categoria *</label><select id="id_categoria" name="id_categoria" required><?php foreach ($categorias as $categoria): ?><option value="<?= (int) $categoria['id_categoria'] ?>" <?= (int) $categoria['id_categoria'] === (int) $produtoSelecionado['id_categoria'] ? 'selected' : '' ?>><?= e($categoria['nome']) ?></option><?php endforeach; ?></select></div>
                             <div class="field"><label for="genero">Gênero *</label><select id="genero" name="genero"><?php foreach (['Unissex', 'Masculino', 'Feminino'] as $genero): ?><option <?= $genero === $produtoSelecionado['genero'] ? 'selected' : '' ?>><?= $genero ?></option><?php endforeach; ?></select></div>
-                            <div class="field"><label for="estoque">Estoque *</label><input id="estoque" name="estoque" type="number" min="0" required value="<?= (int) $produtoSelecionado['estoque'] ?>"></div>
+                            <div class="field"><label>Estoque disponível</label><output><?= (int) $produtoSelecionado['estoque'] ?> un.</output></div>
                             <div class="field"><label for="preco">Preço (R$) *</label><input id="preco" name="preco" type="number" min="0" step="0.01" required value="<?= e(number_format((float) $produtoSelecionado['preco'], 2, '.', '')) ?>"></div>
                             <div class="field"><label for="peso">Peso (kg)</label><input id="peso" name="peso" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['peso']) ?>"></div>
                             <div class="field"><label for="dimensoes">Dimensões (cm)</label><input id="dimensoes" name="dimensoes" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['dimensoes']) ?>"></div>

@@ -1,4 +1,4 @@
 .env
 /vendor/
-tcc.sql.env
+tcc.sql
 .env

@@ -76,10 +76,11 @@ $categorias = $conn->query('SELECT nome FROM categoria ORDER BY nome ASC');
                 <div class="cards-grid">
                     <?php while ($produto = $resultado->fetch_assoc()): ?>
                         <article class="product-card">
-                            <div class="card-img">
-                               <a href="../Produto/produto.php?id=<?php echo intval($produto['id_produto']); ?>">
+<div class="card-img">
+                                <a href="../Produto/produto.php?id=<?php echo intval($produto['id_produto']); ?>">
                                     <img src="../ImagensProdutos/<?php echo htmlspecialchars($produto['imagem']); ?>"
-                                         alt="<?php echo htmlspecialchars($produto['nome']); ?>">
+                                         alt="<?php echo htmlspecialchars($produto['nome']); ?>"
+                                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 240 220%27%3E%3Crect fill=%27%231a1a1a%27 width=%27240%27 height=%27220%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23555%27 font-size=%2714%27%3ESem imagem%3C/text%3E%3C/svg%3E'">
                                 </a>
                             </div>
                             <div class="card-body">

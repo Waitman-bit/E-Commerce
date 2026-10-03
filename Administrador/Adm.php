@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../session_config.php';
+require_once __DIR__ . '/../asaas_config.php';
 titan_start_session();
 
 if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'admin') {
@@ -143,7 +144,66 @@ if ($pedidosMesAnterior > 0) {
     $classeCrescimentoPedidos = $pedidosMes > 0 ? 'up' : 'warn';
     $iconeCrescimentoPedidos = $pedidosMes > 0 ? 'ti-trending-up' : 'ti-minus';
 }
+
+// Receita paga: soma TODAS as cobranças recebidas (sem filtro de período).
+function titan_asaas_receita_total(): ?array
+{
+    $total = 0.0;
+    $qtd = 0;
+    $offset = 0;
+
+    do {
+        $query = http_build_query([
+            'status' => 'RECEIVED',
+            'limit'  => 100,
+            'offset' => $offset,
+        ]);
+
+        [$status, $pagina] = titan_asaas_request('GET', '/payments?' . $query);
+        if ($status < 200 || $status >= 300 || $pagina === null) {
+            return null; // API falhou, sinaliza pro fallback
+        }
+
+        foreach ($pagina['data'] ?? [] as $pagamento) {
+            $total += (float) $pagamento['value'];
+            $qtd++;
+        }
+
+        $temMais = $pagina['hasMore'] ?? false;
+        $offset += 100;
+    } while ($temMais);
+
+    return ['total' => $total, 'qtd' => $qtd];
+}
+
+function titan_receita_banco_total(mysqli $conn): array
+{
+    $resultado = $conn->query(
+        'SELECT COALESCE(SUM(valor_pago), 0) AS total, COUNT(*) AS qtd
+         FROM contas_receber
+         WHERE data_pagamento IS NOT NULL'
+    );
+    $linha = $resultado->fetch_assoc();
+
+    return ['total' => (float) $linha['total'], 'qtd' => (int) $linha['qtd']];
+}
+
+$receita = titan_asaas_receita_total();
+
+$usouFallback = false;
+if ($receita === null) {
+    $usouFallback = true;
+    $receita = titan_receita_banco_total($conn);
+}
+
+$receitaFormatada = 'R$ ' . number_format($receita['total'], 2, ',', '.');
+$textoCrescimentoReceita = $receita['qtd'] === 1
+    ? '1 cobrança paga'
+    : $receita['qtd'] . ' cobranças pagas';
+$classeCrescimentoReceita = $receita['total'] > 0 ? 'up' : 'warn';
+$iconeCrescimentoReceita = $receita['total'] > 0 ? 'ti-circle-check' : 'ti-minus';
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -207,7 +267,6 @@ if ($pedidosMesAnterior > 0) {
       <div class="topbar">
         <div>
           <div class="topbar-title">Visão Geral da Loja</div>
-          <div class="topbar-date">Maio 2026 · atualizado agora</div>
         </div>
       </div>
 
@@ -217,11 +276,17 @@ if ($pedidosMesAnterior > 0) {
           <div class="metric-label">
             <i class="ti ti-currency-dollar"></i> Receita
           </div>
-          <div class="metric-val yellow">R$47.2k</div>
-          <div class="metric-change up">
-            <i class="ti ti-trending-up"></i> +12% este mês
+
+         <div class="metric-val yellow"><?php echo htmlspecialchars($receitaFormatada); ?></div>
+          <div class="metric-change <?php echo $classeCrescimentoReceita; ?>">
+            <i class="ti <?php echo $iconeCrescimentoReceita; ?>"></i> <?php echo htmlspecialchars($textoCrescimentoReceita); ?>
           </div>
-        </div>
+          <?php if ($usouFallback): ?>
+          <div class="metric-change warn" style="font-size:11px;">
+            <i class="ti ti-database"></i> Calculado localmente (API indisponível)
+          </div>
+          <?php endif; ?>
+          </div>
         <div class="metric-card">
           <div class="metric-label">
             <i class="ti ti-shopping-cart"></i> Pedidos
