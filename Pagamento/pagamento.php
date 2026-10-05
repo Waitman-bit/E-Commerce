@@ -216,7 +216,7 @@ function titan_criar_pedido_pix(mysqli $conn, int $idUsuario): array
 
         [$statusQr, $qr] = titan_asaas_request('GET', '/payments/' . $paymentId . '/pixQrCode');
         if ($statusQr >= 300 || empty($qr['payload'])) {
-            throw new Exception('Erro ao gerar o QR Code: ' . json_encode($qr));
+           throw new Exception('Erro ao gerar o QR Code (cobrança ' . $paymentId . '): ' . json_encode($qr));
         }
 
         // ===== CONTAS_RECEBER (1 parcela) =====
