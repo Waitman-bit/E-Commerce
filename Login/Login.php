@@ -7,6 +7,27 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../connection.php';
 
+function validarCPF($cpf) {
+    $cpf = preg_replace('/\D/', '', $cpf); // tira pontos e traço
+
+    // precisa ter 11 dígitos e não pode ser tudo igual (111.111.111-11)
+    if (strlen($cpf) != 11 || preg_match('/^(\d)\1{10}$/', $cpf)) {
+        return false;
+    }
+
+    // calcula os 2 dígitos verificadores
+    for ($t = 9; $t < 11; $t++) {
+        for ($d = 0, $c = 0; $c < $t; $c++) {
+            $d += $cpf[$c] * (($t + 1) - $c);
+        }
+        $d = ((10 * $d) % 11) % 10;
+        if ($cpf[$c] != $d) {
+            return false;
+        }
+    }
+    return true;
+}
+
 $mensagem = '';
 
 if (isset($_POST['registrar'])) {
@@ -19,6 +40,8 @@ if (isset($_POST['registrar'])) {
 
     if (empty($nome) || empty($email) || empty($tel) || empty($senha) || empty($cep) || empty($cpf)) {
         $mensagem = 'Preencha todos os campos!';
+         } elseif (!validarCPF($cpf)) {
+        $mensagem = 'CPF inválido!';
     } else {
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 

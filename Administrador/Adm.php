@@ -287,6 +287,7 @@ $iconeCrescimentoReceita = $receita['total'] > 0 ? 'ti-circle-check' : 'ti-minus
           </div>
           <?php endif; ?>
           </div>
+          
         <div class="metric-card">
           <div class="metric-label">
             <i class="ti ti-shopping-cart"></i> Pedidos
