@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Tempo de geração: 20/09/2026 às 17:19
+-- Host: 127.0.0.1
+-- Tempo de geração: 17/10/2026 às 20:14
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -66,6 +66,14 @@ CREATE TABLE `contas_receber` (
   `asaas_payment_id` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `contas_receber`
+--
+
+INSERT INTO `contas_receber` (`id`, `data_vencimento`, `numero_parcela`, `valor_parcela`, `data_pagamento`, `id_pedido`, `valor_pago`, `valor_pago_posven`, `mp_payment_id`, `asaas_payment_id`) VALUES
+(1, '2027-10-17', 1, 2210.00, NULL, 2, NULL, NULL, NULL, 'pay_d51ip3ehz565ptqq'),
+(2, '2027-10-17', 1, 6610.00, NULL, 3, NULL, NULL, NULL, 'pay_fecpkdgpglejitjw');
+
 -- --------------------------------------------------------
 
 --
@@ -88,7 +96,9 @@ CREATE TABLE `entrega` (
 --
 
 INSERT INTO `entrega` (`id_entrega`, `endereco`, `estado`, `cidade`, `cep`, `status`, `id_pedido`, `frete`) VALUES
-(1, 'Abilio Correa, 2 - talavassw', 'sp', 'taquagueticetuba', '15902-222', 'Aguardando envio', 1, 14.90);
+(1, 'Abilio Correa, 2 - talavassw', 'sp', 'taquagueticetuba', '15902-222', 'Aguardando envio', 1, 14.90),
+(2, 'Rua Abílio Corrêa Gomes, 2', 'SP', 'Taquaritinga', '15902222', 'Pendente', 2, 10.00),
+(3, 'Rua Abílio Corrêa Gomes, 2', 'SP', 'Taquaritinga', '15902222', 'Pendente', 3, 10.00);
 
 -- --------------------------------------------------------
 
@@ -110,7 +120,9 @@ CREATE TABLE `item_pedido` (
 
 INSERT INTO `item_pedido` (`id`, `id_produto`, `id_pedido`, `quantidade`, `preco_unitario`) VALUES
 (1, 19, 1, 1, 1599.90),
-(2, 14, 1, 1, 129.90);
+(2, 14, 1, 1, 129.90),
+(3, 57, 2, 1, 2200.00),
+(4, 57, 3, 3, 2200.00);
 
 -- --------------------------------------------------------
 
@@ -132,7 +144,9 @@ CREATE TABLE `pedido` (
 --
 
 INSERT INTO `pedido` (`id_pedido`, `data_pedido`, `status_pedido`, `valor_total`, `id_usuario`, `tipo_pagamento`) VALUES
-(1, '2026-08-06 09:50:24', 'Confirmado', 1744.70, 8, NULL);
+(1, '2026-08-06 09:50:24', 'Confirmado', 1744.70, 8, NULL),
+(2, '2026-10-17 12:12:49', 'Aguardando pagamento', 2210.00, 9, 'pix'),
+(3, '2026-10-17 12:18:50', 'Aguardando pagamento', 6610.00, 9, 'pix');
 
 -- --------------------------------------------------------
 
@@ -212,7 +226,8 @@ INSERT INTO `produto` (`id_produto`, `marca`, `id_categoria`, `dimensoes`, `nome
 (53, 'Vollo', 9, 30.00, 'Saco de Pancadas 90cm', 'Unissex', 'Saco de treino', 'saco_pancadas.jpg', 18.00, 499.90),
 (54, 'Everlast', 9, 14.00, 'Corda de Velocidade', 'Unissex', 'Corda para treino', 'corda_boxe.jpg', 0.30, 69.90),
 (55, 'Generica', 1, 0.00, 'Chuteira Nike Phantom Luna II Academy Campo Masculina - Branco', 'Masculino', 'Chuteira Nike Phantom Luna II', 'produto_6a739161e611a0.20579811.jpg', 0.00, 400.00),
-(56, 'Generica', 3, 0.00, 'Viseira Para Corrida Hupi Run For Fun Preta', 'Unissex', 'Viseira Para Corrida Hupi Run For Fun Preta', 'produto_6a73a5a49abf93.12801221.jpg', 0.00, 55.00);
+(56, 'Generica', 3, 0.00, 'Viseira Para Corrida Hupi Run For Fun Preta', 'Unissex', 'Viseira Para Corrida Hupi Run For Fun Preta', 'produto_6a73a5a49abf93.12801221.jpg', 0.00, 55.00),
+(57, 'Generica', 1, 0.00, 'Chuteira Campo Umbro Adamant Master Class Pro', 'Unissex', 'chuteira de alta performance', 'produto_6ad38e40188f50.62532720.jpeg', 0.00, 2200.00);
 
 -- --------------------------------------------------------
 
@@ -225,6 +240,19 @@ CREATE TABLE `produto_tamanho` (
   `id_tamanho` int(11) NOT NULL,
   `estoque` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `produto_tamanho`
+--
+
+INSERT INTO `produto_tamanho` (`id_produto`, `id_tamanho`, `estoque`) VALUES
+(57, 1, 11),
+(57, 2, 21),
+(57, 3, 22),
+(57, 4, 21),
+(57, 5, 10),
+(57, 6, 17),
+(57, 7, 17);
 
 -- --------------------------------------------------------
 
@@ -266,6 +294,30 @@ CREATE TABLE `tamanho` (
   `descricao` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Despejando dados para a tabela `tamanho`
+--
+
+INSERT INTO `tamanho` (`id_tamanho`, `descricao`) VALUES
+(1, '36'),
+(2, '37'),
+(3, '38'),
+(4, '39'),
+(5, '40'),
+(6, '41'),
+(7, '42'),
+(8, '43'),
+(9, '44'),
+(10, '45'),
+(11, '46'),
+(12, 'PP'),
+(13, 'P'),
+(14, 'M'),
+(15, 'G'),
+(16, 'GG'),
+(17, 'XG'),
+(18, 'Único');
+
 -- --------------------------------------------------------
 
 --
@@ -292,7 +344,8 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`, `numero`, `data_cadastro`) VALUES
 (1, 'Davi Waitman', NULL, 'davi.waitman@gmail.com', '(16) 99999-9999', '$2y$10$HIRiMhwjWtN7Efss3QI29uV/fBYsuwR5upKXYo0j/oZMQ/YW.uDzG', 'cliente', NULL, NULL, NULL, '2026-09-11 08:46:31'),
-(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL, NULL, '2026-09-11 08:46:31');
+(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL, NULL, '2026-09-11 08:46:31'),
+(9, 'Gabriel Gallo Morita', '697.844.831-14', 'gabrielgallomorita2009@gmail.com', '(16) 98828-3282', '$2y$10$3zFdTSxqaIzBO5c7nBIRp.GzU6lJ7aP5uwKWbwuzTeVTVHj/6cF3.', 'cliente', '15902222', NULL, '2', '2026-10-17 12:12:15');
 
 --
 -- Acionadores `usuario`
@@ -388,31 +441,31 @@ ALTER TABLE `categoria`
 -- AUTO_INCREMENT de tabela `contas_receber`
 --
 ALTER TABLE `contas_receber`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `entrega`
 --
 ALTER TABLE `entrega`
-  MODIFY `id_entrega` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_entrega` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `item_pedido`
 --
 ALTER TABLE `item_pedido`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `pedido`
 --
 ALTER TABLE `pedido`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT de tabela `recuperacao_senha`
@@ -424,13 +477,13 @@ ALTER TABLE `recuperacao_senha`
 -- AUTO_INCREMENT de tabela `tamanho`
 --
 ALTER TABLE `tamanho`
-  MODIFY `id_tamanho` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_tamanho` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Restrições para tabelas despejadas
