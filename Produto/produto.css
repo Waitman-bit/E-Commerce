@@ -123,6 +123,32 @@ body {
     text-align: center;
 }
 
+.produto-tamanhos { margin-top: 8px; }
+.produto-tamanhos-label { display: block; margin-bottom: 8px; font-weight: 600; }
+.produto-size-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.produto-size-pill {
+    padding: 7px 14px;
+    border: 1px solid #2e2e2e;
+    border-radius: 6px;
+    background: #1a1a1a;
+    color: #888;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+.produto-size-pill:hover {
+    border-color: var(--cor-destaque);
+    color: var(--cor-destaque);
+}
+.produto-size-pill.active {
+    border-color: var(--cor-destaque);
+    background: #1f1c00;
+    color: var(--cor-destaque);
+    font-weight: 500;
+}
+.tamanho-estoque { min-height: 22px; margin-top: 6px; color: var(--cor-texto-secundario); font-size: 13px; }
+
 /* ===== BOTÕES ===== */
 .produto-botoes {
     display: flex;

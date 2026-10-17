@@ -25,6 +25,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $operacao = $_POST['operacao'] ?? '';
     $quantidade = filter_input(INPUT_POST, 'quantidade', FILTER_VALIDATE_INT);
 
+    if (isset($_POST['estoques']) && is_array($_POST['estoques'])) {
+        $novos = $_POST['novos_tamanhos'] ?? [];
+        if (!$idProduto || !hash_equals($_SESSION['csrf_estoque'], $csrf) || !is_array($novos)) {
+            redirecionar('Dados de estoque invÃ¡lidos.', 'error');
+        }
+        $conn->begin_transaction();
+        try {
+            $stmt = $conn->prepare('SELECT id_tamanho FROM produto_tamanho WHERE id_produto = ? FOR UPDATE');
+            $stmt->bind_param('i', $idProduto);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            $atuais = [];
+            while ($linha = $resultado->fetch_assoc()) {
+                $atuais[(int) $linha['id_tamanho']] = true;
+            }
+            $stmt->close();
+
+            $stmtValida = $conn->prepare('SELECT id_tamanho FROM tamanho WHERE id_tamanho = ?');
+            $stmtAtualiza = $conn->prepare('UPDATE produto_tamanho SET estoque = ? WHERE id_produto = ? AND id_tamanho = ?');
+            $stmtInsere = $conn->prepare('INSERT INTO produto_tamanho (id_produto, id_tamanho, estoque) VALUES (?, ?, ?)');
+            $permitidos = array_fill_keys(array_map('intval', $novos), true);
+            foreach ($_POST['estoques'] as $idTamanho => $estoqueTexto) {
+                $idTamanho = filter_var($idTamanho, FILTER_VALIDATE_INT);
+                $estoque = filter_var($estoqueTexto, FILTER_VALIDATE_INT);
+                if (!$idTamanho || $estoque === false || $estoque < 0) {
+                    throw new RuntimeException('Informe um estoque vÃ¡lido para cada tamanho.');
+                }
+                $stmtValida->bind_param('i', $idTamanho);
+                $stmtValida->execute();
+                if ($stmtValida->get_result()->num_rows !== 1) {
+                    throw new RuntimeException('Tamanho nÃ£o encontrado.');
+                }
+                if (isset($atuais[$idTamanho])) {
+                    $stmtAtualiza->bind_param('iii', $estoque, $idProduto, $idTamanho);
+                    $stmtAtualiza->execute();
+                } elseif (isset($permitidos[$idTamanho])) {
+                    $stmtInsere->bind_param('iii', $idProduto, $idTamanho, $estoque);
+                    $stmtInsere->execute();
+                } else {
+                    throw new RuntimeException('Tamanho novo invÃ¡lido.');
+                }
+            }
+            $stmtValida->close();
+            $stmtAtualiza->close();
+            $stmtInsere->close();
+            $conn->commit();
+        } catch (Throwable $e) {
+            $conn->rollback();
+            redirecionar($e->getMessage(), 'error');
+        }
+        redirecionar('Estoques por tamanho atualizados com sucesso.');
+    }
+
     if (!$idProduto || !hash_equals($_SESSION['csrf_estoque'], $csrf)) {
         redirecionar('Solicitação inválida. Atualize a página e tente novamente.', 'error');
     }
@@ -147,6 +200,19 @@ if ($tipos !== '') {
 $stmtProdutos->execute();
 $produtos = $stmtProdutos->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmtProdutos->close();
+
+$tamanhosPorProduto = [];
+$resultadoTamanhosProduto = $conn->query('SELECT pt.id_produto, pt.id_tamanho, t.descricao, pt.estoque
+    FROM produto_tamanho pt INNER JOIN tamanho t ON t.id_tamanho = pt.id_tamanho
+    ORDER BY t.id_tamanho');
+while ($tamanhoProduto = $resultadoTamanhosProduto->fetch_assoc()) {
+    $tamanhosPorProduto[(int) $tamanhoProduto['id_produto']][] = [
+        'id' => (int) $tamanhoProduto['id_tamanho'],
+        'descricao' => $tamanhoProduto['descricao'],
+        'estoque' => (int) $tamanhoProduto['estoque'],
+    ];
+}
+$todosTamanhos = $conn->query('SELECT id_tamanho, descricao FROM tamanho ORDER BY id_tamanho')->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -201,7 +267,7 @@ $stmtProdutos->close();
                             <td><div class="product"><img src="../ImagensProdutos/<?= e($produto['imagem']) ?>" alt=""><span><strong><?= e($produto['nome']) ?></strong><small>#<?= (int) $produto['id_produto'] ?></small></span></div></td>
                             <td><?= e($produto['categoria'] ?? 'Sem categoria') ?></td><td>R$ <?= number_format((float) $produto['preco'], 2, ',', '.') ?></td>
                             <td><strong class="stock-number"><?= $estoque ?></strong> un.</td><td><span class="status <?= $classe ?>"><i></i><?= $status ?></span></td>
-                            <td><button class="adjust-button" type="button" data-id="<?= (int) $produto['id_produto'] ?>" data-name="<?= e($produto['nome']) ?>" data-stock="<?= $estoque ?>"><i class="ti ti-arrows-exchange"></i><span>Ajustar</span></button></td>
+                            <td><button class="adjust-button" type="button" data-id="<?= (int) $produto['id_produto'] ?>" data-name="<?= e($produto['nome']) ?>" data-stock="<?= $estoque ?>" data-sizes="<?= e(json_encode($tamanhosPorProduto[(int) $produto['id_produto']] ?? [], JSON_UNESCAPED_UNICODE)) ?>"><i class="ti ti-arrows-exchange"></i><span>Ajustar</span></button></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -213,13 +279,17 @@ $stmtProdutos->close();
 
     <dialog id="stock-dialog" class="stock-dialog">
         <form method="POST" id="stock-form">
-            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_estoque']) ?>"><input type="hidden" name="id_produto" id="dialog-product-id"><input type="hidden" name="operacao" id="operation" value="ajustar">
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_estoque']) ?>"><input type="hidden" name="id_produto" id="dialog-product-id">
             <div class="dialog-heading"><div><span>AJUSTE DE ESTOQUE</span><h2 id="dialog-product-name"></h2></div><button type="button" class="close-dialog" aria-label="Fechar"><i class="ti ti-x"></i></button></div>
 
-            <p class="current-stock">Estoque atual: <strong id="dialog-current-stock"></strong> unidades</p>
+            <p class="current-stock">Estoque total atual: <strong id="dialog-current-stock"></strong> unidades</p>
             <div class="operation-tabs"><button type="button" data-operation="entrada"><i class="ti ti-plus"></i> Entrada</button><button type="button" data-operation="saida"><i class="ti ti-minus"></i> Saída</button><button type="button" class="active" data-operation="ajustar"><i class="ti ti-pencil"></i> Definir total</button></div>
             
-            <label for="quantity">Quantidade</label><input id="quantity" name="quantidade" type="number" min="0" step="1" required inputmode="numeric">
+            <div class="size-stock-list" id="size-stock-list"></div>
+            <div class="add-size-row">
+                <label for="add-size-select">Adicionar tamanho</label>
+                <div><select id="add-size-select"><option value="">Selecione um tamanho</option><?php foreach ($todosTamanhos as $tamanho): ?><option value="<?= (int) $tamanho['id_tamanho'] ?>"><?= e($tamanho['descricao']) ?></option><?php endforeach; ?></select><button type="button" id="add-size-button" class="add-size-button"><i class="ti ti-plus"></i> Adicionar</button></div>
+            </div>
             <div class="dialog-actions"><button type="button" class="cancel-dialog">Cancelar</button><button class="save-stock" type="submit"><i class="ti ti-device-floppy"></i> Salvar ajuste</button></div>
         </form>
     </dialog>

@@ -51,9 +51,21 @@ function titan_estoque_disponivel(mysqli $conn, int $idProduto): int
     return (int) ($resultado['total'] ?? 0);
 }
 
-function titan_baixar_estoque(mysqli $conn, int $idProduto, int $quantidade): void
+function titan_baixar_estoque(mysqli $conn, int $idProduto, int $quantidade, ?int $idTamanho = null): void
 {
     if ($quantidade <= 0) {
+        return;
+    }
+
+    if ($idTamanho !== null) {
+        $stmt = $conn->prepare('UPDATE produto_tamanho SET estoque = estoque - ? WHERE id_produto = ? AND id_tamanho = ? AND estoque >= ?');
+        $stmt->bind_param('iiii', $quantidade, $idProduto, $idTamanho, $quantidade);
+        $stmt->execute();
+        $afetadas = $stmt->affected_rows;
+        $stmt->close();
+        if ($afetadas !== 1) {
+            throw new Exception('Estoque insuficiente para o tamanho selecionado.');
+        }
         return;
     }
 
@@ -161,7 +173,7 @@ function titan_criar_pedido_pix(mysqli $conn, int $idUsuario): array
                 continue;
             }
 
-            titan_baixar_estoque($conn, $idProduto, $qtd);
+            titan_baixar_estoque($conn, $idProduto, $qtd, isset($itemSessao['id_tamanho']) ? (int) $itemSessao['id_tamanho'] : null);
 
             $preco = (float) $prod['preco'];
             $itens[] = ['id' => $idProduto, 'qtd' => $qtd, 'preco' => $preco];

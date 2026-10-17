@@ -78,6 +78,17 @@ if ($estoque <= 0) {
 // ===== FORMATAÇÃO DO PREÇO EM REAIS =====
 $precoFormatado = "R$ " . number_format($produto['preco'], 2, ',', '.');
 
+// Tamanhos cadastrados para este produto, incluindo apenas os que têm estoque.
+$stmtTamanhos = $conn->prepare('SELECT t.descricao, pt.estoque
+    FROM produto_tamanho pt
+    INNER JOIN tamanho t ON t.id_tamanho = pt.id_tamanho
+    WHERE pt.id_produto = ? AND pt.estoque > 0
+    ORDER BY t.id_tamanho');
+$stmtTamanhos->bind_param('i', $idProduto);
+$stmtTamanhos->execute();
+$tamanhosProduto = $stmtTamanhos->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmtTamanhos->close();
+
 // ===== BUSCA DE PRODUTOS RELACIONADOS (mesma categoria, exceto o atual) =====
 $queryRel = "SELECT id_produto, nome, preco, imagem FROM produto 
              WHERE id_categoria = ? AND id_produto != ? 
@@ -151,6 +162,20 @@ $avaliacaoEstrelas = 4;
                 <?php endif; ?>
             </p>
 
+            <?php if (!empty($tamanhosProduto)): ?>
+            <div class="produto-tamanhos">
+                <span class="produto-tamanhos-label">Tamanho:</span>
+                <div class="produto-size-group" role="group" aria-label="Selecione o tamanho">
+                    <?php foreach ($tamanhosProduto as $tamanho): ?>
+                        <button type="button" class="produto-size-pill" data-size="<?php echo htmlspecialchars($tamanho['descricao'], ENT_QUOTES, 'UTF-8'); ?>" data-stock="<?php echo (int) $tamanho['estoque']; ?>" aria-pressed="false">
+                            <?php echo htmlspecialchars($tamanho['descricao'], ENT_QUOTES, 'UTF-8'); ?>
+                        </button>
+                    <?php endforeach; ?>
+                </div>
+                <p id="tamanho-estoque" class="tamanho-estoque" aria-live="polite">Selecione um tamanho</p>
+            </div>
+            <?php endif; ?>
+
             <!-- ===== USUÁRIO LOGADO: COMPRA LIBERADA ===== -->
             <?php if ($logado): ?>
                 <!-- ===== FORMULÁRIO DE QUANTIDADE ===== -->
@@ -159,9 +184,6 @@ $avaliacaoEstrelas = 4;
                     <input type="number" id="quantidade" name="quantidade" value="1" min="1" max="<?php echo $estoque; ?>"
                          <?php echo $estoque <= 0 ? 'disabled' : ''; ?>>
                     </div>
-                    <!-- ===== Formulario de tamanhos===== -->
-                     
-
                 <div class="produto-botoes">
                     <button id="btnComprarAgora"
                             class="btn btn-amarelo"

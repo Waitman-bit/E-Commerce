@@ -62,7 +62,8 @@ CREATE TABLE `contas_receber` (
   `id_pedido` int(11) NOT NULL,
   `valor_pago` decimal(10,2) DEFAULT NULL,
   `valor_pago_posven` decimal(10,2) DEFAULT NULL,
-  `mp_payment_id` bigint(20) DEFAULT NULL
+  `mp_payment_id` bigint(20) DEFAULT NULL,
+  `asaas_payment_id` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

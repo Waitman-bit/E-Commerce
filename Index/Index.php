@@ -8,7 +8,7 @@ if (!empty($pesquisa)) {
     $busca = "%{$pesquisa}%";
 
     $stmt = mysqli_prepare($conn, "
-        SELECT p.*
+        SELECT p.*, c.nome AS categoria_nome
         FROM produto p
         INNER JOIN categoria c
             ON p.id_categoria = c.id_categoria
@@ -87,7 +87,7 @@ if (!empty($pesquisa)) {
         <div class="product-card">
             <div class="card-img">
                 <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>">
-                    <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+                    <img src="../ImagensProdutos/<?php echo rawurlencode($produto['imagem']); ?>" alt="<?php echo htmlspecialchars($produto['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                 </a>
             </div>
 
@@ -125,7 +125,7 @@ if (!empty($pesquisa)) {
         <div class="product-card">
             <div class="card-img">
                 <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>">
-                    <img src="../ImagensProdutos/<?php echo $produto['imagem']; ?>" alt="<?php echo $produto['nome']; ?>">
+                    <img src="../ImagensProdutos/<?php echo rawurlencode($produto['imagem']); ?>" alt="<?php echo htmlspecialchars($produto['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                 </a>
             </div>
 

@@ -8,6 +8,7 @@ require_once __DIR__ . '/../connection.php';
 
 // ARIKAWA BACK END - BUSCA AS CATEGORIAS REGISTRADAS
 $categorias_query = $conn->query("SELECT id_categoria, nome FROM categoria");
+$tamanhos_query = $conn->query('SELECT id_tamanho, descricao FROM tamanho ORDER BY id_tamanho');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -15,8 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_categoria = $_POST['categoria_php'];
     $descricao = $_POST['descricao_php'];
     
-    // MORITA BANCOS DE DADOS - CAPTURA O PRECO E CONVERTE PARA NUMERO DECIMAL
-    $preco = isset($_POST['preco_php']) ? floatval($_POST['preco_php']) : 0.00; 
+    // O campo usa pt-BR (ex.: 1.300,00); converta para decimal antes do float.
+    $precoTexto = trim((string) ($_POST['preco_php'] ?? '0'));
+    $preco = (float) str_replace(',', '.', str_replace('.', '', $precoTexto));
 
     $genero = !empty($_POST['genero_php']) ? $_POST['genero_php'] : 'Unissex';
 
@@ -29,6 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $tamanhosValidados = [];
+    $buscarTamanho = $conn->prepare('SELECT id_tamanho FROM tamanho WHERE descricao = ? LIMIT 1');
     foreach ($tamanhos as $tamanho) {
         $descricaoTamanho = trim((string) ($tamanho['tamanho'] ?? ''));
         $estoqueTamanho = filter_var($tamanho['estoque'] ?? null, FILTER_VALIDATE_INT);
@@ -37,8 +40,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             die('Os tamanhos e estoques informados sao invalidos.');
         }
 
+        $buscarTamanho->bind_param('s', $descricaoTamanho);
+        $buscarTamanho->execute();
+        if (!$buscarTamanho->get_result()->fetch_assoc()) {
+            die('Um dos tamanhos selecionados nao existe no banco de dados.');
+        }
+
         $tamanhosValidados[$descricaoTamanho] = $estoqueTamanho;
     }
+    $buscarTamanho->close();
     // Nome padrão caso nenhuma imagem seja enviada
     $imagem_nome = "sem-imagem.svg";
 
@@ -100,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 );
 
     $stmt->bind_param(
-        "sidsssddd",
+        "sidssssdd",
         $marca,
         $id_categoria,
         $dimensoes,
@@ -123,23 +133,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (!empty($tamanhosValidados)) {
             $buscarTamanho = $conn->prepare('SELECT id_tamanho FROM tamanho WHERE descricao = ? LIMIT 1');
-            $criarTamanho = $conn->prepare('INSERT INTO tamanho (descricao) VALUES (?)');
             $vincularEstoque = $conn->prepare('INSERT INTO produto_tamanho (id_produto, id_tamanho, estoque) VALUES (?, ?, ?)');
 
             foreach ($tamanhosValidados as $descricaoTamanho => $estoqueTamanho) {
             $buscarTamanho->bind_param('s', $descricaoTamanho);
             $buscarTamanho->execute();
             $tamanhoExistente = $buscarTamanho->get_result()->fetch_assoc();
-
-            if ($tamanhoExistente) {
-                $idTamanho = (int) $tamanhoExistente['id_tamanho'];
-            } else {
-                $criarTamanho->bind_param('s', $descricaoTamanho);
-                if (!$criarTamanho->execute()) {
-                    throw new RuntimeException('Nao foi possivel cadastrar o tamanho: ' . $criarTamanho->error);
-                }
-                $idTamanho = $conn->insert_id;
-            }
+            $idTamanho = (int) $tamanhoExistente['id_tamanho'];
 
             $vincularEstoque->bind_param('iii', $idProduto, $idTamanho, $estoqueTamanho);
             if (!$vincularEstoque->execute()) {
@@ -148,7 +148,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
             $buscarTamanho->close();
-            $criarTamanho->close();
             $vincularEstoque->close();
         }
 
@@ -256,20 +255,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="grid-1 mt-16">
         <label>Tamanho</label>
     <div class="size-group">
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="PP">PP</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="P">P</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="M">M</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="G">G</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="GG">GG</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="XG">XG</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="36">36</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="37">37</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="38">38</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="39">39</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="40">40</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="41">41</button>
-        <button type="button" class="size-pill" onclick="toggleSize(this)" data-size="42">42</button>
-        <button type="button" class="size-pill unico" onclick="toggleUniqueSize(this)" data-size="UNICO">Tamanho Único</button>
+        <?php if ($tamanhos_query && $tamanhos_query->num_rows > 0): ?>
+            <?php while ($tamanho = $tamanhos_query->fetch_assoc()): ?>
+                <?php $ehUnico = in_array(mb_strtoupper(trim($tamanho['descricao']), 'UTF-8'), ['UNICO', 'ÚNICO', 'TAMANHO ÚNICO'], true); ?>
+                <button type="button" class="size-pill<?= $ehUnico ? ' unico' : '' ?>" onclick="<?= $ehUnico ? 'toggleUniqueSize(this)' : 'toggleSize(this)' ?>" data-size="<?= htmlspecialchars($tamanho['descricao'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($tamanho['descricao'], ENT_QUOTES, 'UTF-8') ?></button>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <span class="size-empty">Nenhum tamanho cadastrado no banco.</span>
+        <?php endif; ?>
         </div>
     <div id="estoque-tamanhos" class="estoque-tamanhos"></div>
     <!-- Guarda os tamanhos e estoques para o PHP -->

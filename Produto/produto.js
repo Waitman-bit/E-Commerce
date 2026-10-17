@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const btnComprarAgora = document.getElementById('btnComprarAgora');
     const btnAdicionarCarrinho = document.getElementById('btnAdicionarCarrinho');
     const inputQuantidade = document.getElementById('quantidade');
+    const botoesTamanho = Array.from(document.querySelectorAll('.produto-size-pill'));
+    const avisoTamanhoEstoque = document.getElementById('tamanho-estoque');
+    let tamanhoSelecionado = null;
     let toast = document.getElementById('toast');
 
     function garantirToast() {
@@ -70,6 +73,37 @@ document.addEventListener('DOMContentLoaded', function () {
         return (isNaN(valor) || valor < 1) ? 1 : valor;
     }
 
+    botoesTamanho.forEach(function (botao) {
+        botao.addEventListener('click', function () {
+            botoesTamanho.forEach(function (outro) { outro.classList.remove('active'); });
+            botao.classList.add('active');
+            tamanhoSelecionado = botao.dataset.size;
+            const estoqueTamanho = Number(botao.dataset.stock) || 0;
+            if (inputQuantidade) {
+                inputQuantidade.max = String(estoqueTamanho);
+                if (Number(inputQuantidade.value) > estoqueTamanho) inputQuantidade.value = String(estoqueTamanho);
+            }
+            if (avisoTamanhoEstoque) avisoTamanhoEstoque.textContent = 'Estoque disponível: ' + estoqueTamanho + ' un.';
+        });
+    });
+
+    function validarTamanho() {
+        if (botoesTamanho.length && !tamanhoSelecionado) {
+            exibirToast('Selecione um tamanho para continuar.', 'erro');
+            return false;
+        }
+        const botaoAtivo = botoesTamanho.find(function (botao) { return botao.dataset.size === tamanhoSelecionado; });
+        if (botaoAtivo && obterQuantidade() > Number(botaoAtivo.dataset.stock)) {
+            exibirToast('A quantidade excede o estoque deste tamanho.', 'erro');
+            return false;
+        }
+        return true;
+    }
+
+    function adicionarTamanho(url) {
+        return tamanhoSelecionado ? url + '&tamanho=' + encodeURIComponent(tamanhoSelecionado) : url;
+    }
+
     // ===== BOTÃO: COMPRAR AGORA =====
     // Não existe (nem deve existir) um "criar_pedido.php": o pedido só é
     // gravado de verdade dentro da transação em Pagamento/pagamento.php,
@@ -87,13 +121,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const idProduto = btnComprarAgora.dataset.id;
+            if (!validarTamanho()) return;
             const quantidade = obterQuantidade();
 
             btnComprarAgora.disabled = true;
             btnComprarAgora.textContent = 'Processando...';
 
-            const urlAdicionar = '../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto)
-                + '&quantidade=' + encodeURIComponent(quantidade);
+            const urlAdicionar = adicionarTamanho('../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto)
+                + '&quantidade=' + encodeURIComponent(quantidade));
 
             // Chama o mesmo endpoint de adicionar ao carrinho (carrinho.php
             // responde com um redirect para carrinho.php, que o fetch segue
@@ -124,10 +159,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const idProduto = btnAdicionarCarrinho.dataset.id;
+            if (!validarTamanho()) return;
             const quantidade = obterQuantidade();
-            const urlAdicionar = '../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto)
+            const urlAdicionar = adicionarTamanho('../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto)
                 + '&quantidade=' + encodeURIComponent(quantidade)
-                + '&ajax=1';
+                + '&ajax=1');
 
             btnAdicionarCarrinho.disabled = true;
             btnAdicionarCarrinho.textContent = 'Adicionando...';

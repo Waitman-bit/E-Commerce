@@ -72,8 +72,18 @@ foreach ($_SESSION['carrinho'] as $idProduto => $itemSessao) {
     }
 
     $quantidade = max(1, (int) $itemSessao['quantidade']);
+    $estoqueDisponivel = (int) $produtoAtual['estoque'];
+    if (isset($itemSessao['id_tamanho']) && $itemSessao['id_tamanho'] !== null) {
+        $stmtEstoqueTamanho = $conn->prepare('SELECT estoque FROM produto_tamanho WHERE id_produto = ? AND id_tamanho = ?');
+        $idTamanhoSelecionado = (int) $itemSessao['id_tamanho'];
+        $stmtEstoqueTamanho->bind_param('ii', $idProduto, $idTamanhoSelecionado);
+        $stmtEstoqueTamanho->execute();
+        $linhaEstoque = $stmtEstoqueTamanho->get_result()->fetch_assoc();
+        $stmtEstoqueTamanho->close();
+        $estoqueDisponivel = (int) ($linhaEstoque['estoque'] ?? 0);
+    }
 
-    if ($quantidade > (int) $produtoAtual['estoque']) {
+    if ($quantidade > $estoqueDisponivel) {
         $avisoEstoque[] = $produtoAtual['nome'];
     }
 
@@ -85,6 +95,7 @@ foreach ($_SESSION['carrinho'] as $idProduto => $itemSessao) {
         'imagem'     => $produtoAtual['imagem'],
         'preco'      => $precoUnitario,
         'quantidade' => $quantidade,
+        'tamanho'    => $itemSessao['tamanho'] ?? '',
         'subtotal'   => $precoUnitario * $quantidade,
     ];
 
@@ -342,6 +353,7 @@ sort($listaUf);
                         <img src="../ImagensProdutos/<?php echo htmlspecialchars($item['imagem']); ?>" alt="<?php echo htmlspecialchars($item['nome']); ?>">
                         <div class="resumo-item-info">
                             <span class="resumo-item-nome"><?php echo htmlspecialchars($item['nome']); ?></span>
+                            <?php if ($item['tamanho'] !== ''): ?><span class="resumo-item-qtd">Tamanho: <?php echo htmlspecialchars($item['tamanho']); ?></span><?php endif; ?>
                             <span class="resumo-item-qtd">Qtd: <?php echo $item['quantidade']; ?></span>
                         </div>
                         <span class="resumo-item-preco"><?php echo formatarPreco($item['subtotal']); ?></span>

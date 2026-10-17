@@ -2,37 +2,86 @@ const dialog = document.getElementById('stock-dialog');
 const productId = document.getElementById('dialog-product-id');
 const productName = document.getElementById('dialog-product-name');
 const currentStock = document.getElementById('dialog-current-stock');
-const quantity = document.getElementById('quantity');
-const operation = document.getElementById('operation');
-const operationButtons = document.querySelectorAll('[data-operation]');
+const sizeStockList = document.getElementById('size-stock-list');
+const sizeSelect = document.getElementById('add-size-select');
+const addSizeButton = document.getElementById('add-size-button');
+
+function updateTotal() {
+  const total = Array.from(sizeStockList.querySelectorAll('input[type="number"]'))
+    .reduce((sum, input) => sum + (Number(input.value) || 0), 0);
+  currentStock.textContent = String(total);
+}
+
+function addSizeRow(size, isNew = false) {
+  if (sizeStockList.querySelector(`[data-size-id="${size.id}"]`)) return;
+
+  const row = document.createElement('div');
+  row.className = 'size-stock-row';
+  row.dataset.sizeId = String(size.id);
+
+  const name = document.createElement('span');
+  name.className = 'size-stock-name';
+  name.textContent = size.descricao;
+
+  const label = document.createElement('label');
+  label.className = 'size-stock-field';
+  label.textContent = 'Unidades';
+
+  const input = document.createElement('input');
+  input.type = 'number';
+  input.name = `estoques[${size.id}]`;
+  input.min = '0';
+  input.step = '1';
+  input.required = true;
+  input.inputMode = 'numeric';
+  input.value = String(Number(size.estoque) || 0);
+  input.addEventListener('input', updateTotal);
+  label.appendChild(input);
+  row.append(name, label);
+
+  if (isNew) {
+    const hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.name = 'novos_tamanhos[]';
+    hidden.value = String(size.id);
+    row.appendChild(hidden);
+  }
+
+  sizeStockList.appendChild(row);
+  const option = Array.from(sizeSelect.options).find((item) => item.value === String(size.id));
+  if (option) option.disabled = true;
+  updateTotal();
+}
 
 document.querySelectorAll('.adjust-button').forEach((button) => {
   button.addEventListener('click', () => {
     productId.value = button.dataset.id;
     productName.textContent = button.dataset.name;
-    currentStock.textContent = button.dataset.stock;
-    quantity.value = button.dataset.stock;
-    operation.value = 'ajustar';
-    operationButtons.forEach((tab) => tab.classList.toggle('active', tab.dataset.operation === 'ajustar'));
+    sizeStockList.replaceChildren();
+    Array.from(sizeSelect.options).forEach((option) => { option.disabled = false; });
+
+    let sizes = [];
+    try { sizes = JSON.parse(button.dataset.sizes || '[]'); } catch (_) { sizes = []; }
+    sizes.forEach((size) => addSizeRow(size));
+    updateTotal();
     dialog.showModal();
-    quantity.focus();
+    sizeStockList.querySelector('input')?.focus();
   });
 });
 
-operationButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const selectedOperation = button.dataset.operation;
-    operation.value = selectedOperation;
-    operationButtons.forEach((tab) => tab.classList.toggle('active', tab === button));
-    quantity.min = selectedOperation === 'ajustar' ? '0' : '1';
-    quantity.value = selectedOperation === 'ajustar' ? currentStock.textContent : '';
-    quantity.focus();
-  });
+addSizeButton.addEventListener('click', () => {
+  const id = Number(sizeSelect.value);
+  if (!id) return;
+  const option = sizeSelect.options[sizeSelect.selectedIndex];
+  addSizeRow({ id, descricao: option.textContent, estoque: 0 }, true);
+  sizeSelect.value = '';
 });
 
 document.querySelector('.close-dialog').addEventListener('click', () => dialog.close());
 document.querySelector('.cancel-dialog').addEventListener('click', () => dialog.close());
-
 dialog.addEventListener('click', (event) => {
   if (event.target === dialog) dialog.close();
 });
+
+// Remove os controles antigos de ajuste total, mantidos apenas para compatibilidade visual.
+document.querySelector('.operation-tabs')?.remove();

@@ -173,8 +173,8 @@ if (isset($_POST['fazerlogin'])) {
         <?php if (!empty($mensagem)): ?>
             <span style="color:white;"><?= htmlspecialchars($mensagem) ?></span>
         <?php endif; ?>
-	    <script src="Login.js"></script>
 	    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
 	    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
+	    <script src="Login.js"></script>
 </body>
 </html>
