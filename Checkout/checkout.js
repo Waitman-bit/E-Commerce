@@ -68,51 +68,58 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     async function buscarCep() {
-        const cepLimpo = campoCep.value.replace(/\D/g, '');
+    const cepLimpo = campoCep.value.replace(/\D/g, '');
 
-        if (cepLimpo.length !== 8) {
+    if (cepLimpo.length !== 8) {
+        return;
+    }
+
+    statusCep.textContent = 'Buscando endereço...';
+    statusCep.className = 'status-cep carregando';
+
+    try {
+        const resposta = await fetch('buscar_cep.php?cep=' + cepLimpo);
+        const dados = await resposta.json();
+
+        // Ignora respostas de um CEP que já foi trocado enquanto a requisição rodava
+        if (campoCep.value.replace(/\D/g, '') !== cepLimpo) {
             return;
         }
 
-        statusCep.textContent = 'Buscando endereço...';
-        statusCep.className = 'status-cep carregando';
-
-        try {
-            const resposta = await fetch('buscar_cep.php?cep=' + cepLimpo);
-            const dados = await resposta.json();
-
-            if (!dados.sucesso) {
-                statusCep.textContent = dados.erro || 'Não foi possível buscar o CEP. Preencha manualmente.';
-                statusCep.className = 'status-cep erro';
-                return;
-            }
-
-            if (campoLogradouro.value.trim() === '') {
-                campoLogradouro.value = dados.logradouro || '';
-            }
-            if (campoCidade.value.trim() === '') {
-                campoCidade.value = dados.cidade || '';
-            }
-            if (dados.estado) {
-                campoEstado.value = dados.estado;
-            }
-
-            statusCep.textContent = 'Endereço encontrado.';
-            statusCep.className = 'status-cep ok';
-
-            fretesAtuais = dados.fretes;
-
-            if (fretesAtuais) {
-                atualizarDetalheMetodo('normal', formatarPreco(fretesAtuais.normal.valor) + ' - ' + fretesAtuais.normal.prazo);
-                atualizarDetalheMetodo('expressa', formatarPreco(fretesAtuais.expressa.valor) + ' - ' + fretesAtuais.expressa.prazo);
-                atualizarDetalheMetodo('retirada', 'Grátis - ' + fretesAtuais.retirada.prazo);
-                atualizarResumo();
-            }
-        } catch (erro) {
-            statusCep.textContent = 'Erro ao buscar CEP. Preencha o endereço manualmente.';
+        if (!dados.sucesso) {
+            statusCep.textContent = dados.erro || 'Não foi possível buscar o CEP. Preencha manualmente.';
             statusCep.className = 'status-cep erro';
+
+            // Limpa o frete do CEP anterior
+            fretesAtuais = null;
+            valorFreteEl.textContent = '-';
+            valorTotalEl.textContent = formatarPreco(SUBTOTAL_CARRINHO);
+            return;
         }
+
+        // Sempre atualiza o endereço com o resultado do CEP atual
+        campoLogradouro.value = dados.logradouro || '';
+        campoCidade.value = dados.cidade || '';
+        if (dados.estado) {
+            campoEstado.value = dados.estado;
+        }
+
+        statusCep.textContent = 'Endereço encontrado.';
+        statusCep.className = 'status-cep ok';
+
+        fretesAtuais = dados.fretes;
+
+        if (fretesAtuais) {
+            atualizarDetalheMetodo('normal', formatarPreco(fretesAtuais.normal.valor) + ' - ' + fretesAtuais.normal.prazo);
+            atualizarDetalheMetodo('expressa', formatarPreco(fretesAtuais.expressa.valor) + ' - ' + fretesAtuais.expressa.prazo);
+            atualizarDetalheMetodo('retirada', 'Grátis - ' + fretesAtuais.retirada.prazo);
+            atualizarResumo();
+        }
+    } catch (erro) {
+        statusCep.textContent = 'Erro ao buscar CEP. Preencha o endereço manualmente.';
+        statusCep.className = 'status-cep erro';
     }
+}
 
     campoCep.addEventListener('blur', buscarCep);
 

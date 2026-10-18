@@ -124,7 +124,7 @@ if (isset($_POST['fazerlogin'])) {
     <link rel="icon" href="../logoicon.ico" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Login - TitanSports</title>
     <link rel="stylesheet" href="Login.css">
 </head>
 <body>
