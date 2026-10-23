@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../connection.php';
 
 $paramCategoria = isset($_GET['categoria']) ? trim($_GET['categoria']) : '';
+$idCategoria = filter_var($paramCategoria, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 
 $mapaCategorias = [
     'futebol' => 'Futebol',
@@ -29,7 +30,34 @@ if ($paramCategoria !== '') {
     }
 }
 
-if ($nomeCategoria !== '') {
+if ($idCategoria !== false) {
+    $stmtCategoria = $conn->prepare('SELECT nome FROM categoria WHERE id_categoria = ?');
+    $stmtCategoria->bind_param('i', $idCategoria);
+    $stmtCategoria->execute();
+    $categoriaSelecionada = $stmtCategoria->get_result()->fetch_assoc();
+
+    if ($categoriaSelecionada) {
+        $stmt = $conn->prepare(
+            "SELECT p.*, c.nome AS categoria_nome
+             FROM produto p
+             INNER JOIN categoria c ON p.id_categoria = c.id_categoria
+             WHERE p.id_categoria = ?
+             ORDER BY p.nome ASC"
+        );
+        $stmt->bind_param('i', $idCategoria);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $tituloPagina = 'Produtos de ' . $categoriaSelecionada['nome'];
+    } else {
+        $resultado = $conn->query(
+            "SELECT p.*, c.nome AS categoria_nome
+             FROM produto p
+             INNER JOIN categoria c ON p.id_categoria = c.id_categoria
+             WHERE 1 = 0"
+        );
+        $tituloPagina = 'Categoria não encontrada';
+    }
+} elseif ($nomeCategoria !== '') {
     $stmt = $conn->prepare(
         "SELECT p.*, c.nome AS categoria_nome
          FROM produto p

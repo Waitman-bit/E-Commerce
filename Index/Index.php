@@ -62,15 +62,15 @@ if (!empty($pesquisa)) {
      </section> <br> <br>
       
     <div class="categorias-bar">
-  <a class="cat-chip" href="produtos.php?categoria=corrida">Corrida</a>
-  <a class="cat-chip" href="produtos.php?categoria=basquete">Basquete</a>
-   <a class="cat-chip" href="produtos.php?categoria=futebol">Futebol</a>
-   <a class="cat-chip" href="produtos.php?categoria=natacao">Natação</a>
-   <a class="cat-chip" href="produtos.php?categoria=artes-marciais">Artes Marciais</a>
-   <a class="cat-chip" href="produtos.php?categoria=musculacao">Musculação</a>
-  <a class="cat-chip" href="produtos.php?categoria=suplementos">Suplementos</a>
-  <a class="cat-chip" href="produtos.php?categoria=roupas">Vestuário</a>
-  <a class="cat-chip" href="produtos.php?categoria=todos">Acessórios</a>
+  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=3">Corrida</a>
+  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=2">Basquete</a>
+   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=1">Futebol</a>
+   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=5">Natação</a>
+   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=9">Artes Marciais</a>
+   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=4">Musculação</a>
+  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=6">Suplementos</a>
+  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=7">Vestuário</a>
+  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=8">Acessórios</a>
 </div>
 
 <!-- Produtos -->
