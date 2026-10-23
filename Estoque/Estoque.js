@@ -37,7 +37,25 @@ function addSizeRow(size, isNew = false) {
   input.value = String(Number(size.estoque) || 0);
   input.addEventListener('input', updateTotal);
   label.appendChild(input);
-  row.append(name, label);
+  const controls = document.createElement('div');
+  controls.className = 'size-stock-controls';
+  controls.appendChild(label);
+
+  const removeButton = document.createElement('button');
+  removeButton.type = 'button';
+  removeButton.className = 'remove-size-button';
+  removeButton.setAttribute('aria-label', `Remover tamanho ${size.descricao}`);
+  removeButton.title = 'Remover tamanho';
+  removeButton.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6"/></svg>';
+  removeButton.textContent = '🗑';
+  removeButton.addEventListener('click', () => {
+    row.remove();
+    const option = Array.from(sizeSelect.options).find((item) => item.value === String(size.id));
+    if (option) option.disabled = false;
+    updateTotal();
+  });
+  controls.appendChild(removeButton);
+  row.append(name, controls);
 
   if (isNew) {
     const hidden = document.createElement('input');

@@ -25,9 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $operacao = $_POST['operacao'] ?? '';
     $quantidade = filter_input(INPUT_POST, 'quantidade', FILTER_VALIDATE_INT);
 
-    if (isset($_POST['estoques']) && is_array($_POST['estoques'])) {
+    if (isset($_POST['gerenciar_tamanhos'])) {
+        $estoquesEnviados = $_POST['estoques'] ?? [];
         $novos = $_POST['novos_tamanhos'] ?? [];
-        if (!$idProduto || !hash_equals($_SESSION['csrf_estoque'], $csrf) || !is_array($novos)) {
+        if (!$idProduto || !hash_equals($_SESSION['csrf_estoque'], $csrf) || !is_array($novos) || !is_array($estoquesEnviados)) {
             redirecionar('Dados de estoque invÃ¡lidos.', 'error');
         }
         $conn->begin_transaction();
@@ -45,8 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtValida = $conn->prepare('SELECT id_tamanho FROM tamanho WHERE id_tamanho = ?');
             $stmtAtualiza = $conn->prepare('UPDATE produto_tamanho SET estoque = ? WHERE id_produto = ? AND id_tamanho = ?');
             $stmtInsere = $conn->prepare('INSERT INTO produto_tamanho (id_produto, id_tamanho, estoque) VALUES (?, ?, ?)');
+            $stmtRemove = $conn->prepare('DELETE FROM produto_tamanho WHERE id_produto = ? AND id_tamanho = ?');
             $permitidos = array_fill_keys(array_map('intval', $novos), true);
-            foreach ($_POST['estoques'] as $idTamanho => $estoqueTexto) {
+            $mantidos = [];
+            foreach ($estoquesEnviados as $idTamanho => $estoqueTexto) {
                 $idTamanho = filter_var($idTamanho, FILTER_VALIDATE_INT);
                 $estoque = filter_var($estoqueTexto, FILTER_VALIDATE_INT);
                 if (!$idTamanho || $estoque === false || $estoque < 0) {
@@ -60,16 +63,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (isset($atuais[$idTamanho])) {
                     $stmtAtualiza->bind_param('iii', $estoque, $idProduto, $idTamanho);
                     $stmtAtualiza->execute();
+                    $mantidos[$idTamanho] = true;
                 } elseif (isset($permitidos[$idTamanho])) {
                     $stmtInsere->bind_param('iii', $idProduto, $idTamanho, $estoque);
                     $stmtInsere->execute();
+                    $mantidos[$idTamanho] = true;
                 } else {
                     throw new RuntimeException('Tamanho novo invÃ¡lido.');
+                }
+            }
+            foreach ($atuais as $idTamanho => $_) {
+                if (!isset($mantidos[$idTamanho])) {
+                    $stmtRemove->bind_param('ii', $idProduto, $idTamanho);
+                    $stmtRemove->execute();
                 }
             }
             $stmtValida->close();
             $stmtAtualiza->close();
             $stmtInsere->close();
+            $stmtRemove->close();
             $conn->commit();
         } catch (Throwable $e) {
             $conn->rollback();
@@ -279,7 +291,7 @@ $todosTamanhos = $conn->query('SELECT id_tamanho, descricao FROM tamanho ORDER B
 
     <dialog id="stock-dialog" class="stock-dialog">
         <form method="POST" id="stock-form">
-            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_estoque']) ?>"><input type="hidden" name="id_produto" id="dialog-product-id">
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_estoque']) ?>"><input type="hidden" name="id_produto" id="dialog-product-id"><input type="hidden" name="gerenciar_tamanhos" value="1">
             <div class="dialog-heading"><div><span>AJUSTE DE ESTOQUE</span><h2 id="dialog-product-name"></h2></div><button type="button" class="close-dialog" aria-label="Fechar"><i class="ti ti-x"></i></button></div>
 
             <p class="current-stock">Estoque total atual: <strong id="dialog-current-stock"></strong> unidades</p>
@@ -293,6 +305,6 @@ $todosTamanhos = $conn->query('SELECT id_tamanho, descricao FROM tamanho ORDER B
             <div class="dialog-actions"><button type="button" class="cancel-dialog">Cancelar</button><button class="save-stock" type="submit"><i class="ti ti-device-floppy"></i> Salvar ajuste</button></div>
         </form>
     </dialog>
-    <script src="Estoque.js"></script>
+    <script src="Estoque.js?v=2"></script>
 </body>
 </html>
