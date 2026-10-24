@@ -259,3 +259,12 @@ body {
     .linha-dados { flex-direction: column; }
     .campo-pequeno, .campo-cep { flex: 1; }
 }
+
+#relogio-pix {
+    font-family: monospace;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffdd00;
+    padding: 2px 8px;
+    border-radius: 6px;
+}

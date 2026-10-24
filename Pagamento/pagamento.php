@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../connection.php';
 require_once __DIR__ . '/../Checkout/frete.php';
 require_once __DIR__ . '/../asaas_config.php';
-
+date_default_timezone_set('America/Sao_Paulo');
 
 function formatarPreco($valor)
 {
@@ -232,6 +232,7 @@ function titan_criar_pedido_pix(mysqli $conn, int $idUsuario): array
            throw new Exception('Erro ao gerar o QR Code (cobrança ' . $paymentId . '): ' . json_encode($qr));
         }
 
+
         // ===== CONTAS_RECEBER (1 parcela) =====
         $vencimento = date('Y-m-d H:i:s', strtotime($qr['expirationDate'] ?? '+1 day'));
         $stmt = $conn->prepare('INSERT INTO contas_receber (id_pedido, numero_parcela, valor_parcela, data_vencimento, asaas_payment_id)
@@ -246,13 +247,16 @@ function titan_criar_pedido_pix(mysqli $conn, int $idUsuario): array
         throw $e;
     }
 
+        $expiraTs = time() + 86400;
+
     return [
         'pedido'     => $idPedido,
         'payment_id' => $paymentId,
         'total'      => $total,
         'qr_base64'  => $qr['encodedImage'],
         'copia_cola' => $qr['payload'],
-        'expira'     => date('H:i', strtotime($qr['expirationDate'] ?? '+1 day')),
+        'expira'     => date('H:i', $expiraTs),
+        'expira_em'  => date('c', $expiraTs),
     ];
 }
 
@@ -314,7 +318,7 @@ if (!$pix) {
         <p>Ou copie o código:</p>
         <textarea id="pix" readonly rows="4" style="width:100%;"><?php echo htmlspecialchars($pix['copia_cola']); ?></textarea>
         <button type="button" class="btn-continuar" id="btnCopiar">Copiar código Pix</button>
-        <p>Válido até <?php echo htmlspecialchars($pix['expira']); ?>. Aguardando pagamento...</p>
+       <p>QR Code válido por<span id="relogio-pix">--:--:--</span></p>
     </section>
 
     <script>
@@ -322,6 +326,26 @@ if (!$pix) {
             navigator.clipboard.writeText(document.getElementById('pix').value);
             this.textContent = 'Copiado!';
         });
+
+        const expiraEm = new Date(<?php echo json_encode($pix['expira_em'] ?? ''); ?>).getTime();
+        const elRelogio = document.getElementById('relogio-pix');
+        let relogioTimer;
+
+        function atualizarRelogio() {
+         if (isNaN(expiraEm)) { elRelogio.textContent = '--:--:--'; return; }
+        const restante = Math.max(0, expiraEm - Date.now());
+         const h = String(Math.floor(restante / 3600000)).padStart(2, '0');
+         const m = String(Math.floor((restante % 3600000) / 60000)).padStart(2, '0');
+         const s = String(Math.floor((restante % 60000) / 1000)).padStart(2, '0');
+         elRelogio.textContent = `${h}:${m}:${s}`;
+    if (restante === 0) {
+        clearInterval(relogioTimer);
+        elRelogio.textContent = 'expirado';
+    }
+}
+
+atualizarRelogio();
+relogioTimer = setInterval(atualizarRelogio, 1000);
 
         const paymentId = <?php echo json_encode($pix['payment_id']); ?>;
         const timer = setInterval(async function () {
