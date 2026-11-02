@@ -71,10 +71,11 @@ if (isset($_SESSION['carrinho']) && is_array($_SESSION['carrinho'])) {
       <img src="/E-Commerce/NavBar/Logo-sem-fundo.png" alt="Logo">
     </a>
 
-    <form class="search-box" action="/E-Commerce/Index/Index.php" method="GET">
+    <form class="search-box" action="/E-Commerce/ResultadoDaPesquisa/Resultado.php" method="GET">
     <input
         type="search"
         name="pesquisa"
+        value="<?= isset($_GET['pesquisa']) ? htmlspecialchars($_GET['pesquisa'], ENT_QUOTES, 'UTF-8') : '' ?>"
         placeholder="Buscar produtos, marcas e muito mais..."
     >
 

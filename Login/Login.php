@@ -150,7 +150,7 @@ if (isset($_POST['fazerlogin'])) {
                 <span>Preencha com suas informações!</span>
                 <input type="email" name="email" placeholder="Email">
                 <input type="password" name="senha" placeholder="Senha">
-                <a href="../RecuperaçãoDeSenha/recuperacao.php">Esqueceu a Senha?</a>
+                <a href="../RecuperacaoDeSenha/recuperacao.php">Esqueceu a Senha?</a>
                 <button name="fazerlogin">Fazer Login</button>
             </form>
         </div>

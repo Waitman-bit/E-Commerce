@@ -1,42 +1,21 @@
 <?php
 require_once __DIR__ . '/../connection.php';
 
-$pesquisa = $_GET['pesquisa'] ?? '';
-
-if (!empty($pesquisa)) {
-
-    $busca = "%{$pesquisa}%";
-
-    $stmt = mysqli_prepare($conn, "
-        SELECT p.*, c.nome AS categoria_nome
-        FROM produto p
-        INNER JOIN categoria c
-            ON p.id_categoria = c.id_categoria
-        WHERE
-            p.nome LIKE ?
-            OR p.marca LIKE ?
-            OR p.descricao LIKE ?
-            OR c.nome LIKE ?
-    ");
-
-    mysqli_stmt_bind_param($stmt, "ssss", $busca, $busca, $busca, $busca);
-    mysqli_stmt_execute($stmt);
-
-    $pesquisaResultado = mysqli_stmt_get_result($stmt);
-
-} else {
-
-    $destaques = mysqli_query($conn, "
-        SELECT p.*, c.nome AS categoria_nome
-        FROM produto p
-        INNER JOIN categoria c ON p.id_categoria = c.id_categoria
-        ORDER BY RAND()
-        LIMIT 4
-    ");
-
-    $todos = mysqli_query($conn, "SELECT * FROM produto ORDER BY nome ASC");
-
+if (!empty($_GET['pesquisa'])) {
+    $pesquisa = trim($_GET['pesquisa']);
+    header('Location: ../ResultadoDaPesquisa/Resultado.php?pesquisa=' . rawurlencode($pesquisa));
+    exit;
 }
+
+$destaques = mysqli_query($conn, "
+    SELECT p.*, c.nome AS categoria_nome
+    FROM produto p
+    INNER JOIN categoria c ON p.id_categoria = c.id_categoria
+    ORDER BY RAND()
+    LIMIT 4
+");
+
+$todos = mysqli_query($conn, "SELECT * FROM produto ORDER BY nome ASC");
 ?>
 
 <!DOCTYPE html>
@@ -45,118 +24,61 @@ if (!empty($pesquisa)) {
     <link rel="icon" href="../logoicon.ico" type="image/png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tela Inicial</title>
-    <!-- Links do bootstrap -->
+    <title>TITAN SPORTS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <!-- Links dos css -->
     <?php require_once '../NavBar/Navbar.php'; ?>
-     <link rel="stylesheet" href="Index.css">
-     <link rel="shortcut icon" type="image/x-icon" href="../logoicon.ico">  
+    <link rel="stylesheet" href="Index.css">
+    <link rel="shortcut icon" type="image/x-icon" href="../logoicon.ico">
 </head>
 <body>
-     <section class = "hero">
+    <section class="hero">
       <canvas id="particle-canvas"></canvas>
-        <h1>TITAN SPORTS</h1> 
-        <p>Os melhores produtos esportivos para você.</p>
-     </section> <br> <br>
-      
+      <h1>TITAN SPORTS</h1>
+      <p>Os melhores produtos esportivos para você.</p>
+    </section>
+
     <div class="categorias-bar">
-  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=3">Corrida</a>
-  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=2">Basquete</a>
-   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=1">Futebol</a>
-   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=5">Natação</a>
-   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=9">Artes Marciais</a>
-   <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=4">Musculação</a>
-  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=6">Suplementos</a>
-  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=7">Vestuário</a>
-  <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=8">Acessórios</a>
-</div>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=3">Corrida</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=2">Basquete</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=1">Futebol</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=5">Natação</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=9">Artes Marciais</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=4">Musculação</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=6">Suplementos</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=7">Vestuário</a>
+      <a class="cat-chip" href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=8">Acessórios</a>
+    </div>
 
-<!-- Produtos -->
+    <section class="produtos-section">
+        <h2 class="produtos-titulo">Mais Populares</h2>
 
-<?php if (!empty($pesquisa)) { ?>
-
-<section class="produtos-section">
-    <h2 class="produtos-titulo">
-        Resultados para "<?php echo htmlspecialchars($pesquisa); ?>"
-    </h2>
-
-    <div class="cards-grid">
-        <?php while($produto = mysqli_fetch_assoc($pesquisaResultado)){ ?>
-        <div class="product-card">
-            <div class="card-img">
-                <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>">
-                    <img src="../ImagensProdutos/<?php echo rawurlencode($produto['imagem']); ?>" alt="<?php echo htmlspecialchars($produto['nome'], ENT_QUOTES, 'UTF-8'); ?>">
-                </a>
-            </div>
-
-            <div class="card-body">
-                <p class="card-category">
-                    <?php echo htmlspecialchars($produto['categoria_nome']); ?>
-                </p>
-
-                <p class="card-name">
-                    <?php echo $produto['nome']; ?>
-                </p>
-
-                <div class="card-footer">
-                    <span class="card-price">
-                        R$ <?php echo number_format($produto['preco'],2,",","."); ?>
-                    </span>
-
-                    <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
-                        Ver mais
+        <div class="cards-grid">
+            <?php while($produto = mysqli_fetch_assoc($destaques)){ ?>
+            <div class="product-card">
+                <div class="card-img">
+                    <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>">
+                        <img src="../ImagensProdutos/<?php echo rawurlencode($produto['imagem']); ?>" alt="<?php echo htmlspecialchars($produto['nome'], ENT_QUOTES, 'UTF-8'); ?>">
                     </a>
                 </div>
-            </div>
-        </div>
-        <?php } ?>
-    </div>
-</section>
 
-<?php } else { ?>
+                <div class="card-body">
+                    <p class="card-category"><?php echo htmlspecialchars($produto['categoria_nome']); ?></p>
+                    <p class="card-name"><?php echo $produto['nome']; ?></p>
 
-<section class="produtos-section">
-    <h2 class="produtos-titulo">Mais Populares</h2>
-
-    <div class="cards-grid">
-        <?php while($produto = mysqli_fetch_assoc($destaques)){ ?>
-        <div class="product-card">
-            <div class="card-img">
-                <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>">
-                    <img src="../ImagensProdutos/<?php echo rawurlencode($produto['imagem']); ?>" alt="<?php echo htmlspecialchars($produto['nome'], ENT_QUOTES, 'UTF-8'); ?>">
-                </a>
-            </div>
-
-            <div class="card-body">
-                <p class="card-category">
-                    <?php echo htmlspecialchars($produto['categoria_nome']); ?>
-                </p>
-
-                <p class="card-name">
-                    <?php echo $produto['nome']; ?>
-                </p>
-
-                <div class="card-footer">
-                    <span class="card-price">
-                        R$ <?php echo number_format($produto['preco'],2,",","."); ?>
-                    </span>
-
-                    <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">
-                        Ver mais
-                    </a>
+                    <div class="card-footer">
+                        <span class="card-price">R$ <?php echo number_format($produto['preco'],2,",", "."); ?></span>
+                        <a href="../Produto/produto.php?id=<?php echo $produto['id_produto']; ?>" class="btn-add">Ver mais</a>
+                    </div>
                 </div>
             </div>
+            <?php } ?>
         </div>
-        <?php } ?>
-    </div>
-</section>
-<?php } ?>
-      
-<footer>
-  <p>&copy; 2026 TITAN SPORTS. Todos os direitos reservados.</p>
-</footer>
-<script src="Index.js"></script>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 TITAN SPORTS. Todos os direitos reservados.</p>
+    </footer>
+    <script src="Index.js"></script>
 </body>
 </html>
