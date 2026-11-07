@@ -13,6 +13,7 @@
  */
 
 require_once __DIR__ . '/../connection.php';
+require_once __DIR__ . '/../crypto_cpf.php';
 require_once('frete.php');
 
 function formatarPreco($valor)
@@ -104,8 +105,10 @@ foreach ($_SESSION['carrinho'] as $idProduto => $itemSessao) {
 
 // ===== 5. PROCESSA O FORMULÁRIO (POST) =====
 $erros = [];
+$cpfDoBanco = $usuario['cpf'] ? cpfDescriptografar($usuario['cpf']) : null;
+$cpfParaForm = $cpfDoBanco ? cpfFormatar($cpfDoBanco) : '';
 $dadosForm = [
-    'cpf'          => $usuario['cpf'] ?? '',
+    'cpf'          => $cpfParaForm,
     'cep'          => $usuario['cep'] ?? '',
     'logradouro'   => '',
     'numero'       => $usuario['numero'] ?? '',

@@ -10,6 +10,7 @@ if (!isset($_SESSION['id'])) {
 
 // Carregar dados do usuário do banco de dados
 require_once __DIR__ . '/../connection.php';
+require_once __DIR__ . '/../crypto_cpf.php';
 
 function buildAvatarUrl($valor) {
     if (empty($valor)) {
@@ -43,18 +44,26 @@ $resultado = $stmt->get_result();
 $userData = $resultado->fetch_assoc();
 $stmt->close();
 
+
 // Atualizar sessão com dados do banco
 $avatarPath = '';
+$cpfExibir  = '';
+
 if ($userData) {
     $_SESSION['nome']  = $userData['nome'];
     $_SESSION['email'] = $userData['email'];
-    $_SESSION['cpf']   = $userData['cpf'];
     $_SESSION['tel']   = $userData['telefone'];
     $_SESSION['cep']   = $userData['cep'];
     $_SESSION['tipo']  = $userData['tipo'];
     $avatarPath = $userData['foto_perfil'] ?? '';
     $_SESSION['avatar'] = $avatarPath;
+
+    // descriptografa só para exibir (não vai para a sessão)
+    $cpfPuro   = cpfDescriptografar($userData['cpf']);
+    $cpfExibir = $cpfPuro ? cpfFormatar($cpfPuro) : 'Não informado';
 }
+
+unset($_SESSION['cpf']); // limpa CPF criptografado que ficou na sessão
 
 $avatarUrl = buildAvatarUrl($avatarPath);
 
@@ -62,10 +71,10 @@ $usuario = [
     'id'     => $_SESSION['id']       ?? 1,
     'nome'   => $_SESSION['nome']     ?? 'Rafael Souza',
     'email'  => $_SESSION['email']    ?? 'rafael@email.com',
-    'cpf'    => $_SESSION['cpf']      ?? '123.456.789-00',
+    'cpf'    => $cpfExibir,
     'tel'    => $_SESSION['tel']      ?? '(11) 99999-8888',
     'cep'    => $_SESSION['cep']      ?? '01310-100',
-    'tipo'   => $_SESSION['tipo']     ?? 'cliente', // 'admin' ou 'cliente'
+    'tipo'   => $_SESSION['tipo']     ?? 'cliente',
     'avatar' => $avatarUrl,
 ];
 

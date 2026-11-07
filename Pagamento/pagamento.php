@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../connection.php';
+require_once __DIR__ . '/../crypto_cpf.php';  
 require_once __DIR__ . '/../Checkout/frete.php';
 require_once __DIR__ . '/../asaas_config.php';
 date_default_timezone_set('America/Sao_Paulo');
@@ -145,8 +146,7 @@ function titan_criar_pedido_pix(mysqli $conn, int $idUsuario): array
         throw new Exception('Usuário não encontrado.');
     }
 
-    $cpf = preg_replace('/\D/', '', $usuario['cpf'] ?? '');
-    if (!validarCpfBrasileiro($cpf)) {
+        $cpf = preg_replace('/\D/', '', cpfDescriptografar($usuario['cpf'] ?? '') ?? '');    if (!validarCpfBrasileiro($cpf)) {
         throw new Exception('CPF inválido no cadastro. Atualize seu perfil com um CPF real antes de pagar.');
     }
 

@@ -6,6 +6,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/../connection.php';
+require_once __DIR__ . '/../crypto_cpf.php';
 
 function validarCPF($cpf) {
     $cpf = preg_replace('/\D/', '', $cpf); // tira pontos e traço
@@ -31,22 +32,26 @@ function validarCPF($cpf) {
 $mensagem = '';
 
 if (isset($_POST['registrar'])) {
-    $nome = trim($_POST['nome'] ?? '');
+    $nome  = trim($_POST['nome'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $tel = trim($_POST['telefone'] ?? '');
+    $tel   = trim($_POST['telefone'] ?? '');
     $senha = trim($_POST['senha'] ?? '');
-    $cpf = trim($_POST['cpf'] ?? '');
-    $cep = trim($_POST['cep'] ?? '');
+    $cpf   = trim($_POST['cpf'] ?? '');
+    $cep   = trim($_POST['cep'] ?? '');
 
     if (empty($nome) || empty($email) || empty($tel) || empty($senha) || empty($cep) || empty($cpf)) {
         $mensagem = 'Preencha todos os campos!';
-         } elseif (!validarCPF($cpf)) {
+    } elseif (!validarCPF($cpf)) {
         $mensagem = 'CPF inválido!';
     } else {
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
-        $verificar = $conn->prepare("SELECT id_usuario FROM usuario WHERE email = ? OR cpf = ?");
-        $verificar->bind_param("ss", $email, $cpf);
+        $cpfLimpo = preg_replace('/\D/', '', $cpf);
+        $cpfHash  = cpfHash($cpfLimpo);
+        $cpfCrip  = cpfCriptografar($cpfLimpo);
+
+        $verificar = $conn->prepare("SELECT id_usuario FROM usuario WHERE email = ? OR cpf_hash = ?");
+        $verificar->bind_param("ss", $email, $cpfHash);
         $verificar->execute();
         $resultado = $verificar->get_result();
 
@@ -55,11 +60,11 @@ if (isset($_POST['registrar'])) {
         } else {
             $stmt = $conn->prepare(
                 "INSERT INTO usuario
-                (nome, email, telefone, senha, cep, cpf)
-                VALUES (?, ?, ?, ?, ?, ?)"
+                (nome, email, telefone, senha, cep, cpf, cpf_hash)
+                VALUES (?, ?, ?, ?, ?, ?, ?)"
             );
 
-            $stmt->bind_param("ssssss", $nome, $email, $tel, $senhaHash, $cep, $cpf);
+            $stmt->bind_param("sssssss", $nome, $email, $tel, $senhaHash, $cep, $cpfCrip, $cpfHash);
 
             if ($stmt->execute()) {
                 session_regenerate_id(true);
