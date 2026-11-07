@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 23/10/2026 às 02:53
+-- Tempo de geração: 07/11/2026 às 22:51
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -72,7 +72,9 @@ CREATE TABLE `contas_receber` (
 
 INSERT INTO `contas_receber` (`id`, `data_vencimento`, `numero_parcela`, `valor_parcela`, `data_pagamento`, `id_pedido`, `valor_pago`, `valor_pago_posven`, `mp_payment_id`, `asaas_payment_id`) VALUES
 (1, '2027-10-17', 1, 2210.00, NULL, 2, NULL, NULL, NULL, 'pay_d51ip3ehz565ptqq'),
-(2, '2027-10-17', 1, 6610.00, NULL, 3, NULL, NULL, NULL, 'pay_fecpkdgpglejitjw');
+(2, '2027-10-17', 1, 6610.00, NULL, 3, NULL, NULL, NULL, 'pay_fecpkdgpglejitjw'),
+(3, '2027-11-07', 1, 74.90, NULL, 4, NULL, NULL, NULL, 'pay_yzrn5hwqdc2t5dh5'),
+(4, '2027-11-07', 1, 74.90, NULL, 5, NULL, NULL, NULL, 'pay_zvj3xdyqhhvha3rh');
 
 -- --------------------------------------------------------
 
@@ -98,7 +100,9 @@ CREATE TABLE `entrega` (
 INSERT INTO `entrega` (`id_entrega`, `endereco`, `estado`, `cidade`, `cep`, `status`, `id_pedido`, `frete`) VALUES
 (1, 'Abilio Correa, 2 - talavassw', 'sp', 'taquagueticetuba', '15902-222', 'Aguardando envio', 1, 14.90),
 (2, 'Rua Abílio Corrêa Gomes, 2', 'SP', 'Taquaritinga', '15902222', 'Pendente', 2, 10.00),
-(3, 'Rua Abílio Corrêa Gomes, 2', 'SP', 'Taquaritinga', '15902222', 'Pendente', 3, 10.00);
+(3, 'Rua Abílio Corrêa Gomes, 2', 'SP', 'Taquaritinga', '15902222', 'Pendente', 3, 10.00),
+(4, 'Largo do Pelourinho, 2', 'BA', 'Salvador', '40026280', 'Pendente', 4, 25.00),
+(5, 'Largo do Pelourinho, 2', 'BA', 'Salvador', '40026280', 'Pendente', 5, 25.00);
 
 -- --------------------------------------------------------
 
@@ -122,7 +126,9 @@ INSERT INTO `item_pedido` (`id`, `id_produto`, `id_pedido`, `quantidade`, `preco
 (1, 19, 1, 1, 1599.90),
 (2, 14, 1, 1, 129.90),
 (3, 57, 2, 1, 2200.00),
-(4, 57, 3, 3, 2200.00);
+(4, 57, 3, 3, 2200.00),
+(5, 22, 4, 1, 49.90),
+(6, 22, 5, 1, 49.90);
 
 -- --------------------------------------------------------
 
@@ -146,7 +152,9 @@ CREATE TABLE `pedido` (
 INSERT INTO `pedido` (`id_pedido`, `data_pedido`, `status_pedido`, `valor_total`, `id_usuario`, `tipo_pagamento`) VALUES
 (1, '2026-08-06 09:50:24', 'Confirmado', 1744.70, 8, NULL),
 (2, '2026-10-17 12:12:49', 'Aguardando pagamento', 2210.00, 9, 'pix'),
-(3, '2026-10-17 12:18:50', 'Aguardando pagamento', 6610.00, 9, 'pix');
+(3, '2026-10-17 12:18:50', 'Aguardando pagamento', 6610.00, 9, 'pix'),
+(4, '2026-11-07 18:47:39', 'Aguardando pagamento', 74.90, 10, 'pix'),
+(5, '2026-11-07 18:47:50', 'Aguardando pagamento', 74.90, 10, 'pix');
 
 -- --------------------------------------------------------
 
@@ -364,7 +372,7 @@ INSERT INTO `produto_tamanho` (`id_produto`, `id_tamanho`, `estoque`) VALUES
 (19, 18, 10),
 (20, 18, 10),
 (21, 18, 10),
-(22, 18, 10),
+(22, 18, 8),
 (23, 18, 10),
 (24, 18, 10),
 (25, 18, 10),
@@ -502,7 +510,7 @@ INSERT INTO `tamanho` (`id_tamanho`, `descricao`) VALUES
 CREATE TABLE `usuario` (
   `id_usuario` int(11) NOT NULL,
   `nome` varchar(40) NOT NULL,
-  `cpf` varchar(14) DEFAULT NULL,
+  `cpf` varchar(255) NOT NULL,
   `email` varchar(100) DEFAULT NULL,
   `telefone` varchar(20) DEFAULT NULL,
   `senha` varchar(100) NOT NULL,
@@ -510,17 +518,19 @@ CREATE TABLE `usuario` (
   `cep` varchar(9) DEFAULT NULL,
   `foto_perfil` varchar(255) DEFAULT NULL,
   `numero` varchar(10) DEFAULT NULL,
-  `data_cadastro` datetime DEFAULT NULL
+  `data_cadastro` datetime DEFAULT NULL,
+  `cpf_hash` char(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`, `numero`, `data_cadastro`) VALUES
-(1, 'Davi Waitman', NULL, 'davi.waitman@gmail.com', '(16) 99999-9999', '$2y$10$HIRiMhwjWtN7Efss3QI29uV/fBYsuwR5upKXYo0j/oZMQ/YW.uDzG', 'cliente', NULL, NULL, NULL, '2026-09-11 08:46:31'),
-(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL, NULL, '2026-09-11 08:46:31'),
-(9, 'Gabriel Gallo Morita', '697.844.831-14', 'gabrielgallomorita2009@gmail.com', '(16) 98828-3282', '$2y$10$3zFdTSxqaIzBO5c7nBIRp.GzU6lJ7aP5uwKWbwuzTeVTVHj/6cF3.', 'cliente', '15902222', NULL, '2', '2026-10-17 12:12:15');
+INSERT INTO `usuario` (`id_usuario`, `nome`, `cpf`, `email`, `telefone`, `senha`, `tipo`, `cep`, `foto_perfil`, `numero`, `data_cadastro`, `cpf_hash`) VALUES
+(1, 'Davi Waitman', '', 'davi.waitman@gmail.com', '(16) 99999-9999', '$2y$10$HIRiMhwjWtN7Efss3QI29uV/fBYsuwR5upKXYo0j/oZMQ/YW.uDzG', 'cliente', NULL, NULL, NULL, '2026-09-11 08:46:31', NULL),
+(8, 'Administrador', '123.456.789-00', 'admin@gmail.com', '(16) 99999-9999', '$2y$10$yqLHGXs607j.bmL7nYhx8.y6A7iBkKDl.XAOdCwTgPIve7mO5iN7i', 'admin', '15900-000', NULL, NULL, '2026-09-11 08:46:31', NULL),
+(9, 'Gabriel Gallo Morita', '697.844.831-14', 'gabrielgallomorita2009@gmail.com', '(16) 98828-3282', '$2y$10$3zFdTSxqaIzBO5c7nBIRp.GzU6lJ7aP5uwKWbwuzTeVTVHj/6cF3.', 'cliente', '15902222', NULL, '2', '2026-10-17 12:12:15', NULL),
+(10, 'Alexandre o Gtande', 'b8vEQP2GDBH4Ut4Lhxp6cIu8XvlZSZuDWm+LZAY9K265NILz5Pc0', 'alegrande@gmail.com', '(16) 99806-5489', '$2y$10$/B.rZTGDL1uEttWXwoCw3.3ZE1RcHYNUI/v4OUZ9vGHMye2FeoKlC', 'cliente', '40026280', 'uploads/avatares/avatar_10_1794080906.jpg', '2', '2026-11-07 16:35:49', 'a16eff25f2104cad68495415d9a51c6b37bd7d868862aac403452838ced2b3ba');
 
 --
 -- Acionadores `usuario`
@@ -600,7 +610,8 @@ ALTER TABLE `tamanho`
 --
 ALTER TABLE `usuario`
   ADD PRIMARY KEY (`id_usuario`),
-  ADD UNIQUE KEY `cpf` (`cpf`);
+  ADD UNIQUE KEY `cpf` (`cpf`),
+  ADD UNIQUE KEY `uq_usuario_cpf_hash` (`cpf_hash`);
 
 --
 -- AUTO_INCREMENT para tabelas despejadas
@@ -616,25 +627,25 @@ ALTER TABLE `categoria`
 -- AUTO_INCREMENT de tabela `contas_receber`
 --
 ALTER TABLE `contas_receber`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de tabela `entrega`
 --
 ALTER TABLE `entrega`
-  MODIFY `id_entrega` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_entrega` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `item_pedido`
 --
 ALTER TABLE `item_pedido`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `pedido`
 --
 ALTER TABLE `pedido`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de tabela `produto`
@@ -658,7 +669,7 @@ ALTER TABLE `tamanho`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Restrições para tabelas despejadas
