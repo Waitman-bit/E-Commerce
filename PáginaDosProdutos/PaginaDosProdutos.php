@@ -4,6 +4,16 @@ require_once __DIR__ . '/../connection.php';
 $paramCategoria = isset($_GET['categoria']) ? trim($_GET['categoria']) : '';
 $idCategoria = filter_var($paramCategoria, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 
+$paramGenero = isset($_GET['genero']) ? trim($_GET['genero']) : '';
+$generoSelecionado = '';
+if ($paramGenero !== '') {
+    $generoNormalizado = ucfirst(strtolower($paramGenero));
+    $generosValidos = ['Masculino', 'Feminino', 'Unissex'];
+    if (in_array($generoNormalizado, $generosValidos, true)) {
+        $generoSelecionado = $generoNormalizado;
+    }
+}
+
 $mapaCategorias = [
     'futebol' => 'Futebol',
     'basquete' => 'Basquete',
@@ -30,6 +40,10 @@ if ($paramCategoria !== '') {
     }
 }
 
+$whereClauses = [];
+$bindParams = [];
+$bindTypes = '';
+
 if ($idCategoria !== false) {
     $stmtCategoria = $conn->prepare('SELECT nome FROM categoria WHERE id_categoria = ?');
     $stmtCategoria->bind_param('i', $idCategoria);
@@ -37,16 +51,9 @@ if ($idCategoria !== false) {
     $categoriaSelecionada = $stmtCategoria->get_result()->fetch_assoc();
 
     if ($categoriaSelecionada) {
-        $stmt = $conn->prepare(
-            "SELECT p.*, c.nome AS categoria_nome
-             FROM produto p
-             INNER JOIN categoria c ON p.id_categoria = c.id_categoria
-             WHERE p.id_categoria = ?
-             ORDER BY p.nome ASC"
-        );
-        $stmt->bind_param('i', $idCategoria);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
+        $whereClauses[] = 'p.id_categoria = ?';
+        $bindParams[] = $idCategoria;
+        $bindTypes .= 'i';
         $tituloPagina = 'Produtos de ' . $categoriaSelecionada['nome'];
     } else {
         $resultado = $conn->query(
@@ -58,26 +65,44 @@ if ($idCategoria !== false) {
         $tituloPagina = 'Categoria não encontrada';
     }
 } elseif ($nomeCategoria !== '') {
-    $stmt = $conn->prepare(
-        "SELECT p.*, c.nome AS categoria_nome
-         FROM produto p
-         INNER JOIN categoria c ON p.id_categoria = c.id_categoria
-         WHERE c.nome = ?
-         ORDER BY p.nome ASC"
-    );
-
-    $stmt->bind_param('s', $nomeCategoria);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
+    $whereClauses[] = 'c.nome = ?';
+    $bindParams[] = $nomeCategoria;
+    $bindTypes .= 's';
     $tituloPagina = 'Produtos de ' . $nomeCategoria;
 } else {
-    $resultado = $conn->query(
-        "SELECT p.*, c.nome AS categoria_nome
-         FROM produto p
-         INNER JOIN categoria c ON p.id_categoria = c.id_categoria
-         ORDER BY c.nome, p.nome ASC"
-    );
     $tituloPagina = 'Todos os produtos';
+}
+
+if ($generoSelecionado !== '') {
+    $whereClauses[] = 'p.genero = ?';
+    $bindParams[] = $generoSelecionado;
+    $bindTypes .= 's';
+
+    if ($tituloPagina === 'Todos os produtos') {
+        $tituloPagina = 'Produtos ' . $generoSelecionado;
+    } else {
+        $tituloPagina .= ' - ' . $generoSelecionado;
+    }
+}
+
+if (!isset($resultado)) {
+    $sql = "SELECT p.*, c.nome AS categoria_nome
+            FROM produto p
+            INNER JOIN categoria c ON p.id_categoria = c.id_categoria";
+
+    if (!empty($whereClauses)) {
+        $sql .= ' WHERE ' . implode(' AND ', $whereClauses);
+    }
+
+    $sql .= ' ORDER BY p.nome ASC';
+
+    $stmt = $conn->prepare($sql);
+    if ($stmt && !empty($bindParams)) {
+        $stmt->bind_param($bindTypes, ...$bindParams);
+    }
+
+    $stmt->execute();
+    $resultado = $stmt->get_result();
 }
 
 $categorias = $conn->query('SELECT nome FROM categoria ORDER BY nome ASC');
@@ -104,7 +129,7 @@ $categorias = $conn->query('SELECT nome FROM categoria ORDER BY nome ASC');
                 <div class="cards-grid">
                     <?php while ($produto = $resultado->fetch_assoc()): ?>
                         <article class="product-card">
-<div class="card-img">
+                            <div class="card-img">
                                 <a href="../Produto/produto.php?id=<?php echo intval($produto['id_produto']); ?>">
                                     <img src="../ImagensProdutos/<?php echo htmlspecialchars($produto['imagem']); ?>"
                                          alt="<?php echo htmlspecialchars($produto['nome']); ?>"

@@ -117,8 +117,8 @@ if (isset($_SESSION['carrinho']) && is_array($_SESSION['carrinho'])) {
       </div>
     </div>
     <a href="#">Ofertas</a>
-    <a href="#">Masculino</a>
-    <a href="#">Feminino</a>
+    <a href="../PáginaDosProdutos/PaginaDosProdutos.php?genero=Masculino">Masculino</a>
+    <a href="../PáginaDosProdutos/PaginaDosProdutos.php?genero=Feminino">Feminino</a>
     <a href="#">Lançamentos</a>
   </div>
 

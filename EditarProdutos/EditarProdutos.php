@@ -10,6 +10,24 @@ function e($value) {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+function normalizarImagem($valor) {
+    $valor = trim((string) $valor);
+    if ($valor === '' || $valor === '0') {
+        return 'sem-imagem.svg';
+    }
+
+    return $valor;
+}
+
+function imagemSrc($nomeImagem) {
+    $nomeImagem = normalizarImagem($nomeImagem);
+    if ($nomeImagem === 'sem-imagem.svg') {
+        return '../ImagensProdutos/sem-imagem.svg';
+    }
+
+    return '../ImagensProdutos/' . rawurlencode($nomeImagem);
+}
+
 function redirectToProduct($id, $message = '') {
     $url = 'EditarProdutos.php?id=' . (int) $id;
     if ($message !== '') {
@@ -59,8 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$produtoAtual) {
                 $erro = 'Produto não encontrado.';
             } else {
-                $imagem = $produtoAtual['imagem'];
-                if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] !== UPLOAD_ERR_NO_FILE) {
+                $imagem = normalizarImagem($produtoAtual['imagem'] ?? '');
+
+                if (!empty($_FILES['imagem']['name']) && is_uploaded_file($_FILES['imagem']['tmp_name'])) {
                     if ($_FILES['imagem']['error'] !== UPLOAD_ERR_OK || $_FILES['imagem']['size'] > 5 * 1024 * 1024) {
                         $erro = 'Não foi possível enviar a imagem. O limite é de 5 MB.';
                     } else {
@@ -69,9 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         if (!isset($extensoes[$mime])) {
                             $erro = 'Envie uma imagem JPG, PNG ou WEBP válida.';
                         } else {
-                            $imagem = 'produto_' . bin2hex(random_bytes(12)) . '.' . $extensoes[$mime];
-                            if (!move_uploaded_file($_FILES['imagem']['tmp_name'], '../ImagensProdutos/' . $imagem)) {
+                            $nomeImagemNova = 'produto_' . bin2hex(random_bytes(12)) . '.' . $extensoes[$mime];
+                            $caminhoImagemNova = '../ImagensProdutos/' . $nomeImagemNova;
+                            if (!move_uploaded_file($_FILES['imagem']['tmp_name'], $caminhoImagemNova)) {
                                 $erro = 'Não foi possível salvar a nova imagem do produto.';
+                            } else {
+                                $imagem = $nomeImagemNova;
                             }
                         }
                     }
@@ -104,6 +126,11 @@ $produtos = $conn->query('SELECT p.id_produto, p.nome, p.preco, COALESCE(SUM(pt.
     GROUP BY p.id_produto, p.nome, p.preco, p.imagem, c.nome
     ORDER BY p.nome')->fetch_all(MYSQLI_ASSOC);
 
+foreach ($produtos as &$produto) {
+    $produto['imagem'] = normalizarImagem($produto['imagem'] ?? '');
+}
+unset($produto);
+
 if ($idSelecionado > 0) {
     $stmt = $conn->prepare('SELECT p.*, COALESCE(SUM(pt.estoque), 0) AS estoque
         FROM produto p
@@ -114,6 +141,9 @@ if ($idSelecionado > 0) {
     $stmt->execute();
     $produtoSelecionado = $stmt->get_result()->fetch_assoc();
     $stmt->close();
+    if ($produtoSelecionado) {
+        $produtoSelecionado['imagem'] = normalizarImagem($produtoSelecionado['imagem'] ?? '');
+    }
     if (!$produtoSelecionado && $erro === '') {
         $erro = 'Produto não encontrado.';
     }
@@ -152,7 +182,7 @@ if ($idSelecionado > 0) {
             <div class="product-list" id="product-list">
                 <?php foreach ($produtos as $item): ?>
                     <a class="product-card <?= $idSelecionado === (int) $item['id_produto'] ? 'selected' : '' ?>" href="EditarProdutos.php?id=<?= (int) $item['id_produto'] ?>" data-name="<?= e(mb_strtolower($item['nome'] . ' ' . $item['categoria'])) ?>">
-                        <img src="../ImagensProdutos/<?= e($item['imagem']) ?>" alt="">
+                        <img src="<?= imagemSrc($item['imagem']) ?>" alt="" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 240 220%27%3E%3Crect fill=%27%231a1a1a%27 width=%27240%27 height=%27220%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23555%27 font-size=%2714%27%3ESem imagem%3C/text%3E%3C/svg%3E'">
                         <span class="product-info"><strong><?= e($item['nome']) ?></strong><small><?= e($item['categoria'] ?? 'Sem categoria') ?> · <?= (int) $item['estoque'] ?> un.</small></span>
                         <span class="product-price">R$ <?= number_format((float) $item['preco'], 2, ',', '.') ?></span>
                         <i class="ti ti-chevron-right"></i>
@@ -171,10 +201,10 @@ if ($idSelecionado > 0) {
                     <input type="hidden" name="id_produto" value="<?= (int) $produtoSelecionado['id_produto'] ?>">
                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_editar_produto']) ?>">
                     <div class="edit-grid">
-<div class="image-field">
+                        <div class="image-field">
                              <label for="imagem">Imagem do produto</label>
-                             <label class="image-preview" for="imagem"><img id="preview-image" src="../ImagensProdutos/<?= e($produtoSelecionado['imagem']) ?>" alt="Imagem atual de <?= e($produtoSelecionado['nome']) ?>" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 240 220%27%3E%3Crect fill=%27%231a1a1a%27 width=%27240%27 height=%27220%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23555%27 font-size=%2714%27%3ESem imagem%3C/text%3E%3C/svg%3E'"><span><i class="ti ti-camera"></i> Alterar imagem</span></label>
-                             <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                             <label class="image-preview" for="imagem"><img id="preview-image" src="<?= imagemSrc($produtoSelecionado['imagem']) ?>" alt="Imagem atual de <?= e($produtoSelecionado['nome']) ?>" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 240 220%27%3E%3Crect fill=%27%231a1a1a%27 width=%27240%27 height=%27220%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23555%27 font-size=%2714%27%3ESem imagem%3C/text%3E%3C/svg%3E'"><span><i class="ti ti-camera"></i> Alterar imagem</span></label>
+                             <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" style="position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none;">
                              <small>JPG, PNG ou WEBP · até 5 MB</small>
                          </div>
                         <div class="form-fields">

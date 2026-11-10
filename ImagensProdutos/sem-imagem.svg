@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#1a1a1a"/>
+  <rect x="35" y="35" width="330" height="330" rx="18" fill="#2a2a2a" stroke="#545454" stroke-width="2"/>
+  <path d="M120 245l45-55 35 40 55-78 65 93v52H120z" fill="#4d4d4d"/>
+  <circle cx="147" cy="145" r="24" fill="#4d4d4d"/>
+  <text x="200" y="320" text-anchor="middle" fill="#8d8d8d" font-family="Arial, sans-serif" font-size="22">Sem imagem</text>
+</svg>

@@ -1,6 +1,15 @@
 const imageInput = document.getElementById('imagem');
 const previewImage = document.getElementById('preview-image');
+const imagePreview = document.querySelector('.image-preview');
 if (imageInput && previewImage) {
+  if (imagePreview) {
+    imagePreview.addEventListener('click', (event) => {
+      if (event.target !== imageInput) {
+        imageInput.click();
+      }
+    });
+  }
+
   imageInput.addEventListener('change', () => {
     const file = imageInput.files[0];
     if (file) previewImage.src = URL.createObjectURL(file);
