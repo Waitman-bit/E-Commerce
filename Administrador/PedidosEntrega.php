@@ -19,6 +19,7 @@
 
 require_once __DIR__ . '/../connection.php';
 require_once('../Checkout/frete.php');
+require_once __DIR__ . '/../status_pedido.php';
 
 // ===== SEGURANÇA: SOMENTE ADMIN =====
 if (!isset($_SESSION['id']) || !isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'admin') {
@@ -65,9 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['atualizar_status_entr
     $idEntrega = (int) ($_POST['id_entrega'] ?? 0);
     $novoStatus = trim($_POST['novo_status'] ?? '');
 
-    $statusPermitidos = ['Aguardando envio', 'Aguardando retirada', 'Em transporte', 'Entregue', 'Retirado', 'Cancelada'];
-
-    if ($idEntrega > 0 && in_array($novoStatus, $statusPermitidos, true)) {
+    if ($idEntrega > 0 && in_array($novoStatus, STATUS_PEDIDO_ADMIN, true)) {
         $stmtUpdate = $conn->prepare('UPDATE entrega SET status = ? WHERE id_entrega = ?');
         $stmtUpdate->bind_param('si', $novoStatus, $idEntrega);
         $stmtUpdate->execute();
@@ -191,7 +190,6 @@ foreach ($pedidos as $pedido) {
     $listaFinal[] = $pedido;
 }
 
-$statusEntregaDisponiveis = ['Aguardando envio', 'Aguardando retirada', 'Em transporte', 'Entregue', 'Retirado', 'Cancelada'];
 $regioesDisponiveis = ['Sudeste', 'Sul', 'Centro-Oeste', 'Nordeste', 'Norte'];
 $metodosDisponiveis = ['Normal', 'Expressa', 'Retirada na loja'];
 $ufsDisponiveis = array_keys(TITAN_MAPA_REGIAO_UF);
@@ -247,7 +245,7 @@ sort($ufsDisponiveis);
         <label>Status da entrega</label>
         <select name="status_entrega">
             <option value="">Todos</option>
-            <?php foreach ($statusEntregaDisponiveis as $s): ?>
+            <?php foreach (STATUS_PEDIDO_ADMIN as $s): ?>
                 <option value="<?php echo $s; ?>" <?php echo $filtroStatusEntrega === $s ? 'selected' : ''; ?>><?php echo $s; ?></option>
             <?php endforeach; ?>
         </select>
@@ -343,18 +341,27 @@ sort($ufsDisponiveis);
                                 <p>Status do pedido: <?php echo htmlspecialchars($pedido['status_pedido']); ?></p>
 
                                 <?php if ($pedido['id_entrega']): ?>
-                                <form method="POST" class="form-status-entrega">
-                                    <input type="hidden" name="id_entrega" value="<?php echo $pedido['id_entrega']; ?>">
-                                    <input type="hidden" name="atualizar_status_entrega" value="1">
-                                    <label>Atualizar status da entrega</label>
-                                    <select name="novo_status">
-                                        <?php foreach ($statusEntregaDisponiveis as $s): ?>
-                                            <option value="<?php echo $s; ?>" <?php echo $pedido['status_entrega'] === $s ? 'selected' : ''; ?>><?php echo $s; ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button type="submit">Salvar</button>
-                                </form>
-                                <?php endif; ?>
+                            <form method="POST" class="form-status-entrega">
+                                <input type="hidden" name="id_entrega" value="<?php echo (int) $pedido['id_entrega']; ?>">
+                                 <input type="hidden" name="atualizar_status_entrega" value="1">
+                            <label>Atualizar status da entrega</label>
+                        <select name="novo_status">
+                  <?php
+                     $statusAtual = $pedido['status_entrega'] ?? '';
+                         // Se o status atual não é um dos 6 do admin (ex.: 'Pendente'), mostra ele como opção desabilitada
+                     if (!in_array($statusAtual, STATUS_PEDIDO_ADMIN, true)):
+                    ?>
+            <option value="" disabled selected><?php echo htmlspecialchars($statusAtual ?: 'Pendente'); ?></option>
+        <?php endif; ?>
+        <?php foreach (STATUS_PEDIDO_ADMIN as $s): ?>
+            <option value="<?php echo htmlspecialchars($s); ?>" <?php echo $statusAtual === $s ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($s); ?>
+            </option>
+        <?php endforeach; ?>
+                </select>
+                    <button type="submit">Salvar</button>
+                    </form>
+                        <?php endif; ?>
                             </div>
                         </div>
                     </td>

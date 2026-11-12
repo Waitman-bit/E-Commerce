@@ -11,6 +11,7 @@ if (!isset($_SESSION['id'])) {
 // Carregar dados do usuário do banco de dados
 require_once __DIR__ . '/../connection.php';
 require_once __DIR__ . '/../crypto_cpf.php';
+require_once __DIR__ . '/../status_pedido.php';
 
 function buildAvatarUrl($valor) {
     if (empty($valor)) {
@@ -103,12 +104,25 @@ if (isset($_GET['sucesso'])) {
     $tipo_mensagem = 'erro';
 }
 
-// Dados fictícios de pedidos recentes (substituir por query real)
-$pedidos = [
-    ['id' => '#00421', 'produto' => 'Tênis Nike Air Max',   'status' => 'entregue',  'data' => '12/06/2025', 'valor' => 'R$ 499,90'],
-    ['id' => '#00389', 'produto' => 'Bola Adidas Pro',      'status' => 'pendente',  'data' => '08/06/2025', 'valor' => 'R$ 189,90'],
-    ['id' => '#00301', 'produto' => 'Luva de Goleiro Penalty', 'status' => 'cancelado', 'data' => '01/06/2025', 'valor' => 'R$ 129,90'],
-];
+// Pedidos recentes do usuário logado (últimos 3)
+$stmt = $conn->prepare("
+    SELECT p.id_pedido, p.data_pedido, p.valor_total, p.status_pedido,
+           e.status AS status_entrega,
+           (SELECT GROUP_CONCAT(pr.nome SEPARATOR ', ')
+              FROM item_pedido ip
+              JOIN produto pr ON pr.id_produto = ip.id_produto
+             WHERE ip.id_pedido = p.id_pedido) AS produtos
+    FROM pedido p
+    LEFT JOIN entrega e ON e.id_pedido = p.id_pedido
+    WHERE p.id_usuario = ?
+    ORDER BY p.data_pedido DESC, p.id_pedido DESC
+    LIMIT 4
+");
+$stmt->bind_param("i", $usuario_id);
+$stmt->execute();
+$pedidos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -178,16 +192,11 @@ $pedidos = [
 
         <!-- Ações -->
         <div class="actions-card">
-            <div class="actions-card-title">Menu</div>
+            <div class="actions-card-title">Opções</div>
 
             <button class="action-btn" onclick="openModal('modalEditar')">
                 <span class="icon"><i class="fa fa-pen"></i></span>
                 Editar perfil
-            </button>
-
-            <button class="action-btn" onclick="openModal('modalSenha')">
-                <span class="icon"><i class="fa fa-lock"></i></span>
-                Alterar senha
             </button>
 
             <?php if ($isAdmin): ?>
@@ -256,7 +265,7 @@ $pedidos = [
         <div class="orders-card">
             <div class="orders-card-head">
                 <div class="section-title">Pedidos Recentes</div>
-                <div class="section-sub">Seus últimos 3 pedidos</div>
+                <div class="section-sub">Seus últimos 4 pedidos</div>
             </div>
             <table class="orders-table">
                 <thead>
@@ -269,24 +278,30 @@ $pedidos = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($pedidos as $p): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($p['id']) ?></td>
-                        <td><?= htmlspecialchars($p['produto']) ?></td>
-                        <td><?= htmlspecialchars($p['data']) ?></td>
-                        <td><?= htmlspecialchars($p['valor']) ?></td>
-                        <td>
-                            <span class="status-badge status-<?= $p['status'] ?>">
-                                <?php
-                                $icons = ['entregue'=>'fa-circle-check','pendente'=>'fa-clock','cancelado'=>'fa-circle-xmark'];
-                                echo '<i class="fa '.$icons[$p['status']].'"></i> '.ucfirst($p['status']);
-                                ?>
-                            </span>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+    <?php if (empty($pedidos)): ?>
+        <tr><td colspan="5" style="text-align:center;">Você ainda não fez nenhum pedido.</td></tr>
+    <?php endif; ?>
+    <?php foreach ($pedidos as $p):
+        // Enquanto não houver pagamento ou entrega definida, mostra o status do pagamento
+        $statusExibido = (empty($p['status_entrega']) || $p['status_entrega'] === 'Pendente')
+            ? $p['status_pedido']
+            : $p['status_entrega'];
+        [$classe, $icone] = statusPedidoVisual($statusExibido);
+    ?>
+    <tr>
+        <td>#<?= str_pad((string) $p['id_pedido'], 5, '0', STR_PAD_LEFT) ?></td>
+        <td><?= htmlspecialchars($p['produtos'] ?? '-') ?></td>
+        <td><?= date('d/m/Y', strtotime($p['data_pedido'])) ?></td>
+        <td><?= 'R$ ' . number_format((float) $p['valor_total'], 2, ',', '.') ?></td>
+        <td>
+            <span class="status-badge status-<?= $classe ?>">
+                <i class="fa <?= $icone ?>"></i> <?= htmlspecialchars($statusExibido) ?>
+            </span>
+        </td>
+    </tr>
+    <?php endforeach; ?>
+            </tbody>
+        </table>
         </div>
         <?php endif; ?>
 
