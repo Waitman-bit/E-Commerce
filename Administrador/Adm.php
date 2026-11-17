@@ -202,6 +202,49 @@ $textoCrescimentoReceita = $receita['qtd'] === 1
     : $receita['qtd'] . ' cobranças pagas';
 $classeCrescimentoReceita = $receita['total'] > 0 ? 'up' : 'warn';
 $iconeCrescimentoReceita = $receita['total'] > 0 ? 'ti-circle-check' : 'ti-minus';
+
+// Gráfico de receita mensal dos últimos meses
+$mesesAbrev = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+$receitaMensal = [];
+for ($i = 11; $i >= 0; $i--) {
+    $timestamp = strtotime(date('Y-m-01') . " -$i month");
+    $receitaMensal[date('Y-m', $timestamp)] = [
+        'mes' => $mesesAbrev[(int) date('n', $timestamp) - 1] . '/' . date('y', $timestamp),
+        'total' => 0.0,
+    ];
+}
+
+$resultadoReceitaMensal = $conn->query(
+    "SELECT DATE_FORMAT(data_pagamento, '%Y-%m') AS mes, SUM(valor_pago) AS total
+     FROM contas_receber
+     WHERE data_pagamento IS NOT NULL
+       AND data_pagamento >= DATE_FORMAT(CURDATE() - INTERVAL 11 MONTH, '%Y-%m-01')
+     GROUP BY mes"
+);
+if ($resultadoReceitaMensal) {
+    while ($linha = $resultadoReceitaMensal->fetch_assoc()) {
+        if (isset($receitaMensal[$linha['mes']])) {
+            $receitaMensal[$linha['mes']]['total'] = (float) $linha['total'];
+        }
+    }
+}
+$receitaMensal = array_values($receitaMensal);
+
+// Pedidos por hora do dia com mais pedidos.
+$linhaDia = $conn->query("SELECT DATE(MAX(data_pedido)) AS dia FROM pedido")->fetch_assoc();
+$diaPedidosHora = $linhaDia['dia'] ?? date('Y-m-d');
+$pedidosPorHora = array_fill(0, 24, 0);
+$stmtHoras = $conn->prepare("SELECT HOUR(data_pedido) AS hora, COUNT(*) AS total FROM pedido WHERE DATE(data_pedido) = ? GROUP BY hora");
+if ($stmtHoras) {
+    $stmtHoras->bind_param('s', $diaPedidosHora);
+    $stmtHoras->execute();
+    $resultadoHoras = $stmtHoras->get_result();
+    while ($linha = $resultadoHoras->fetch_assoc()) {
+        $pedidosPorHora[(int) $linha['hora']] = (int) $linha['total'];
+    }
+    $stmtHoras->close();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -321,14 +364,13 @@ $iconeCrescimentoReceita = $receita['total'] > 0 ? 'ti-circle-check' : 'ti-minus
       <div class="charts-row">
         <div class="chart-card">
           <div class="chart-title">Receita mensal</div>
-          <div class="legend-row">
-            <span class="legend-item">
-              <span class="leg-sq" style="background:#F5C000"></span> 2026
-            </span>
-            <span class="legend-item">
-              <span class="leg-sq" style="background:#3d3300"></span> 2025
-            </span>
-          </div>
+         <div class="chart-title">
+             Pedidos por hora
+            <span class="chart-title-sub" id="diaPedidosLabel"></span>
+        </div>
+      <div class="legend-row">
+         <span class="legend-item"><span class="leg-dashed"></span>Pedidos</span>
+      </div>
           <div class="chart-wrapper">
             <canvas id="revenueChart" role="img" aria-label="Gráfico de receita mensal comparando 2025 e 2026">
               Receita de jan a mai: 2026 crescendo vs 2025.
@@ -350,7 +392,6 @@ $iconeCrescimentoReceita = $receita['total'] > 0 ? 'ti-circle-check' : 'ti-minus
   <div class="chart-card full">
     <div class="chart-title">
       Visitantes vs Pedidos — hoje
-      <span class="chart-title-sub">por hora · 29 mai 2026</span>
     </div>
     <div class="legend-row">
       <span class="legend-item"><span class="leg-line"></span>Visitantes</span>
@@ -367,8 +408,11 @@ $iconeCrescimentoReceita = $receita['total'] > 0 ? 'ti-circle-check' : 'ti-minus
   </div>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
-    window.dadosCategorias = <?php echo json_encode($categoriasMaisVendidas, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
-  </script>
+     window.dadosCategorias = <?php echo json_encode($categoriasMaisVendidas, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+     window.receitaMensal = <?php echo json_encode($receitaMensal, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+     window.pedidosPorHora = <?php echo json_encode($pedidosPorHora); ?>;
+     window.diaPedidosHora = <?php echo json_encode(date('d/m/Y', strtotime($diaPedidosHora))); ?>;
+   </script>
   <script src="script.js?v=<?php echo filemtime(__DIR__ . '/script.js'); ?>"></script>
 </body>
 </html>
