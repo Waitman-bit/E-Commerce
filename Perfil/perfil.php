@@ -81,6 +81,10 @@ $usuario = [
 
 $isAdmin = ($usuario['tipo'] === 'admin');
 
+if (empty($_SESSION['csrf_editar_perfil'])) {
+    $_SESSION['csrf_editar_perfil'] = bin2hex(random_bytes(32));
+}
+
 // Mensagens de sucesso/erro
 $mensagem = '';
 $tipo_mensagem = '';
@@ -88,6 +92,10 @@ $tipo_mensagem = '';
 if (isset($_GET['sucesso'])) {
     if ($_GET['sucesso'] === 'avatar_atualizado') {
         $mensagem = '✓ Foto de perfil atualizada com sucesso!';
+        $tipo_mensagem = 'sucesso';
+    }
+    if ($_GET['sucesso'] === 'perfil_atualizado') {
+        $mensagem = 'Dados do perfil atualizados com sucesso!';
         $tipo_mensagem = 'sucesso';
     }
 } elseif (isset($_GET['erro'])) {
@@ -98,7 +106,11 @@ if (isset($_GET['sucesso'])) {
         'extensao_invalida' => 'Extensão de arquivo não permitida',
         'falha_upload' => 'Erro ao fazer upload da imagem. Verifique as permissões da pasta',
         'falha_banco' => 'Erro ao salvar no banco de dados',
-        'pasta_criacao' => 'Erro ao criar pasta de uploads. Verifique as permissões'
+        'pasta_criacao' => 'Erro ao criar pasta de uploads. Verifique as permissões',
+        'email_em_uso' => 'Este e-mail já está sendo usado por outra conta.',
+        'dados_invalidos' => 'Confira os dados informados e tente novamente.',
+        'falha_atualizar' => 'Não foi possível atualizar seus dados. Tente novamente.',
+        'csrf' => 'Sua sessão expirou. Atualize a página e tente novamente.'
     ];
     $mensagem = $erros[$_GET['erro']] ?? 'Erro desconhecido: ' . htmlspecialchars($_GET['erro']);
     $tipo_mensagem = 'erro';
@@ -316,6 +328,7 @@ $stmt->close();
         </button>
         <div class="modal-title"><i class="fa fa-pen"></i> Editar Perfil</div>
         <form method="POST" action="atualizar_perfil.php">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_editar_perfil'], ENT_QUOTES, 'UTF-8') ?>">
             <div class="form-group">
                 <label class="form-label">Nome completo</label>
                 <input type="text" name="nome" class="form-input"

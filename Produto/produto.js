@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputQuantidade = document.getElementById('quantidade');
     const botoesTamanho = Array.from(document.querySelectorAll('.produto-size-pill'));
     const avisoTamanhoEstoque = document.getElementById('tamanho-estoque');
+    const estoqueExibido = document.getElementById('produto-estoque-quantidade');
     let tamanhoSelecionado = null;
     let toast = document.getElementById('toast');
 
@@ -79,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
             botao.classList.add('active');
             tamanhoSelecionado = botao.dataset.size;
             const estoqueTamanho = Number(botao.dataset.stock) || 0;
+            if (estoqueExibido) estoqueExibido.textContent = String(estoqueTamanho);
             if (inputQuantidade) {
                 inputQuantidade.max = String(estoqueTamanho);
                 if (Number(inputQuantidade.value) > estoqueTamanho) inputQuantidade.value = String(estoqueTamanho);

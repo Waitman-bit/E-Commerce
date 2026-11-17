@@ -158,7 +158,7 @@ $avaliacaoEstrelas = 4;
             <p class="produto-estoque-status <?php echo $statusClasse; ?>">
                 <?php echo $statusEstoque; ?> 
                 <?php if ($estoque > 0): ?>
-                    (<?php echo $estoque; ?> unid.)
+                    (<span id="produto-estoque-quantidade" data-total="<?php echo $estoque; ?>"><?php echo $estoque; ?></span> unid.)
                 <?php endif; ?>
             </p>
 
@@ -247,6 +247,6 @@ $avaliacaoEstrelas = 4;
 <script>
     const USUARIO_LOGADO = <?php echo $logado ? 'true' : 'false'; ?>;
 </script>
-<script src="produto.js"></script>
+<script src="produto.js?v=2"></script>
 </body>
 </html>
