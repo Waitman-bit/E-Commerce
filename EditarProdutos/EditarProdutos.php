@@ -225,5 +225,6 @@ if ($idSelecionado > 0) {
         </section>
     </main>
     <script src="EditarProduto.js"></script>
+    <script src="../ProdutoCropper.js?v=1"></script>
 </body>
 </html>
