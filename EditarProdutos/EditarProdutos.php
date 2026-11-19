@@ -104,7 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $dimensoesNumero = (float) $dimensoes;
                     $pesoNumero = (float) $peso;
                     $precoNumero = (float) $preco;
-                    $stmt->bind_param('sidsssdddi', $marca, $categoria, $dimensoesNumero, $nome, $genero, $descricao, $imagem, $pesoNumero, $precoNumero, $idProduto);
+                    // imagem is a filename (string); binding it as a number converts it to 0.
+                    $stmt->bind_param('sidssssddi', $marca, $categoria, $dimensoesNumero, $nome, $genero, $descricao, $imagem, $pesoNumero, $precoNumero, $idProduto);
                     if ($stmt->execute()) {
                         $stmt->close();
                         redirectToProduct($idProduto, 'Produto atualizado com sucesso.');
