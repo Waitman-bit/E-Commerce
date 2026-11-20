@@ -32,7 +32,7 @@ body {
 /* ===== GRID DO PRODUTO (IMAGEM + INFO) ===== */
 .produto-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 40px;
     background-color: var(--cor-card);
     border-radius: 14px;
@@ -41,6 +41,7 @@ body {
 
 .produto-imagem-box {
     display: flex;
+    min-width: 0;
     align-items: center;
     justify-content: center;
     background-color: #ffffff;
@@ -50,13 +51,16 @@ body {
 
 .produto-imagem-principal {
     width: 100%;
+    max-width: 100%;
     max-height: 480px;
+    height: auto;
     display: block;
 }
 
 /* ===== INFORMAÇÕES DO PRODUTO ===== */
 .produto-info-box {
     display: flex;
+    min-width: 0;
     flex-direction: column;
     gap: 12px;
 }
@@ -72,6 +76,7 @@ body {
 .produto-nome {
     font-size: 28px;
     font-weight: 700;
+    overflow-wrap: anywhere;
 }
 
 .produto-estrelas {
@@ -261,6 +266,7 @@ body {
 
 .card-relacionado img {
     width: 100%;
+    max-width: 100%;
     height: 150px;
     object-fit: contain;
     margin-bottom: 10px;
@@ -307,7 +313,7 @@ body {
 
 /* ===== PÁGINA DE ERRO ===== */
 .erro-container {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -360,4 +366,31 @@ body {
     .produto-botoes {
         flex-direction: column;
     }
+}
+
+@media (max-width: 768px) {
+    .produto-container { padding: 20px 14px; }
+    .produto-grid { gap: 20px; padding: 20px; }
+    .produto-descricao { padding: 20px; margin-top: 20px; }
+    .produtos-relacionados h2, .produto-descricao h2 { font-size: 18px; }
+    .relacionados-grid { gap: 14px; }
+    .card-relacionado img { height: 120px; }
+    .btn { padding: 12px 16px; }
+    .toast { left: 15px; right: 15px; bottom: 15px; text-align: center; }
+    .erro-titulo { font-size: 36px; }
+}
+
+@media (max-width: 480px) {
+    .produto-container { padding: 14px 10px; }
+    .produto-grid { gap: 14px; padding: 14px; }
+    .produto-imagem-principal { max-height: 300px; }
+    .produto-nome { font-size: 20px; }
+    .produto-preco { font-size: 24px; }
+    .produto-quantidade { flex-wrap: wrap; }
+    .produto-quantidade input { width: 70px; max-width: 100%; }
+    .produto-botoes .btn { width: 100%; }
+    .relacionados-grid { grid-template-columns: minmax(0, 1fr); }
+    .card-relacionado img { height: 140px; }
+    .erro-titulo { font-size: 28px; }
+    .erro-mensagem { font-size: 14px; }
 }

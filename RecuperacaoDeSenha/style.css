@@ -164,3 +164,85 @@ br {
         padding-right: 24px;
     }
 }
+
+@media (max-width: 600px) {
+    body {
+        display: block;
+        padding: 16px 12px;
+    }
+
+    h1,
+    body > p,
+    body > form,
+    body > a {
+        width: 100%;
+        max-width: 440px;
+        margin-inline: auto;
+    }
+
+    h1 {
+        padding: 26px 20px 8px;
+        font-size: 1.65rem;
+    }
+
+    body > p {
+        padding: 4px 20px 20px;
+        font-size: 0.92rem;
+    }
+
+    form {
+        gap: 8px;
+        padding: 22px 20px 24px;
+    }
+
+    label {
+        font-size: 0.9rem;
+    }
+
+    input {
+        min-height: 46px;
+        font-size: 16px;
+    }
+
+    button {
+        min-height: 48px;
+        font-size: 1rem;
+    }
+
+    #codigo {
+        letter-spacing: 0.3em;
+        font-size: 1rem;
+    }
+
+    body > a {
+        padding: 16px 20px 24px;
+        font-size: 0.9rem;
+    }
+
+    .mensagem {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 12px 10px;
+    }
+
+    h1 {
+        padding: 22px 16px 8px;
+        font-size: 1.5rem;
+    }
+
+    body > p {
+        padding: 4px 16px 18px;
+    }
+
+    form {
+        padding: 18px 16px 20px;
+    }
+
+    body > a {
+        padding: 14px 16px 20px;
+    }
+}

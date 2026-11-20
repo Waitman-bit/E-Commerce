@@ -79,6 +79,11 @@ body {
         }
 
 /* WAITMAN FRONT END - COLUNA ESQUERDA AREA DE FOTO */
+.lado-foto,
+.lado-form {
+  min-width: 0;
+}
+
 .lado-foto {
   flex: 1;
   display: flex;
@@ -91,9 +96,10 @@ body {
 .photo-area {
     border: 2px dashed #F5C400;
     border-radius: 12px;
-    width: 100%;
-    height: 500px;
-    min-height: 0;
+    width: min(100%, 520px);
+    aspect-ratio: 1 / 1;
+    height: auto;
+    min-height: 240px;
     max-width: 520px;
     display: flex;
     flex-direction: column;
@@ -105,6 +111,7 @@ body {
     position: relative;
     overflow: hidden;
     background: transparent;
+    flex-shrink: 0;
 }
 
 .photo-area:hover {
@@ -136,9 +143,16 @@ body {
   height: 100%;
   object-fit: cover;
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   border-radius: 10px;
+  z-index: 1;
+}
+
+.photo-area i,
+.photo-area p,
+.photo-area span {
+  position: relative;
+  z-index: 0;
 }
 
 /* WAITMAN FRONT END - COLUNA DIREITA FORMULARIO */
@@ -385,17 +399,26 @@ input[type="number"] {
 }
 
 /* WAITMAN FRONT END - RESPONSIVIDADE MEDIA QUERIES */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .page {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lado-foto,
+  .lado-form {
+    width: 100%;
+    flex: none;
   }
 
   .lado-foto {
-    min-height: 280px;
+    min-height: 0;
   }
 
   .photo-area {
-    min-height: 240px;
+    width: 100%;
+    max-width: 420px;
+    height: auto;
   }
 }
 
@@ -441,4 +464,109 @@ input[type="number"] {
 .estoque-input {
     width: 80px;
     padding: 8px;
+}
+@media (max-width: 1024px) {
+  .TopBar {
+    padding: 0 12px;
+    gap: 10px;
+  }
+
+  .TopBar h1 {
+    position: static;
+    transform: none;
+    font-size: 18px;
+    white-space: normal;
+    text-align: center;
+    flex: 1;
+  }
+
+  .topbar-back-button {
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .page {
+    padding-top: 80px;
+  }
+
+  .lado-foto {
+    width: 100%;
+    padding: 20px;
+  }
+
+  .lado-form {
+    width: 100%;
+    margin-top: 0;
+    padding: 24px 20px;
+  }
+
+  .photo-area {
+    width: 100%;
+    height: auto;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 600px) {
+  .TopBar {
+    height: auto;
+    min-height: 56px;
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .TopBar h1 {
+    order: 3;
+    width: 100%;
+    font-size: 17px;
+  }
+
+  .topbar-back-button {
+    order: 1;
+  }
+
+  .page {
+    padding-top: 110px;
+  }
+
+  .gender-group {
+    flex-direction: column;
+  }
+
+  .estoque-tamanho-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .estoque-tamanho-item label {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .estoque-input {
+    width: 100%;
+    max-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .photo-area {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+  }
+
+  .lado-foto {
+    padding: 16px;
+  }
+
+  .lado-form {
+    padding: 20px 16px;
+  }
+
+  .form-header h1 {
+    font-size: 14px;
+  }
 }

@@ -207,3 +207,180 @@ body{
 input:invalid{
     border: 2px solid red;
 }
+
+@media (max-width: 768px) {
+    body {
+        height: auto;
+        min-height: 100vh;
+        padding: 20px 14px;
+        justify-content: flex-start;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 420px;
+        min-height: 0;
+        border-radius: 20px;
+    }
+
+    .toggle-container {
+        position: static;
+        left: auto;
+        order: 2;
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        border-radius: 0 0 20px 20px;
+        transform: none;
+    }
+
+    .container.active .toggle-container {
+        transform: none;
+        border-radius: 0 0 20px 20px;
+    }
+
+    .toggle {
+        position: static;
+        left: auto;
+        width: 100%;
+        height: auto;
+        display: block;
+        transform: none;
+    }
+
+    .container.active .toggle {
+        transform: none;
+    }
+
+    .toggle-panel {
+        position: static;
+        display: none;
+        width: 100%;
+        height: auto;
+        min-width: 0;
+        padding: 14px 16px 18px;
+        transform: none;
+        gap: 4px;
+    }
+
+    .toggle-right {
+        display: flex;
+    }
+
+    .container.active .toggle-right {
+        display: none;
+    }
+
+    .container.active .toggle-left {
+        display: flex;
+    }
+
+    .toggle-panel h1,
+    .toggle-panel h2 {
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+
+    .toggle-panel br {
+        display: none;
+    }
+
+    .toggle-panel button {
+        width: 100%;
+        margin-top: 6px;
+        padding: 10px 16px;
+    }
+
+    .form-container {
+        position: static;
+        left: auto;
+        width: 100%;
+        height: auto;
+        display: none;
+        transform: none;
+        opacity: 1;
+        z-index: auto;
+        animation: none;
+        transition: none;
+    }
+
+    .sign-in {
+        display: block;
+    }
+
+    .container.active .sign-in {
+        display: none;
+    }
+
+    .container.active .sign-up {
+        display: block;
+        transform: none;
+        opacity: 1;
+        z-index: auto;
+        animation: none;
+    }
+
+    .container form {
+        padding: 24px 20px 28px;
+    }
+
+    .container p {
+        margin: 12px 0;
+    }
+
+    .container a {
+        margin: 8px 0 14px;
+    }
+
+    .container button {
+        width: 100%;
+        padding: 12px 20px;
+    }
+
+    .container input {
+        min-height: 44px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 12px 10px;
+    }
+
+    .container {
+        border-radius: 16px;
+    }
+
+    .container form {
+        padding: 20px 16px 24px;
+    }
+
+    .container h1.title {
+        font-size: 1.6rem;
+    }
+
+    .toggle-container {
+        border-radius: 0 0 16px 16px;
+    }
+
+    .toggle-panel {
+        padding: 12px 14px 16px;
+    }
+
+    .toggle-panel h1,
+    .toggle-panel h2 {
+        font-size: 0.9rem;
+    }
+
+    .container button {
+        padding: 11px 14px;
+        font-size: 0.8rem;
+    }
+
+    .container span {
+        font-size: 11px;
+    }
+}

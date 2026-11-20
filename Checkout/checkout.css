@@ -253,13 +253,6 @@ body {
 }
 .resumo-total span:last-child { color: var(--titan-amarelo); }
 
-@media (max-width: 900px) {
-    .container-checkout { grid-template-columns: 1fr; padding: 0 16px; }
-    .topo-checkout, .etapas-checkout { padding-left: 16px; padding-right: 16px; }
-    .linha-dados { flex-direction: column; }
-    .campo-pequeno, .campo-cep { flex: 1; }
-}
-
 #relogio-pix {
     font-family: monospace;
     font-size: 1.2em;
@@ -267,4 +260,58 @@ body {
     color: #ffdd00;
     padding: 2px 8px;
     border-radius: 6px;
+}
+
+@media (max-width: 1024px) {
+    .container-checkout { gap: 18px; padding: 0 24px; }
+    .topo-checkout { padding: 20px 24px; }
+    .etapas-checkout { padding: 16px 24px; }
+    .alerta { margin-left: 24px; margin-right: 24px; }
+    .card-checkout { padding: 20px; }
+    .coluna-resumo { position: static; }
+}
+
+@media (max-width: 900px) {
+    .container-checkout { grid-template-columns: 1fr; padding: 0 16px; }
+    .topo-checkout, .etapas-checkout { padding-left: 16px; padding-right: 16px; }
+    .linha-dados { flex-direction: column; }
+    .campo-pequeno, .campo-cep { flex: 1; }
+    .resumo-pedido .lista-resumo-itens { max-height: none; }
+}
+
+@media (max-width: 600px) {
+    body { padding-bottom: 40px; }
+    .topo-checkout { flex-wrap: wrap; gap: 8px; padding: 16px; }
+    .topo-checkout h1 { font-size: 1.3rem; }
+    .link-voltar { font-size: 0.85rem; }
+    .etapas-checkout { gap: 12px; padding: 12px 16px; font-size: 0.75rem; flex-wrap: wrap; }
+    .alerta { margin: 0 16px 16px; padding: 12px 14px; font-size: 0.85rem; }
+    .container-checkout { gap: 16px; padding: 0 12px; }
+    .card-checkout { padding: 16px; margin-bottom: 14px; }
+    .card-checkout h2 { font-size: 1rem; margin-bottom: 12px; }
+    .linha-dados { gap: 12px; margin-bottom: 12px; }
+    .campo input, .campo select { width: 100%; padding: 10px; font-size: 0.9rem; }
+    .opcoes-entrega { gap: 10px; }
+    .opcao-entrega { grid-template-columns: 20px 1fr; padding: 12px; gap: 8px; }
+    .opcao-detalhe { grid-column: 2; text-align: left; }
+    .btn-continuar { padding: 14px; font-size: 0.95rem; }
+    .resumo-item { grid-template-columns: 44px 1fr auto; gap: 8px; }
+    .resumo-item img { width: 44px; height: 44px; }
+    .resumo-item-nome { font-size: 0.82rem; overflow-wrap: anywhere; }
+    .resumo-item-preco { font-size: 0.85rem; text-align: right; }
+    .resumo-total { font-size: 1.05rem; }
+    section.card-checkout img[style] { max-width: 100%; height: auto !important; }
+    .container-voltar-loja { padding: 0 12px; }
+}
+
+@media (max-width: 480px) {
+    .topo-checkout h1 { font-size: 1.15rem; }
+    .etapas-checkout { font-size: 0.7rem; gap: 10px; }
+    .card-checkout { padding: 14px; }
+    .campo label { font-size: 0.72rem; }
+    .resumo-item { grid-template-columns: 40px 1fr; }
+    .resumo-item img { width: 40px; height: 40px; }
+    .resumo-item-preco { grid-column: 2; text-align: left; }
+    .btn-voltar-loja { width: 100%; text-align: center; }
+    #relogio-pix { font-size: 1rem; }
 }

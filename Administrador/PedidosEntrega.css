@@ -209,3 +209,64 @@ body {
     .topo-admin, .barra-filtros, .tabela-wrapper { margin-left: 16px; margin-right: 16px; padding-left: 16px; padding-right: 16px; }
     .detalhe-box { grid-template-columns: 1fr; }
 }
+
+@media (max-width: 768px) {
+    .topo-admin {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 20px 16px 12px;
+    }
+
+    .barra-filtros {
+        margin: 16px;
+        padding: 16px;
+    }
+
+    .filtro {
+        min-width: 100%;
+        flex: 1 1 100%;
+    }
+
+    .filtro input,
+    .filtro select,
+    .btn-filtrar {
+        width: 100%;
+    }
+
+    .btn-limpar {
+        width: 100%;
+        text-align: center;
+    }
+
+    .tabela-wrapper {
+        margin: 0 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .topo-admin h1 {
+        font-size: 1.25rem;
+    }
+
+    .barra-filtros {
+        gap: 10px;
+    }
+
+    .form-status-entrega {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-status-entrega select,
+    .form-status-entrega button {
+        width: 100%;
+    }
+
+    .toast-copia {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        text-align: center;
+    }
+}

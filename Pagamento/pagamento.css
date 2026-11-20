@@ -199,9 +199,55 @@ body {
 }
 .resumo-endereco strong { color: var(--titan-texto); }
 
+@media (max-width: 1024px) {
+    .container-checkout { gap: 18px; padding: 0 24px; }
+    .topo-checkout { padding: 20px 24px; }
+    .etapas-checkout { padding: 16px 24px; }
+    .alerta { margin-left: 24px; margin-right: 24px; }
+    .card-checkout { padding: 20px; }
+    .coluna-resumo { position: static; }
+}
+
 @media (max-width: 900px) {
     .container-checkout { grid-template-columns: 1fr; padding: 0 16px; }
     .topo-checkout, .etapas-checkout { padding-left: 16px; padding-right: 16px; }
+    .resumo-pedido .lista-resumo-itens { max-height: none; }
+}
+
+@media (max-width: 600px) {
+    body { padding-bottom: 40px; }
+    .topo-checkout { flex-wrap: wrap; gap: 8px; padding: 16px; }
+    .topo-checkout h1 { font-size: 1.3rem; }
+    .link-voltar { font-size: 0.85rem; }
+    .etapas-checkout { gap: 12px; padding: 12px 16px; font-size: 0.75rem; flex-wrap: wrap; }
+    .alerta { margin: 0 16px 16px; padding: 12px 14px; font-size: 0.85rem; }
+    .container-checkout { gap: 16px; padding: 0 12px; }
+    .card-checkout { padding: 16px; margin-bottom: 14px; }
+    .card-checkout h2 { font-size: 1rem; margin-bottom: 12px; }
+    .abas-pagamento { gap: 8px; }
+    .aba-pagamento { flex: 1 1 100%; min-width: 0; padding: 10px; font-size: 0.85rem; }
+    .linha-dados { gap: 12px; margin-bottom: 12px; }
+    .campo, .campo-pequeno { flex: 1 1 100%; min-width: 0; }
+    .campo input, .campo select { width: 100%; padding: 10px; font-size: 0.9rem; }
+    .pix-qr { width: 140px; height: 140px; }
+    .pix-codigo { font-size: 0.72rem; }
+    .btn-continuar { padding: 14px; font-size: 0.95rem; }
+    .resumo-item { grid-template-columns: 44px 1fr auto; gap: 8px; }
+    .resumo-item img { width: 44px; height: 44px; }
+    .resumo-item-nome { font-size: 0.82rem; overflow-wrap: anywhere; }
+    .resumo-item-preco { font-size: 0.85rem; text-align: right; }
+    .resumo-total { font-size: 1.05rem; }
+    .resumo-endereco { font-size: 0.8rem; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 480px) {
+    .topo-checkout h1 { font-size: 1.15rem; }
+    .etapas-checkout { font-size: 0.7rem; gap: 10px; }
+    .card-checkout { padding: 14px; }
+    .campo label { font-size: 0.72rem; }
+    .resumo-item { grid-template-columns: 40px 1fr; }
+    .resumo-item img { width: 40px; height: 40px; }
+    .resumo-item-preco { grid-column: 2; text-align: left; }
 }
 
 

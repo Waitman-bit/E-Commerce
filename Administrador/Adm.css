@@ -248,6 +248,7 @@ body {
   border: 0.5px solid #2a2a28;
   border-radius: 12px;
   padding: 16px;
+  min-width: 0;
 }
 
 .chart-title {
@@ -294,19 +295,19 @@ a{
 .chart-card.full {
   grid-column: 1 / -1;
 }
- 
+
 .chart-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
- 
+
 .chart-title-sub {
   font-size: 11px;
   color: #666663;
   font-weight: 400;
 }
- 
+
 .leg-line {
   width: 18px;
   height: 2px;
@@ -314,7 +315,7 @@ a{
   border-radius: 1px;
   background: #F5C000;
 }
- 
+
 .leg-dashed {
   width: 18px;
   height: 0;
@@ -322,3 +323,190 @@ a{
   border-top: 2px dashed #888780;
 }
  
+.nav-item a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: inherit;
+}
+
+.chart-wrapper canvas {
+  max-width: 100%;
+}
+
+.chart-mobile-table {
+  display: none;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.chart-mobile-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  color: #d0d0cc;
+}
+
+.chart-mobile-table th,
+.chart-mobile-table td {
+  padding: 8px 10px;
+  border-bottom: 0.5px solid #2a2a28;
+  text-align: left;
+}
+
+.chart-mobile-table th {
+  color: #888780;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.chart-mobile-table td:last-child,
+.chart-mobile-table th:last-child {
+  text-align: right;
+}
+
+@media (max-width: 1200px) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .dash {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 0.5px solid #2a2a28;
+    padding: 16px 12px;
+  }
+
+  .adm-profile {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
+    text-align: left;
+    padding: 0 8px 12px;
+  }
+
+  .adm-avatar {
+    margin-bottom: 0;
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .adm-name,
+  .adm-role {
+    text-align: left;
+  }
+
+  .adm-badge {
+    margin-top: 0;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px 0 0;
+  }
+
+  .nav-item {
+    width: auto;
+    flex: 1 1 180px;
+  }
+
+  .sidebar-footer {
+    padding: 8px 0 0;
+  }
+
+  .main {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chart-wrapper {
+    height: 220px;
+  }
+
+  .chart-wrapper-tall {
+    height: 260px;
+  }
+}
+
+@media (max-width: 600px) {
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .nav {
+    flex-direction: column;
+  }
+
+  .nav-item {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .chart-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .legend-row {
+    gap: 8px;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .metric-val {
+    font-size: 20px;
+  }
+
+  .chart-card {
+    padding: 12px;
+  }
+
+  .adm-profile {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .adm-name,
+  .adm-role {
+    text-align: center;
+  }
+}

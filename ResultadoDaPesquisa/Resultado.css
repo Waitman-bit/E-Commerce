@@ -46,4 +46,16 @@ body {
 .empty-search {
     color: #ffee01e6;
     font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .resultado-header { padding: 20px 12px 8px; }
+    .resultado-subtitulo { font-size: 0.9rem; }
+    .empty-state { font-size: 18px; padding: 20px 16px; gap: 0.25rem; }
+}
+
+@media (max-width: 480px) {
+    .resultado-header { padding: 16px 10px 6px; }
+    .empty-state { font-size: 15px; padding: 16px 12px; flex-wrap: wrap; }
 }

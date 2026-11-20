@@ -376,6 +376,21 @@ if ($stmtHoras) {
               Receita de jan a mai: 2026 crescendo vs 2025.
             </canvas>
           </div>
+          <div class="chart-mobile-table" aria-label="Tabela de receita mensal">
+            <table>
+              <thead>
+                <tr><th>Mês</th><th>Receita</th></tr>
+              </thead>
+              <tbody>
+                <?php foreach ($receitaMensal as $item): ?>
+                <tr>
+                  <td><?php echo htmlspecialchars($item['mes']); ?></td>
+                  <td>R$ <?php echo number_format((float) $item['total'], 2, ',', '.'); ?></td>
+                </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="chart-card">
@@ -386,12 +401,31 @@ if ($stmtHoras) {
             </canvas>
           </div>
           <div class="legend-row" id="catLegend" style="margin-top: 10px;"></div>
+          <div class="chart-mobile-table" aria-label="Tabela de categorias mais vendidas">
+            <table>
+              <thead>
+                <tr><th>Categoria</th><th>Qtd.</th></tr>
+              </thead>
+              <tbody>
+                <?php if (empty($categoriasMaisVendidas)): ?>
+                <tr><td colspan="2">Nenhuma venda confirmada ainda.</td></tr>
+                <?php else: ?>
+                  <?php foreach ($categoriasMaisVendidas as $categoria): ?>
+                  <tr>
+                    <td><?php echo htmlspecialchars($categoria['nome']); ?></td>
+                    <td><?php echo number_format((int) $categoria['quantidade'], 0, ',', '.'); ?></td>
+                  </tr>
+                  <?php endforeach; ?>
+                <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <div class="charts-row">
   <div class="chart-card full">
     <div class="chart-title">
-      Visitantes vs Pedidos — hoje
+      Visitantes vs Pedidos — Hoje
     </div>
     <div class="legend-row">
       <span class="legend-item"><span class="leg-line"></span>Visitantes</span>
@@ -401,6 +435,21 @@ if ($stmtHoras) {
       <canvas id="trafficChart" role="img" aria-label="Gráfico de linha: visitantes e pedidos ao longo do dia de hoje">
         Pico de visitantes às 14h (320), pico de pedidos às 15h (98).
       </canvas>
+    </div>
+    <div class="chart-mobile-table" aria-label="Tabela de pedidos por hora">
+      <table>
+        <thead>
+          <tr><th>Hora</th><th>Pedidos</th></tr>
+        </thead>
+        <tbody>
+          <?php foreach ($pedidosPorHora as $hora => $totalHora): ?>
+          <tr>
+            <td><?php echo str_pad((string) $hora, 2, '0', STR_PAD_LEFT); ?>h</td>
+            <td><?php echo number_format((int) $totalHora, 0, ',', '.'); ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

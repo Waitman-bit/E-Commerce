@@ -8,14 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const styles = document.createElement('style');
   styles.textContent = `
-    .crop-overlay{position:fixed;inset:0;z-index:99999;display:none;place-items:center;padding:20px;background:#000c;font-family:Arial,sans-serif;color:#f5f5f5}
-    .crop-overlay.open{display:grid}.crop-dialog{width:min(460px,100%);padding:22px;background:#171717;border:1px solid #444;border-radius:14px;box-shadow:0 20px 70px #000}
+    .crop-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:16px;background:#000c;font-family:Arial,sans-serif;color:#f5f5f5;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .crop-overlay.open{display:flex}
+    .crop-dialog{width:min(460px,100%);max-height:calc(100vh - 32px);overflow:auto;margin:auto;padding:20px;background:#171717;border:1px solid #444;border-radius:14px;box-shadow:0 20px 70px #000}
     .crop-dialog h2{margin:0 0 7px;font-size:20px}.crop-dialog p{margin:0 0 16px;color:#aaa;font-size:13px}
-    .crop-canvas-wrap{width:min( min(72vw, 360px), 100%);aspect-ratio:1;margin:0 auto 16px;overflow:hidden;background:#fff;border-radius:8px;touch-action:none}
+    .crop-canvas-wrap{width:min(72vw,340px);max-width:100%;aspect-ratio:1;margin:0 auto 16px;overflow:hidden;background:#fff;border-radius:8px;touch-action:none}
     .crop-canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}.crop-canvas.dragging{cursor:grabbing}
     .crop-zoom{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;font-size:13px}.crop-zoom input{width:100%;accent-color:#f5c400}
-    .crop-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.crop-actions button{padding:10px 14px;border:0;border-radius:7px;font-weight:700;cursor:pointer}
+    .crop-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;flex-wrap:wrap}.crop-actions button{padding:10px 14px;border:0;border-radius:7px;font-weight:700;cursor:pointer}
     .crop-cancel{background:#333;color:#eee}.crop-confirm{background:#f5c400;color:#111}
+    @media (max-width:480px){.crop-dialog{padding:16px}.crop-dialog h2{font-size:18px}.crop-canvas-wrap{width:min(100%,280px)}.crop-actions{justify-content:stretch}.crop-actions button{flex:1}}
   `;
   document.head.appendChild(styles);
 

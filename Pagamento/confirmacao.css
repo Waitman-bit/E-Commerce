@@ -130,7 +130,46 @@ body {
 }
 .btn-continuar:hover { background: var(--titan-amarelo-escuro); }
 
+@media (max-width: 1024px) {
+    .topo-checkout { padding: 20px 24px; }
+    .etapas-checkout { padding: 16px 24px; }
+    .container-confirmacao { padding: 0 24px; }
+}
+
+@media (max-width: 768px) {
+    .grid-duas-colunas { grid-template-columns: 1fr; gap: 14px; }
+}
+
 @media (max-width: 700px) {
-    .grid-duas-colunas { grid-template-columns: 1fr; }
     .topo-checkout, .etapas-checkout { padding-left: 16px; padding-right: 16px; }
+}
+
+@media (max-width: 600px) {
+    body { padding-bottom: 40px; }
+    .topo-checkout { flex-wrap: wrap; gap: 8px; padding: 16px; }
+    .topo-checkout h1 { font-size: 1.3rem; }
+    .link-voltar { font-size: 0.85rem; }
+    .etapas-checkout { gap: 12px; padding: 12px 16px; font-size: 0.75rem; flex-wrap: wrap; }
+    .container-confirmacao { padding: 0 12px; }
+    .card-checkout { padding: 16px; margin-bottom: 14px; }
+    .card-checkout h2 { font-size: 1rem; margin-bottom: 12px; overflow-wrap: anywhere; }
+    .sucesso-box p { font-size: 0.85rem; overflow-wrap: anywhere; }
+    .icone-sucesso { width: 48px; height: 48px; font-size: 1.5rem; }
+    .resumo-item { grid-template-columns: 44px 1fr auto; gap: 8px; }
+    .resumo-item img { width: 44px; height: 44px; }
+    .resumo-item-nome { font-size: 0.82rem; overflow-wrap: anywhere; }
+    .resumo-item-preco { font-size: 0.85rem; text-align: right; }
+    .resumo-total { font-size: 1.05rem; }
+    .card-checkout p { font-size: 0.85rem; overflow-wrap: anywhere; }
+    .lista-parcelas { font-size: 0.8rem; }
+    .btn-continuar { padding: 14px; font-size: 0.95rem; }
+}
+
+@media (max-width: 480px) {
+    .topo-checkout h1 { font-size: 1.15rem; }
+    .etapas-checkout { font-size: 0.7rem; gap: 10px; }
+    .card-checkout { padding: 14px; }
+    .resumo-item { grid-template-columns: 40px 1fr; }
+    .resumo-item img { width: 40px; height: 40px; }
+    .resumo-item-preco { grid-column: 2; text-align: left; }
 }

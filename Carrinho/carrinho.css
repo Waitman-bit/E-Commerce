@@ -7,7 +7,7 @@
 body {
   background-color: #000000;
   padding-top: 65px; /* empurra o conteúdo pra baixo da topbar */
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .TopBar {
@@ -146,6 +146,7 @@ body {
 
 .item-carrinho img {
   width: 100px;
+  max-width: 100%;
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
@@ -153,8 +154,10 @@ body {
 
 .item-info {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: 6px;
+  overflow-wrap: anywhere;
 }
 
 .resumo-carrinho {
@@ -209,4 +212,37 @@ body {
 
 .btn-finalizar-compra:hover {
     background: #c99f00;
+}
+
+@media (max-width: 900px) {
+  .conteudo { padding: 20px 16px 40px; }
+  .resumo-carrinho { position: static; max-width: 100%; width: 100%; margin: 24px 0 0; }
+  .btn-FinalizarCompra { position: static; margin-top: 20px; width: 100%; }
+}
+
+@media (max-width: 600px) {
+  body { padding-top: 80px; }
+  .TopBar { height: 60px; padding: 0 12px; gap: 8px; }
+  .TopBar h1 { position: static; transform: none; font-size: 20px; white-space: normal; }
+  .TopBar a { font-size: 12px; }
+  .conteudo { padding: 16px 12px 30px; }
+  .carrinho-vazio { padding: 24px 12px; }
+  .carrinho-vazio h2 { font-size: 20px; }
+  .carrinho-vazio button { font-size: 15px; padding: 12px 10px; }
+  .item-carrinho { flex-direction: column; align-items: stretch; gap: 10px; padding: 12px; }
+  .item-carrinho img { width: 100%; height: 180px; object-fit: cover; }
+  .btn-remover { margin-left: 0; align-self: flex-start; }
+  .resumo-carrinho p { font-size: 22px; }
+  .btn-finalizar-compra { width: 100%; }
+  .mensagem-sucesso { font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+  body { padding-top: 70px; }
+  .TopBar { height: 56px; padding: 0 8px; }
+  .TopBar h1 { font-size: 17px; }
+  .TopBar a { font-size: 11px; }
+  .item-carrinho img { height: 150px; }
+  .carrinho-vazio a { font-size: 16px; }
+  .resumo-carrinho { padding: 16px; }
 }
