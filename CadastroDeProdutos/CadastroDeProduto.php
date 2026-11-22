@@ -273,9 +273,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="text" inputmode="decimal" id="preco" name="preco_php" placeholder="Ex: 199,90" autocomplete="off" spellcheck="false">
             </div>
 
-            <div class="grid-1">
+          <div class="grid-1 descricao-com-ia">
                 <label for="descricao">Descrição</label>
-                <textarea id="descricao" name="descricao_php" placeholder="Descreva o produto: material, marca, características..."></textarea>
+                <div class="descricao-field">
+                    <textarea id="descricao" name="descricao_php" maxlength="150" placeholder="Descreva o produto (máx. 150 caracteres)..."></textarea>
+                    <button type="button" id="btn-gerar-ia" class="btn-gerar-ia" onclick="gerarDescricaoComIA()">
+                        <i class="ti ti-sparkles" aria-hidden="true"></i>
+                        <span>Gerar com IA</span>
+                    </button>
+                </div>
+                <small id="status-ia" class="status-ia"></small>
             </div>
 
             <button type="submit" class="btn-submit">

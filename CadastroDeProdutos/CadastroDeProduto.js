@@ -236,3 +236,101 @@ if (typeof $ !== 'undefined') {
         placeholder: '0,00'
     });
 }
+
+// Descrição com IA - Gemini 
+async function gerarDescricaoComIA() {
+    const btn = document.getElementById('btn-gerar-ia');
+    const statusEl = document.getElementById('status-ia');
+    const descricaoEl = document.getElementById('descricao');
+
+    const nome = document.getElementById('nome')?.value.trim() || '';
+    const selectCategoria = document.getElementById('categoria');
+    const categoriaTexto = selectCategoria && selectCategoria.selectedIndex > 0
+        ? selectCategoria.options[selectCategoria.selectedIndex].text.trim()
+        : '';
+
+    const genero = typeof getGenderSelected === 'function' ? (getGenderSelected() || '') : '';
+    const tamanhos = typeof getSizesSelected === 'function' ? getSizesSelected().join(', ') : '';
+    const preco = document.getElementById('preco')?.value.trim() || '';
+    const detalhes = descricaoEl ? descricaoEl.value.trim() : '';
+
+    if (!nome || !categoria || !descricao) {
+        alert('Preencha os dados do produto antes de gerar a descrição com IA.');
+        document.getElementById('nome')?.focus();
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.classList.add('is-loading');
+        btn.dataset.textoOriginal = btn.innerHTML;
+        btn.innerHTML = '<i class="ti ti-sparkles" aria-hidden="true"></i><span>Gerando com Gemini...</span>';
+    }
+
+    if (statusEl) {
+        statusEl.style.color = '#4e4c4c';
+        statusEl.textContent = 'Gerando descrição curta com IA...';
+    }
+
+    try {
+        const resposta = await fetch('gerar_descricao.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nome: nome,
+                categoria: categoriaTexto,
+                genero: genero,
+                tamanhos: tamanhos,
+                preco: preco,
+                detalhes: detalhes
+            })
+        });
+
+        const textoBruto = await resposta.text();
+        let dados;
+
+        try {
+            dados = JSON.parse(textoBruto);
+        } catch (e) {
+            throw new Error('Resposta inválida do servidor ao consultar a IA.');
+        }
+
+        if (!resposta.ok || dados.erro) {
+            throw new Error(dados.erro || 'Erro ao gerar descrição com IA.');
+        }
+
+        const descricaoFinal = String(dados.descricao || '').slice(0, 150);
+
+        if (descricaoEl) {
+            descricaoEl.value = descricaoFinal;
+        }
+
+        if (statusEl) {
+            statusEl.style.color = '#15803d';
+            statusEl.textContent = `Descrição gerada (${descricaoFinal.length}/150 caracteres).`;
+        }
+    } catch (erro) {
+        const msgErro = erro && erro.message
+            ? erro.message
+            : 'Não foi possível conectar à IA no momento. Tente novamente.';
+
+        console.error('Erro IA:', erro);
+
+        if (statusEl) {
+            statusEl.style.color = '#b91c1c';
+            statusEl.textContent = msgErro;
+        }
+
+        alert('Atenção: ' + msgErro);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.remove('is-loading');
+            if (btn.dataset.textoOriginal) {
+                btn.innerHTML = btn.dataset.textoOriginal;
+            }
+        }
+    }
+}

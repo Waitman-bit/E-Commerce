@@ -398,6 +398,75 @@ input[type="number"] {
   transform: scale(0.99);
 }
 
+/* WAITMAN FRONT END - BOTAO DE DESCRICAO COM IA */
+.descricao-com-ia {
+  display: flex;
+  flex-direction: column;
+}
+
+.descricao-field {
+  position: relative;
+}
+
+.descricao-field textarea {
+  padding-bottom: 38px;
+}
+
+.btn-gerar-ia {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  height: 24px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: #aaa;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease, text-shadow 0.15s ease;
+}
+
+.btn-gerar-ia i {
+  color: #ffce0a;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.btn-gerar-ia:hover:not(:disabled),
+.btn-gerar-ia:focus-visible {
+  color: #d6ae0c;
+  transform: translateX(2px);
+  text-shadow: 0 0 10px rgba(245, 196, 0, 0.22);
+  outline: none;
+}
+
+.btn-gerar-ia:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.btn-gerar-ia.is-loading i {
+  animation: geminiPulse 1s ease-in-out infinite;
+}
+
+.status-ia {
+  display: block;
+  min-height: 16px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #888;
+}
+
+@keyframes geminiPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.12); }
+}
+
 /* WAITMAN FRONT END - RESPONSIVIDADE MEDIA QUERIES */
 @media (max-width: 1024px) {
   .page {
