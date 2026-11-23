@@ -248,6 +248,6 @@ $avaliacaoEstrelas = 4;
 <script>
     const USUARIO_LOGADO = <?php echo $logado ? 'true' : 'false'; ?>;
 </script>
-<script src="produto.js?v=2"></script>
+<script src="produto.js?v=3"></script>
 </body>
 </html>

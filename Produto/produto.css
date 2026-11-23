@@ -153,6 +153,7 @@ body {
     font-weight: 500;
 }
 .tamanho-estoque { min-height: 22px; margin-top: 6px; color: var(--cor-texto-secundario); font-size: 13px; }
+.tamanho-estoque-erro { color: #ff6b6b; font-weight: 600; }
 
 /* ===== BOTÕES ===== */
 .produto-botoes {

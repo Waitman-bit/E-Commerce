@@ -108,6 +108,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->bind_param('sidssssddi', $marca, $categoria, $dimensoesNumero, $nome, $genero, $descricao, $imagem, $pesoNumero, $precoNumero, $idProduto);
                     if ($stmt->execute()) {
                         $stmt->close();
+
+                        // Remova o arquivo anterior somente depois que a referência nova
+                        // tiver sido salva no banco.
+                        if ($imagem !== normalizarImagem($produtoAtual['imagem'] ?? '') && normalizarImagem($produtoAtual['imagem'] ?? '') !== 'sem-imagem.svg') {
+                            $nomeImagemAntiga = basename(normalizarImagem($produtoAtual['imagem']));
+                            $caminhoImagemAntiga = __DIR__ . '/../ImagensProdutos/' . $nomeImagemAntiga;
+                            if (is_file($caminhoImagemAntiga)) {
+                                @unlink($caminhoImagemAntiga);
+                            }
+                        }
+
                         redirectToProduct($idProduto, 'Produto atualizado com sucesso.');
                     }
                     $erro = 'Não foi possível atualizar o produto.';

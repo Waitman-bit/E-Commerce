@@ -85,12 +85,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 inputQuantidade.max = String(estoqueTamanho);
                 if (Number(inputQuantidade.value) > estoqueTamanho) inputQuantidade.value = String(estoqueTamanho);
             }
+            if (avisoTamanhoEstoque) avisoTamanhoEstoque.classList.remove('tamanho-estoque-erro');
             if (avisoTamanhoEstoque) avisoTamanhoEstoque.textContent = 'Estoque disponível: ' + estoqueTamanho + ' un.';
         });
     });
 
     function validarTamanho() {
         if (botoesTamanho.length && !tamanhoSelecionado) {
+            if (avisoTamanhoEstoque) {
+                avisoTamanhoEstoque.textContent = 'Selecione um tamanho para continuar.';
+                avisoTamanhoEstoque.classList.add('tamanho-estoque-erro');
+                avisoTamanhoEstoque.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             exibirToast('Selecione um tamanho para continuar.', 'erro');
             return false;
         }
@@ -130,21 +136,23 @@ document.addEventListener('DOMContentLoaded', function () {
             btnComprarAgora.textContent = 'Processando...';
 
             const urlAdicionar = adicionarTamanho('../Carrinho/carrinho.php?add=1&id=' + encodeURIComponent(idProduto)
-                + '&quantidade=' + encodeURIComponent(quantidade));
+                + '&quantidade=' + encodeURIComponent(quantidade)
+                + '&ajax=1');
 
             // Chama o mesmo endpoint de adicionar ao carrinho (carrinho.php
             // responde com um redirect para carrinho.php, que o fetch segue
             // sozinho; só precisamos aguardar terminar) e então seguimos
             // direto para o checkout.
-            fetch(urlAdicionar)
-                .then(function (resp) {
-                    if (!resp.ok) {
-                        throw new Error('Falha ao adicionar o produto ao carrinho.');
-                    }
-                    window.location.href = '../Checkout/checkout.php';
+            fetch(urlAdicionar, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(async function (resp) {
+                    const dados = resp.headers.get('content-type')?.includes('application/json') ? await resp.json() : {};
+                    if (!resp.ok || !dados.success) throw new Error(dados.mensagem || 'Falha ao adicionar ao carrinho.');
+                    window.location.href = '../Carrinho/carrinho.php';
                 })
-                .catch(function () {
-                    exibirToast('Não foi possível concluir a compra. Tente novamente.', 'erro');
+                .catch(function (erro) {
+                    exibirToast(erro.message || 'Falha ao adicionar ao carrinho.', 'erro');
                     btnComprarAgora.disabled = false;
                     btnComprarAgora.textContent = 'Comprar Agora';
                 });
