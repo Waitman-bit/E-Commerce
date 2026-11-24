@@ -116,10 +116,8 @@ if (isset($_SESSION['carrinho']) && is_array($_SESSION['carrinho'])) {
         <a href="../PáginaDosProdutos/PaginaDosProdutos.php?categoria=Acessórios">Acessórios</a>
       </div>
     </div>
-    <a href="#">Ofertas</a>
     <a href="../PáginaDosProdutos/PaginaDosProdutos.php?genero=Masculino">Masculino</a>
     <a href="../PáginaDosProdutos/PaginaDosProdutos.php?genero=Feminino">Feminino</a>
-    <a href="#">Lançamentos</a>
   </div>
 
 </nav>

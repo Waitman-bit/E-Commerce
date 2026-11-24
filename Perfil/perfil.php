@@ -60,7 +60,16 @@ if ($userData) {
     $_SESSION['avatar'] = $avatarPath;
 
     // descriptografa só para exibir (não vai para a sessão)
-    $cpfPuro   = cpfDescriptografar($userData['cpf']);
+    $cpfPuro = cpfDescriptografar($userData['cpf']);
+
+    // Compatibilidade com registros antigos que ainda armazenavam o CPF formatado
+    if (!$cpfPuro) {
+        $cpfLegado = preg_replace('/\D/', '', (string) $userData['cpf']);
+        if (strlen($cpfLegado) === 11) {
+            $cpfPuro = $cpfLegado;
+        }
+    }
+
     $cpfExibir = $cpfPuro ? cpfFormatar($cpfPuro) : 'Não informado';
 }
 
@@ -108,6 +117,8 @@ if (isset($_GET['sucesso'])) {
         'falha_banco' => 'Erro ao salvar no banco de dados',
         'pasta_criacao' => 'Erro ao criar pasta de uploads. Verifique as permissões',
         'email_em_uso' => 'Este e-mail já está sendo usado por outra conta.',
+        'cpf_invalido' => 'Informe um CPF válido.',
+        'cpf_em_uso' => 'Este CPF já está sendo usado por outra conta.',
         'dados_invalidos' => 'Confira os dados informados e tente novamente.',
         'falha_atualizar' => 'Não foi possível atualizar seus dados. Tente novamente.',
         'csrf' => 'Sua sessão expirou. Atualize a página e tente novamente.'
@@ -212,7 +223,7 @@ $stmt->close();
             </button>
 
             <?php if ($isAdmin): ?>
-            <a href="admin.php" class="action-btn">
+            <a href="../Administrador/Adm.php" class="action-btn">
                 <span class="icon"><i class="fa fa-chart-line"></i></span>
                 Painel Admin
             </a>
@@ -230,8 +241,8 @@ $stmt->close();
     <!-- ── MAIN ── -->
     <main class="main">
 
-        <!-- Admin CTA -->
-        <?php if ($isAdmin): ?>
+        <!-- Administrador -->
+        <!-- <?php if ($isAdmin): ?>
         <div class="admin-cta">
             <div class="admin-cta-icon"><i class="fa fa-bolt"></i></div>
             <div>
@@ -242,7 +253,7 @@ $stmt->close();
                 </a>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; ?> -->
 
         <!-- Informações do Perfil -->
         <div class="info-card">
@@ -341,12 +352,17 @@ $stmt->close();
             </div>
             <div class="form-group">
                 <label class="form-label">Telefone</label>
-                <input type="tel" name="tel" class="form-input"
+                <input id="telefone" type="tel" name="tel" class="form-input"
                        value="<?= htmlspecialchars($usuario['tel']) ?>">
             </div>
             <div class="form-group">
+                <label class="form-label">CPF</label>
+                <input id="cpf" type="text" name="cpf" class="form-input"
+                       value="<?= htmlspecialchars($usuario['cpf']) ?>">
+            </div>
+            <div class="form-group">
                 <label class="form-label">CEP</label>
-                <input type="text" name="cep" class="form-input"
+                <input id="cep" type="text" name="cep" class="form-input"
                        value="<?= htmlspecialchars($usuario['cep']) ?>">
             </div>
             <div class="modal-actions">
@@ -405,36 +421,8 @@ $stmt->close();
     </div>
 </div>
 
-<!-- ── MODAL: ALTERAR SENHA ── -->
-<div class="modal-overlay" id="modalSenha">
-    <div class="modal">
-        <button class="modal-close" onclick="closeModal('modalSenha')">
-            <i class="fa fa-xmark"></i>
-        </button>
-        <div class="modal-title"><i class="fa fa-lock"></i> Alterar Senha</div>
-        <form method="POST" action="alterar_senha.php">
-            <div class="form-group">
-                <label class="form-label">Senha atual</label>
-                <input type="password" name="senha_atual" class="form-input"
-                       placeholder="••••••••" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Nova senha</label>
-                <input type="password" name="nova_senha" class="form-input"
-                       placeholder="••••••••" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Confirmar nova senha</label>
-                <input type="password" name="confirmar_senha" class="form-input"
-                       placeholder="••••••••" required>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-ghost" onclick="closeModal('modalSenha')">Cancelar</button>
-                <button type="submit" class="btn-yellow"><i class="fa fa-check"></i> Alterar</button>
-            </div>
-        </form>
-    </div>
-</div>
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js"></script>
 
 <script>
 // ── FUNÇÕES DE MODAL ──
@@ -523,6 +511,11 @@ if (fileInput) {
         previewAvatar({ target: fileInput });
     });
 }
+    $('#cep').mask('00000-000');
+    $('#cpf').mask('000.000.000-00', {reverse: true});
+    $('#telefone').mask('(00) 0000-0000');
+
+
 </script>
 </body>
 </html>
