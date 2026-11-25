@@ -127,7 +127,7 @@ if (isset($_GET['sucesso'])) {
     $tipo_mensagem = 'erro';
 }
 
-// Pedidos recentes do usuário logado (últimos 3)
+// Pedidos recentes do usuário logado (clientes e administradores veem apenas os próprios pedidos).
 $stmt = $conn->prepare("
     SELECT p.id_pedido, p.data_pedido, p.valor_total, p.status_pedido,
            e.status AS status_entrega,
@@ -283,8 +283,7 @@ $stmt->close();
             </div>
         </div>
 
-        <!-- Pedidos Recentes (só para clientes) -->
-        <?php if (!$isAdmin): ?>
+        <!-- Pedidos Recentes -->
         <div class="orders-card">
             <div class="orders-card-head">
                 <div class="section-title">Pedidos Recentes</div>
@@ -293,7 +292,7 @@ $stmt->close();
             <table class="orders-table">
                 <thead>
                     <tr>
-                        <th>Pedido</th>
+                        <th>ID</th>
                         <th>Produto</th>
                         <th>Data</th>
                         <th>Valor</th>
@@ -302,7 +301,7 @@ $stmt->close();
                 </thead>
                 <tbody>
     <?php if (empty($pedidos)): ?>
-        <tr><td colspan="5" style="text-align:center;">Você ainda não fez nenhum pedido.</td></tr>
+        <tr><td colspan="5" style="text-align:center;">Nenhum pedido recente encontrado.</td></tr>
     <?php endif; ?>
     <?php foreach ($pedidos as $p):
         // Enquanto não houver pagamento ou entrega definida, mostra o status do pagamento
@@ -326,7 +325,6 @@ $stmt->close();
             </tbody>
         </table>
         </div>
-        <?php endif; ?>
 
     </main>
 </div>

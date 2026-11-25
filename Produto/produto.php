@@ -146,14 +146,6 @@ $avaliacaoEstrelas = 4;
             <span class="produto-categoria"><?php echo htmlspecialchars($produto['categoria']); ?></span>
             <h1 class="produto-nome"><?php echo htmlspecialchars($produto['nome']); ?></h1>
 
-            <!-- Avaliação em estrelas -->
-            <div class="produto-estrelas">
-                <?php for ($i = 1; $i <= 5; $i++): ?>
-                    <span class="<?php echo $i <= $avaliacaoEstrelas ? 'estrela-ativa' : 'estrela-inativa'; ?>">★</span>
-                <?php endfor; ?>
-                <span class="estrela-numero">(<?php echo $avaliacaoEstrelas; ?>.0)</span>
-            </div>
-
             <p class="produto-preco"><?php echo $precoFormatado; ?></p>
             
             <p class="produto-estoque-status <?php echo $statusClasse; ?>">

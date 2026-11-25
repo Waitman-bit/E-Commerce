@@ -59,7 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $descricao = trim($_POST['descricao'] ?? '');
         $dimensoes = str_replace(',', '.', trim($_POST['dimensoes'] ?? '0'));
         $peso = str_replace(',', '.', trim($_POST['peso'] ?? '0'));
-        $preco = str_replace(',', '.', trim($_POST['preco'] ?? ''));
+        $preco = str_replace('.', '', trim($_POST['preco'] ?? ''));
+        $preco = str_replace(',', '.', $preco);
 
         $generosValidos = ['Masculino', 'Feminino', 'Unissex'];
         if ($nome === '' || mb_strlen($nome) > 150 || $marca === '' || mb_strlen($marca) > 20 || !$categoria ||
@@ -188,8 +189,10 @@ if ($idSelecionado > 0) {
 
         <section class="products-panel">
             <div class="section-heading">
-                <div><span class="eyebrow">CATÁLOGO</span><h2>Selecione um produto</h2></div>
-                <label class="search"><i class="ti ti-search"></i><input id="product-search" type="search" placeholder="Buscar produto"></label>
+                <div>
+                    <span class="eyebrow">CATÁLOGO</span>
+                    <h2>Selecione um produto</h2>
+                </div>
             </div>
             <div class="product-list" id="product-list">
                 <?php foreach ($produtos as $item): ?>
@@ -225,10 +228,10 @@ if ($idSelecionado > 0) {
                             <div class="field"><label for="id_categoria">Categoria *</label><select id="id_categoria" name="id_categoria" required><?php foreach ($categorias as $categoria): ?><option value="<?= (int) $categoria['id_categoria'] ?>" <?= (int) $categoria['id_categoria'] === (int) $produtoSelecionado['id_categoria'] ? 'selected' : '' ?>><?= e($categoria['nome']) ?></option><?php endforeach; ?></select></div>
                             <div class="field"><label for="genero">Gênero *</label><select id="genero" name="genero"><?php foreach (['Unissex', 'Masculino', 'Feminino'] as $genero): ?><option <?= $genero === $produtoSelecionado['genero'] ? 'selected' : '' ?>><?= $genero ?></option><?php endforeach; ?></select></div>
                             <div class="field"><label>Estoque disponível</label><output><?= (int) $produtoSelecionado['estoque'] ?> un.</output></div>
-                            <div class="field"><label for="preco">Preço (R$) *</label><input id="preco" name="preco" type="number" min="0" step="0.01" required value="<?= e(number_format((float) $produtoSelecionado['preco'], 2, '.', '')) ?>"></div>
+                            <div class="field"><label id="preco-label" for="preco">Preço (R$) *</label><input id="preco" name="preco" type="text" inputmode="decimal" required value="<?= e(number_format((float) $produtoSelecionado['preco'], 2, ',', '.')) ?>"></div>
                             <div class="field"><label for="peso">Peso (kg)</label><input id="peso" name="peso" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['peso']) ?>"></div>
                             <div class="field"><label for="dimensoes">Dimensões (cm)</label><input id="dimensoes" name="dimensoes" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['dimensoes']) ?>"></div>
-                            <div class="field full"><label for="descricao">Descrição *</label><textarea id="descricao" name="descricao" maxlength="50" required><?= e($produtoSelecionado['descricao']) ?></textarea><small><span id="description-count">0</span>/50 caracteres</small></div>
+                            <div class="field full"><label for="descricao">Descrição *</label><textarea id="descricao" name="descricao" maxlength="150" required><?= e($produtoSelecionado['descricao']) ?></textarea><small><span id="description-count">0</span>/150 caracteres</small></div>
                         </div>
                     </div>
                     <div class="form-actions"><a href="EditarProdutos.php" class="cancel">Cancelar</a><button type="submit"><i class="ti ti-device-floppy"></i> Salvar alterações</button></div>
@@ -236,6 +239,8 @@ if ($idSelecionado > 0) {
             <?php endif; ?>
         </section>
     </main>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script src="EditarProduto.js"></script>
     <script src="../ProdutoCropper.js?v=1"></script>
 </body>
