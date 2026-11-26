@@ -238,10 +238,7 @@ if ($idSelecionado > 0) {
                             <div class="field"><label for="marca">Marca *</label><input id="marca" name="marca" maxlength="20" required value="<?= e($produtoSelecionado['marca']) ?>"></div>
                             <div class="field"><label for="id_categoria">Categoria *</label><select id="id_categoria" name="id_categoria" required><?php foreach ($categorias as $categoria): ?><option value="<?= (int) $categoria['id_categoria'] ?>" <?= (int) $categoria['id_categoria'] === (int) $produtoSelecionado['id_categoria'] ? 'selected' : '' ?>><?= e($categoria['nome']) ?></option><?php endforeach; ?></select></div>
                             <div class="field"><label for="genero">Gênero *</label><select id="genero" name="genero"><?php foreach (['Unissex', 'Masculino', 'Feminino'] as $genero): ?><option <?= $genero === $produtoSelecionado['genero'] ? 'selected' : '' ?>><?= $genero ?></option><?php endforeach; ?></select></div>
-                            <div class="field"><label>Estoque disponível</label><output><?= (int) $produtoSelecionado['estoque'] ?> un.</output></div>
                             <div class="field"><label id="preco-label" for="preco">Preço (R$) *</label><input id="preco" name="preco" type="text" inputmode="decimal" required value="<?= e(number_format((float) $produtoSelecionado['preco'], 2, ',', '.')) ?>"></div>
-                            <div class="field"><label for="peso">Peso (kg)</label><input id="peso" name="peso" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['peso']) ?>"></div>
-                            <div class="field"><label for="dimensoes">Dimensões (cm)</label><input id="dimensoes" name="dimensoes" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['dimensoes']) ?>"></div>
                             <div class="field full"><label for="descricao">Descrição *</label><textarea id="descricao" name="descricao" maxlength="500" required><?= e($produtoSelecionado['descricao']) ?></textarea><small><span id="description-count">0</span>/500 caracteres</small></div>
                         </div>
                     </div>

@@ -81,7 +81,7 @@ body {
 
 /* Títulos e mensagens */
 .section-heading {
-  min-height: 84px;
+  min-height: 80px;
   padding: 24px;
   display: flex;
   align-items: center;
@@ -211,6 +211,7 @@ body {
 }
 
 .edit-grid {
+  margin-top: 24px;
   display: grid;
   grid-template-columns: 200px 1fr;
   gap: 28px;
