@@ -4,6 +4,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
+if (!isset($_SESSION['id']) || $_SESSION['tipo'] !== 'admin') {
+    header("Location: ../Login/Login.php");
+    exit();
+}
+
 require_once __DIR__ . '/../connection.php';
 
 // ARIKAWA BACK END - BUSCA AS CATEGORIAS REGISTRADAS

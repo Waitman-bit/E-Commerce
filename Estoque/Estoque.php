@@ -172,13 +172,20 @@ $categoriaSelecionada = filter_input(INPUT_GET, 'categoria', FILTER_VALIDATE_INT
 $busca = trim($_GET['busca'] ?? '');
 $somenteBaixo = isset($_GET['baixo']) && $_GET['baixo'] === '1';
 
-$resumo = $conn->query('SELECT COUNT(DISTINCT p.id_produto) AS produtos,
-        COALESCE(SUM(pt.estoque), 0) AS unidades,
-        COALESCE(SUM(CASE WHEN COALESCE(pt.estoque, 0) <= 5 THEN 1 ELSE 0 END), 0) AS baixo,
-        COALESCE(SUM(CASE WHEN COALESCE(pt.estoque, 0) = 0 THEN 1 ELSE 0 END), 0) AS zerado,
-        COALESCE(SUM(p.preco * COALESCE(pt.estoque, 0)), 0) AS valor
-        FROM produto p
-        LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto')->fetch_assoc();
+$resumo = $conn->query('SELECT
+        COUNT(*) AS produtos,
+        COALESCE(SUM(estoque_produto), 0) AS unidades,
+        COALESCE(SUM(CASE WHEN estoque_produto <= 5 THEN 1 ELSE 0 END), 0) AS baixo,
+        COALESCE(SUM(CASE WHEN estoque_produto = 0 THEN 1 ELSE 0 END), 0) AS zerado,
+        COALESCE(SUM(valor_produto), 0) AS valor
+        FROM (
+            SELECT p.id_produto,
+                   COALESCE(SUM(pt.estoque), 0) AS estoque_produto,
+                   p.preco * COALESCE(SUM(pt.estoque), 0) AS valor_produto
+            FROM produto p
+            LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto
+            GROUP BY p.id_produto, p.preco
+        ) AS estoque_por_produto')->fetch_assoc();
 $categorias = $conn->query('SELECT id_categoria, nome FROM categoria ORDER BY nome')->fetch_all(MYSQLI_ASSOC);
 
 $sql = 'SELECT p.id_produto, p.nome, COALESCE(SUM(pt.estoque), 0) AS estoque, p.preco, p.imagem, c.nome AS categoria

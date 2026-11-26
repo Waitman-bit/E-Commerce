@@ -89,11 +89,15 @@ $resumoEstoque = [
 ];
 $resultadoEstoque = $conn->query(
     'SELECT
-        COUNT(DISTINCT p.id_produto) AS produtos,
-        COALESCE(SUM(pt.estoque), 0) AS unidades,
-        COALESCE(SUM(CASE WHEN COALESCE(pt.estoque, 0) <= 5 THEN 1 ELSE 0 END), 0) AS baixo
-     FROM produto p
-     LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto'
+        COUNT(*) AS produtos,
+        COALESCE(SUM(estoque_produto), 0) AS unidades,
+        COALESCE(SUM(CASE WHEN estoque_produto <= 5 THEN 1 ELSE 0 END), 0) AS baixo
+     FROM (
+        SELECT p.id_produto, COALESCE(SUM(pt.estoque), 0) AS estoque_produto
+        FROM produto p
+        LEFT JOIN produto_tamanho pt ON pt.id_produto = p.id_produto
+        GROUP BY p.id_produto
+     ) AS estoque_por_produto'
 );
 if ($resultadoEstoque) {
     $resumoEstoque = $resultadoEstoque->fetch_assoc();
@@ -317,7 +321,7 @@ if ($stmtHoras) {
       <div class="metrics">
         <div class="metric-card">
           <div class="metric-label">
-            <i class="ti ti-currency-dollar"></i> Receita
+            <i class="ti ti-currency-dollar"></i> Receita Total
           </div>
 
          <div class="metric-val yellow"><?php echo htmlspecialchars($receitaFormatada); ?></div>
@@ -365,7 +369,6 @@ if ($stmtHoras) {
         <div class="chart-card">
           <div class="chart-title">Receita mensal</div>
          <div class="chart-title">
-             Pedidos por hora
             <span class="chart-title-sub" id="diaPedidosLabel"></span>
         </div>
       <div class="legend-row">
@@ -425,15 +428,10 @@ if ($stmtHoras) {
       <div class="charts-row">
   <div class="chart-card full">
     <div class="chart-title">
-      Visitantes vs Pedidos — Hoje
-    </div>
-    <div class="legend-row">
-      <span class="legend-item"><span class="leg-line"></span>Visitantes</span>
-      <span class="legend-item"><span class="leg-dashed"></span>Pedidos</span>
+     Pedidos Por Hora — Hoje
     </div>
     <div style="position: relative; width: 100%; height: 200px;">
       <canvas id="trafficChart" role="img" aria-label="Gráfico de linha: visitantes e pedidos ao longo do dia de hoje">
-        Pico de visitantes às 14h (320), pico de pedidos às 15h (98).
       </canvas>
     </div>
     <div class="chart-mobile-table" aria-label="Tabela de pedidos por hora">

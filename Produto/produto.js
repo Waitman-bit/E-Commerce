@@ -76,8 +76,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     botoesTamanho.forEach(function (botao) {
         botao.addEventListener('click', function () {
-            botoesTamanho.forEach(function (outro) { outro.classList.remove('active'); });
+            const jaEstaSelecionado = botao.classList.contains('active');
+
+            botoesTamanho.forEach(function (outro) {
+                outro.classList.remove('active');
+                outro.setAttribute('aria-pressed', 'false');
+            });
+
+            if (jaEstaSelecionado) {
+                tamanhoSelecionado = null;
+
+                const estoqueTotal = estoqueExibido && estoqueExibido.dataset.total
+                    ? Number(estoqueExibido.dataset.total)
+                    : 0;
+
+                if (estoqueExibido) estoqueExibido.textContent = String(estoqueTotal);
+                if (inputQuantidade) {
+                    inputQuantidade.max = String(estoqueTotal);
+                    if (Number(inputQuantidade.value) > estoqueTotal) {
+                        inputQuantidade.value = String(estoqueTotal);
+                    }
+                }
+                if (avisoTamanhoEstoque) {
+                    avisoTamanhoEstoque.textContent = 'Selecione um tamanho';
+                    avisoTamanhoEstoque.classList.remove('tamanho-estoque-erro');
+                }
+                return;
+            }
+
             botao.classList.add('active');
+            botao.setAttribute('aria-pressed', 'true');
             tamanhoSelecionado = botao.dataset.size;
             const estoqueTamanho = Number(botao.dataset.stock) || 0;
             if (estoqueExibido) estoqueExibido.textContent = String(estoqueTamanho);
