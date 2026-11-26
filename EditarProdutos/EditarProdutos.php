@@ -44,6 +44,7 @@ if (empty($_SESSION['csrf_editar_produto'])) {
 $erro = '';
 $produtoSelecionado = null;
 $idSelecionado = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT) ?: 0;
+$caminhoImagemNova = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idProduto = filter_input(INPUT_POST, 'id_produto', FILTER_VALIDATE_INT);
@@ -64,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $generosValidos = ['Masculino', 'Feminino', 'Unissex'];
         if ($nome === '' || mb_strlen($nome) > 150 || $marca === '' || mb_strlen($marca) > 20 || !$categoria ||
-            !in_array($genero, $generosValidos, true) || $descricao === '' || mb_strlen($descricao) > 50 ||
+            !in_array($genero, $generosValidos, true) || $descricao === '' || mb_strlen($descricao) > 500 ||
             !is_numeric($dimensoes) || (float) $dimensoes < 0 ||
             !is_numeric($peso) || (float) $peso < 0 || !is_numeric($preco) || (float) $preco < 0) {
             $erro = 'Revise os campos obrigatórios e informe valores numéricos válidos.';
@@ -90,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $erro = 'Envie uma imagem JPG, PNG ou WEBP válida.';
                         } else {
                             $nomeImagemNova = 'produto_' . bin2hex(random_bytes(12)) . '.' . $extensoes[$mime];
-                            $caminhoImagemNova = '../ImagensProdutos/' . $nomeImagemNova;
+                            $caminhoImagemNova = __DIR__ . '/../ImagensProdutos/' . $nomeImagemNova;
                             if (!move_uploaded_file($_FILES['imagem']['tmp_name'], $caminhoImagemNova)) {
                                 $erro = 'Não foi possível salvar a nova imagem do produto.';
                             } else {
@@ -112,11 +113,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         // Remova o arquivo anterior somente depois que a referência nova
                         // tiver sido salva no banco.
-                        if ($imagem !== normalizarImagem($produtoAtual['imagem'] ?? '') && normalizarImagem($produtoAtual['imagem'] ?? '') !== 'sem-imagem.svg') {
-                            $nomeImagemAntiga = basename(normalizarImagem($produtoAtual['imagem']));
-                            $caminhoImagemAntiga = __DIR__ . '/../ImagensProdutos/' . $nomeImagemAntiga;
-                            if (is_file($caminhoImagemAntiga)) {
-                                @unlink($caminhoImagemAntiga);
+                        $imagemAntiga = normalizarImagem($produtoAtual['imagem'] ?? '');
+                        if ($imagem !== $imagemAntiga && $imagemAntiga !== 'sem-imagem.svg') {
+                            $stmtUso = $conn->prepare('SELECT COUNT(*) AS total FROM produto WHERE imagem = ?');
+                            $stmtUso->bind_param('s', $imagemAntiga);
+                            $stmtUso->execute();
+                            $emUso = (int) ($stmtUso->get_result()->fetch_assoc()['total'] ?? 0);
+                            $stmtUso->close();
+                            if ($emUso === 0) {
+                                $caminhoImagemAntiga = __DIR__ . '/../ImagensProdutos/' . basename($imagemAntiga);
+                                if (is_file($caminhoImagemAntiga)) {
+                                    @unlink($caminhoImagemAntiga);
+                                }
                             }
                         }
 
@@ -124,6 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $erro = 'Não foi possível atualizar o produto.';
                     $stmt->close();
+                    if ($caminhoImagemNova && is_file($caminhoImagemNova)) {
+                        @unlink($caminhoImagemNova);
+                    }
                 }
             }
         }
@@ -231,7 +242,7 @@ if ($idSelecionado > 0) {
                             <div class="field"><label id="preco-label" for="preco">Preço (R$) *</label><input id="preco" name="preco" type="text" inputmode="decimal" required value="<?= e(number_format((float) $produtoSelecionado['preco'], 2, ',', '.')) ?>"></div>
                             <div class="field"><label for="peso">Peso (kg)</label><input id="peso" name="peso" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['peso']) ?>"></div>
                             <div class="field"><label for="dimensoes">Dimensões (cm)</label><input id="dimensoes" name="dimensoes" type="number" min="0" step="0.01" required value="<?= e($produtoSelecionado['dimensoes']) ?>"></div>
-                            <div class="field full"><label for="descricao">Descrição *</label><textarea id="descricao" name="descricao" maxlength="150" required><?= e($produtoSelecionado['descricao']) ?></textarea><small><span id="description-count">0</span>/150 caracteres</small></div>
+                            <div class="field full"><label for="descricao">Descrição *</label><textarea id="descricao" name="descricao" maxlength="500" required><?= e($produtoSelecionado['descricao']) ?></textarea><small><span id="description-count">0</span>/500 caracteres</small></div>
                         </div>
                     </div>
                     <div class="form-actions"><a href="EditarProdutos.php" class="cancel">Cancelar</a><button type="submit"><i class="ti ti-device-floppy"></i> Salvar alterações</button></div>

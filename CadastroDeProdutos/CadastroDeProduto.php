@@ -276,7 +276,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <div class="grid-1 descricao-com-ia">
                 <label for="descricao">Descrição</label>
                 <div class="descricao-field">
-                    <textarea id="descricao" name="descricao_php" maxlength="150" placeholder="Descreva o produto (máx. 150 caracteres)..."></textarea>
+                    <textarea id="descricao" name="descricao_php" maxlength="500" placeholder="Descreva o produto (máx. 500 caracteres)..."></textarea>
                     <button type="button" id="btn-gerar-ia" class="btn-gerar-ia" onclick="gerarDescricaoComIA()">
                         <i class="ti ti-sparkles" aria-hidden="true"></i>
                         <span>Gerar com IA</span>

@@ -169,7 +169,7 @@ CREATE TABLE `produto` (
   `dimensoes` decimal(10,2) NOT NULL,
   `nome` varchar(150) NOT NULL,
   `genero` varchar(9) NOT NULL,
-  `descricao` varchar(50) NOT NULL,
+  `descricao` varchar(500) NOT NULL,
   `imagem` varchar(300) NOT NULL,
   `peso` decimal(10,2) NOT NULL,
   `preco` decimal(10,2) NOT NULL DEFAULT 0.00
